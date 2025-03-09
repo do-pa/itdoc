@@ -1,0 +1,17 @@
+{
+  "name": "script",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "openai": "^4.86.1"
+  },
+  "devDependencies": {}
+}

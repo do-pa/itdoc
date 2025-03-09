@@ -1,0 +1,64 @@
+{
+    "compilerOptions": {
+        // 컴파일 결과물의 JavaScript 버전 설정
+        "target": "ES2022",
+
+        // 모듈 시스템 설정 (import/export 문법)
+        "module": "ESNext",
+
+        // 사용할 JavaScript API 정의
+        "lib": ["ESNext"],
+
+        // .d.ts 파일 생성 여부
+        "declaration": true,
+
+        // .d.ts 파일이 생성될 디렉토리
+        "declarationDir": "./build",
+
+        // 컴파일된 JavaScript 파일이 생성될 디렉토리
+        "outDir": "./build",
+
+        // 엄격한 타입 체크 활성화
+        "strict": true,
+
+        // CommonJS 모듈을 ES 모듈처럼 import 할 수 있게 함
+        "esModuleInterop": true,
+
+        // node_modules의 타입 체크 스킵 (빌드 성능 향상)
+        "skipLibCheck": true,
+
+        // 파일명 대소문자 일관성 검사
+        "forceConsistentCasingInFileNames": true,
+
+        // 번들러 기반 모듈 해석 사용
+        "moduleResolution": "bundler",
+
+        // default import 구문 허용
+        "allowSyntheticDefaultImports": true,
+
+        // JSON 모듈 import 지원
+        "resolveJsonModule": true,
+
+        // 각 파일을 독립적인 모듈로 처리 (번들러 호환성)
+        "isolatedModules": true,
+
+        // 사용하지 않는 지역 변수 에러 처리
+        "noUnusedLocals": true,
+
+        // 사용하지 않는 매개변수 에러 처리
+        "noUnusedParameters": true,
+
+        // 함수의 모든 경로에서 반환값 필수화
+        "noImplicitReturns": true,
+
+        // switch문 fall-through 방지
+        "noFallthroughCasesInSwitch": true,
+
+        // 소스맵 생성
+        "sourceMap": true
+    },
+    // 컴파일 대상 파일
+    "include": ["lib/**/*", "eslint.config.mjs"],
+    // 컴파일 제외 대상
+    "exclude": ["node_modules", "build", "**/__tests__/**/*"]
+}

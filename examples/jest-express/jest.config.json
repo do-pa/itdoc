@@ -1,0 +1,9 @@
+{
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "verbose": true,
+    "testMatch": ["**/__tests__/**/*.test.js"],
+    "transform": {
+        "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
+    }
+}

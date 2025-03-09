@@ -1,0 +1,9 @@
+packages:
+    # 모든 패키지 포함
+    - "scripts/*"
+    - "lib/**"
+    - "examples/**"
+    # test 디렉토리 제외
+    - "!**/test/**"
+    # 빌드 출력 디렉토리 제외
+    - "!**/dist/**"

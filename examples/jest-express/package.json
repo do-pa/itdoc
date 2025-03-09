@@ -1,0 +1,18 @@
+{
+    "name": "example-jest-express",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
+    },
+    "dependencies": {
+        "express": "^4.19.2"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.24.0",
+        "@babel/plugin-transform-modules-commonjs": "^7.24.0",
+        "babel-jest": "^29.7.0",
+        "itdoc": "workspace:*",
+        "jest": "^29.7.0"
+    }
+}

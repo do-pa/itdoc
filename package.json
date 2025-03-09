@@ -1,0 +1,97 @@
+{
+    "name": "itdoc",
+    "version": "0.0.0",
+    "private": "true",
+    "description": "POC",
+    "license": "Apache-2.0",
+    "author": {
+        "name": "Moon Seonghun",
+        "email": "penekhun@gamil.com",
+        "url": "https://www.github.com/penekhun"
+    },
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./build/index.d.ts",
+            "import": "./build/index.js",
+            "require": "./build/index.cjs",
+            "default": "./build/index.js"
+        }
+    },
+    "main": "build/index.cjs",
+    "module": "build/index.js",
+    "types": "build/index.d.ts",
+    "scripts": {
+        "build": "pnpm run clean && tsup",
+        "ci": "pnpm run prettier:check && pnpm run lint && pnpm run test && pnpm run build",
+        "clean": "rimraf build",
+        "postinstall": "husky",
+        "lint": "eslint ./lib",
+        "lint-staged": "lint-staged",
+        "prepare": "husky && husky install",
+        "prettier": "prettier \"{lib,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",
+        "prettier:check": "prettier \"{lib,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
+        "test": "mocha; pnpm --filter example-mocha-express test; pnpm --filter example-jest-express test"
+    },
+    "lint-staged": {
+        "*.{ts,mts}": [
+            "prettier --config .prettierrc --write",
+            "eslint --fix"
+        ],
+        "*.{json,md}": [
+            "prettier --config .prettierrc --write"
+        ]
+    },
+    "mocha": {
+        "extensions": [
+            ".ts"
+        ],
+        "node-option": [
+            "import=tsx"
+        ],
+        "spec": "lib/__tests__/**/*.test.ts"
+    },
+    "dependencies": {
+        "jest": "^29.7.0",
+        "mocha": "^11.1.0",
+        "supertest": "^7.0.0",
+        "tslib": "~2.8"
+    },
+    "devDependencies": {
+        "@eslint/js": "~9.17",
+        "@types/chai": "^5.0.1",
+        "@types/eslint__js": "~8.42",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "~20",
+        "@types/supertest": "^6.0.2",
+        "@typescript-eslint/parser": "~8.19",
+        "chai": "^5.2.0",
+        "eslint": "~9.17",
+        "eslint-config-prettier": "~9.1",
+        "eslint-plugin-jsdoc": "^50.6.0",
+        "eslint-plugin-mocha": "^10.5.0",
+        "globals": "~15.14",
+        "husky": "^8.0.0",
+        "lint-staged": "^15.4.3",
+        "prettier": "~3.4",
+        "rimraf": "^6.0.1",
+        "sort-package-json": "^2.15.1",
+        "supports-color": "^10.0.0",
+        "ts-api-utils": "~2.0",
+        "ts-node": "^10.9.2",
+        "tsup": "^8.4.0",
+        "tsx": "^4.19.3",
+        "typedoc": "^0.27.9",
+        "typescript": "~5.7",
+        "typescript-eslint": "~8.19",
+        "eslint-plugin-license-header": "^0.8.0"
+    },
+    "peerDependencies": {
+        "jest": "^29.0.0",
+        "mocha": "^11.0.0"
+    },
+    "packageManager": "pnpm@10.5.2",
+    "engines": {
+        "node": ">=20 <21"
+    }
+}

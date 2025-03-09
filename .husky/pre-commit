@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx sort-package-json $(git ls-files "**/package.json" | grep -v "node_modules/")
+
+pnpm run lint-staged
