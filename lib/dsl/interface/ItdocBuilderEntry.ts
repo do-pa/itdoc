@@ -20,7 +20,7 @@ import { APITestBuilder, APITestConfig } from "../apiTestHelper"
 /**
  * Describe API에 넘길 옵션 인터페이스
  */
-export class ApiDoc {
+export class ItdocBuilderEntry {
     public readonly method: HttpMethod
     public readonly url: string
     public readonly options: ApiDocOptions

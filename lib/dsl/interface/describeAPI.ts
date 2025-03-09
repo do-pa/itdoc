@@ -16,7 +16,7 @@
 
 import { HttpMethod } from "../enums/HttpMethod"
 import { getTestAdapterExports } from "../adapters"
-import { ApiDoc, ApiDocOptions } from "./ApiDoc"
+import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
 
 /**
  * API 명세를 위한 describe 함수
@@ -31,7 +31,7 @@ export const describeAPI = (
     url: string,
     options: ApiDocOptions,
     app: unknown, // TODO: 이거 타입지정
-    callback: (apiDoc: ApiDoc) => void,
+    callback: (apiDoc: ItdocBuilderEntry) => void,
 ): void => {
     if (!options.name) {
         throw new Error("API 이름이 필요합니다.")
@@ -51,7 +51,7 @@ export const describeAPI = (
 
     const { describeCommon } = getTestAdapterExports()
     describeCommon(`${options.name} | [${method}] ${url}`, () => {
-        const apiDoc = new ApiDoc(method, url, options, app)
+        const apiDoc = new ItdocBuilderEntry(method, url, options, app)
         callback(apiDoc)
     })
 }

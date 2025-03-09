@@ -17,7 +17,7 @@
 import { describeAPI } from "./describeAPI"
 import { itDoc } from "./itDoc"
 import { field, DSLField } from "./field"
-import { ApiDocOptions } from "./ApiDoc"
+import { ApiDocOptions } from "./ItdocBuilderEntry"
 
 export { describeAPI, itDoc, field }
 export type { ApiDocOptions, DSLField }
