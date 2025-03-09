@@ -3,6 +3,7 @@ import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from 'itdoc';
 
 const targetApp = app;
 
+
 describeAPI(
   HttpMethod.POST,
   '/signup',
@@ -13,39 +14,45 @@ describeAPI(
   },
   targetApp,
   (apiDoc) => {
-    itDoc('회원가입 성공', () => apiDoc
+    itDoc('회원가입 성공', () => {
+      return apiDoc
         .test()
-        .withRequestBody({
+        .req()
+        .body({
           username: field('아이디', 'penekhun'),
           password: field('패스워드', 'P@ssw0rd123!@#'),
         })
-        // .withPrettyPrint()
-        .expectStatus(HttpStatus.CREATED)
-  );
+        .expect()
+        .status(HttpStatus.CREATED);
+    });
 
     itDoc('아이디를 입력하지 않으면 회원가입 실패한다.', async () => {
       await apiDoc
         .test()
-        .withRequestBody({
+        .req()
+        .body({
           password: field('패스워드', 'P@ssw0rd123!@#'),
         })
-        .expectStatus(HttpStatus.BAD_REQUEST)
-        .expectResponseBody({
+        .expect()
+        .status(HttpStatus.BAD_REQUEST)
+        .body({
           "error": field('에러 메세지', 'username is required')
-        })
+        });
     });
 
     itDoc('패스워드가 8자 이하면 회원가입 실패한다.', async () => {
       await apiDoc
         .test()
-        .withRequestBody({
+        .req()
+        .body({
           username: field('아이디', 'penekhun'),
           password: field('패스워드', '1234567'),
         })
-        .expectStatus(HttpStatus.BAD_REQUEST)
-        .expectResponseBody({
+        .expect()
+        .status(HttpStatus.BAD_REQUEST)
+        .body({
           "error": field('에러 메세지', 'password must be at least 8 characters')
-        })
+        });
     });
   },
 );
@@ -63,11 +70,13 @@ describeAPI(
     itDoc('유효한 사용자 ID가 주어지면 200 응답을 반환한다.', async () => {
       await apiDoc
         .test()
-        .withPathParams({
+        .req()
+        .pathParam({
           userId: field('유효한 사용자 ID', 'penek'),
         })
-        .expectStatus(HttpStatus.OK)
-        .expectResponseBody({
+        .expect()
+        .status(HttpStatus.OK)
+        .body({
           userId: field('유저 ID', 'penek'),
           username: field('유저 이름', 'hun'),
           email: field('유저 이메일', 'penekhun@gmail.com'),
@@ -78,10 +87,12 @@ describeAPI(
     itDoc('존재하지 않는 사용자 ID가 주어지면 404 응답을 반환한다.', async () => {
       await apiDoc
         .test()
-        .withPathParams({
+        .req()
+        .pathParam({
           userId: field('존재하지 않는 사용자 ID', 'invalid-user-id'),
         })
-        .expectStatus(HttpStatus.NOT_FOUND);
+        .expect()
+        .status(HttpStatus.NOT_FOUND);
     });
   }
 );
@@ -99,31 +110,36 @@ describeAPI(
     itDoc('존재 하지 않는 사용자 ID가 주어지면 400 응답을 반환한다.', async () => {
       await apiDoc
         .test()
-        .withPathParams({
+        .req()
+        .pathParam({
           userId: field('존재하지 않는 사용자 ID', 'invalid-user-id'),
         })
-        .expectStatus(HttpStatus.BAD_REQUEST);
+        .expect()
+        .status(HttpStatus.BAD_REQUEST);
     });
 
     itDoc('존재하지 않는 친구 ID가 주어지면 404 응답을 반환한다.', async () => {
       await apiDoc
         .test()
-        .withPathParams({
+        .req()
+        .pathParam({
           userId: field('유효한 사용자 ID', 'penek'),
           friendId: field('존재하지 않는 친구 ID', 'invalid-friend-id'),
         })
-        .expectStatus(HttpStatus.NOT_FOUND);
+        .expect()
+        .status(HttpStatus.NOT_FOUND);
     });
 
     itDoc('유효한 사용자 ID와 친구 ID가 주어지면 정상 삭제된다.', async () => {
       await apiDoc
         .test()
-        .withPathParams({
+        .req()
+        .pathParam({
           userId: field('유효한 사용자 ID', 'penek'),
           friendId: field('유효한 친구 ID', 'zagabi'),
         })
-        .expectStatus(HttpStatus.NO_CONTENT);
+        .expect()
+        .status(HttpStatus.NO_CONTENT);
     });
   }
 )
-

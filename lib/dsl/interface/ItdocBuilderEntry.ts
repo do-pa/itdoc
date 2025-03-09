@@ -15,7 +15,8 @@
  */
 
 import { HttpMethod } from "../enums/HttpMethod"
-import { APITestBuilder, APITestConfig } from "../apiTestHelper"
+import { APITestConfig } from "../apiTestHelper"
+import { RootBuilder } from "../test-builders/RootBuilder"
 
 /**
  * Describe API에 넘길 옵션 인터페이스
@@ -33,8 +34,8 @@ export class ItdocBuilderEntry {
         this.app = app
     }
 
-    public test(): APITestBuilder {
-        return new APITestBuilder(this.options.defaults, this.method, this.url, this.app)
+    public test(): RootBuilder {
+        return new RootBuilder(this.options.defaults, this.method, this.url, this.app)
     }
 }
 
