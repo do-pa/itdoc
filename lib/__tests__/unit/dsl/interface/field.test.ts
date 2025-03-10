@@ -15,11 +15,11 @@
  */
 
 import { expect } from "chai"
-import { header } from "../../../../dsl/interface/header"
+import { field } from "../../../../dsl"
 
-describe("header() 는", () => {
+describe("field() 는", () => {
     it("3번째 인자를 생략하면 required가 true로 설정된다.", () => {
-        expect(header("description", "example")).deep.equal({
+        expect(field("description", "example")).deep.equal({
             description: "description",
             example: "example",
             required: true,
@@ -27,7 +27,7 @@ describe("header() 는", () => {
     })
 
     it("3번째 인자를 false로 설정하면 required가 false로 설정된다.", () => {
-        expect(header("description", "example", false)).deep.equal({
+        expect(field("description", "example", false)).deep.equal({
             description: "description",
             example: "example",
             required: false,
