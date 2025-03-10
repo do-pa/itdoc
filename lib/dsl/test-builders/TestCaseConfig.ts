@@ -20,13 +20,13 @@
  * API 테스트를 쉽게 구성하고 실행할 수 있도록 도와주는 빌더 패턴 기반의 헬퍼 클래스입니다.
  */
 
-import { HttpStatus } from "./enums"
-import { DSLField } from "./interface"
+import { HttpStatus } from "../enums"
+import { DSLField } from "../interface"
 
 export type PATH_PARAM_TYPES = string | number
 export type QUERY_PARAM_TYPES = string | number | boolean
 
-export interface APITestConfig {
+export interface TestCaseConfig {
     pathParams?: Record<string, DSLField<PATH_PARAM_TYPES>>
     queryParams?: Record<string, DSLField<QUERY_PARAM_TYPES>>
     requestBody?: Record<string, DSLField>

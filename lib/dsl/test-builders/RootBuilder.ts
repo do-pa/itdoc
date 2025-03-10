@@ -15,16 +15,16 @@
  */
 
 import { HttpMethod } from "../enums"
-import { APITestConfig } from "../apiTestHelper"
+import { TestCaseConfig } from "./TestCaseConfig"
 import { RequestBuilder } from "./RequestBuilder"
 
 export class RootBuilder {
-    private readonly config: APITestConfig
+    private readonly config: TestCaseConfig
     private readonly method: HttpMethod
     private readonly url: string
     private readonly app: any
 
-    public constructor(defaults: APITestConfig = {}, method: HttpMethod, url: string, app: any) {
+    public constructor(defaults: TestCaseConfig = {}, method: HttpMethod, url: string, app: any) {
         this.config = { ...defaults }
         this.method = method
         this.url = url

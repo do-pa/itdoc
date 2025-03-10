@@ -15,7 +15,7 @@
  */
 
 import { HttpMethod } from "../enums/HttpMethod"
-import { APITestConfig } from "../apiTestHelper"
+import { TestCaseConfig } from "../test-builders/TestCaseConfig"
 import { RootBuilder } from "../test-builders/RootBuilder"
 
 /**
@@ -49,5 +49,5 @@ export interface ApiDocOptions {
     name?: string
     tag?: string
     summary?: string
-    defaults?: APITestConfig
+    defaults?: TestCaseConfig
 }

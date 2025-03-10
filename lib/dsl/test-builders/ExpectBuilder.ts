@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import { APITestConfig } from "../apiTestHelper"
+import { TestCaseConfig } from "./TestCaseConfig"
 import { HttpMethod, HttpStatus } from "../enums"
 import { DSLField } from "../interface"
 import supertest from "supertest"
 import { validateResponse } from "../validateResponse"
 
 export class ExpectBuilder {
-    private config: APITestConfig
+    private config: TestCaseConfig
     private readonly method: HttpMethod
     private readonly url: string
     private readonly app: any
 
-    public constructor(defaults: APITestConfig = {}, method: HttpMethod, url: string, app: any) {
+    public constructor(defaults: TestCaseConfig = {}, method: HttpMethod, url: string, app: any) {
         this.config = { ...defaults }
         this.method = method
         this.url = url
