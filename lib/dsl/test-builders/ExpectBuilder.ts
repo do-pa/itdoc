@@ -18,7 +18,7 @@ import { TestCaseConfig } from "./TestCaseConfig"
 import { HttpMethod, HttpStatus } from "../enums"
 import { DSLField } from "../interface"
 import supertest from "supertest"
-import { validateResponse } from "../validateResponse"
+import { validateResponse } from "./validateResponse"
 
 export class ExpectBuilder {
     private config: TestCaseConfig
