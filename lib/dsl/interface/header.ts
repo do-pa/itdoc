@@ -21,5 +21,5 @@ export type DSLHeader = DSLField<string>
 export const header = (
     description: string,
     example: string | ((value: string) => void),
-    required: boolean = false,
+    required: boolean = true,
 ): DSLHeader => ({ description, example, required })
