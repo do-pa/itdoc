@@ -13,6 +13,42 @@ describeAPI(
   },
   targetApp,
   (apiDoc) => {
+    itDoc('쿼리 파라미터 테스트 1 - 필드로 감싸서 넘기기', () => {
+      return apiDoc
+        .test()
+        .req()
+        .queryParam({
+          queryParamSample: field('필드 설명~!~!~!', '쿼리파라미터확인!!'),
+        })
+        .body({
+          username: field('아이디', 'penekhun'),
+          password: field('패스워드', 'P@ssw0rd123!@#'),
+        })
+        .expect()
+        .status(HttpStatus.NOT_IMPLEMENTED)
+        .body({
+          message: field('메세지', 'queryParamSample 확인 성공!'),
+        });
+    });
+
+    itDoc('쿼리 파라미터 테스트 2 - 필드가 아닌 문자로 넘기기', () => {
+      return apiDoc
+        .test()
+        .req()
+        .queryParam({
+          queryParamSample: "쿼리파라미터확인!!",
+        })
+        .body({
+          username: field('아이디', 'penekhun'),
+          password: field('패스워드', 'P@ssw0rd123!@#'),
+        })
+        .expect()
+        .status(HttpStatus.NOT_IMPLEMENTED)
+        .body({
+          message: field('메세지', 'queryParamSample 확인 성공!'),
+        });
+    });
+
     itDoc('회원가입 성공', () => {
       return apiDoc
         .test()

@@ -7,6 +7,14 @@ app.use(express.json());
 app.post('/signup', function (req, res) {
   const { username, password } = req.body;
 
+  // queryParam 확인 (github issue #13)
+  const { queryParamSample } = req.query;
+  if (queryParamSample === "쿼리파라미터확인!!") {
+    return res.status(501).json({
+      message: 'queryParamSample 확인 성공!',
+    })
+  }
+
   // validate username
   if (!username) {
     return res.status(400).json({
