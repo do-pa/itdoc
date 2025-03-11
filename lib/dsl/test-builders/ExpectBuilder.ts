@@ -123,9 +123,10 @@ export class ExpectBuilder {
         if (!this.config.expectedResponseBody) {
             req = req.expect((res: Response) => {
                 if (Object.keys(res.body ?? {}).length > 0) {
+                    const formattedBody = JSON.stringify(res.body, null, 2)
                     throw new Error(
-                        "Expected response body is required \n    " +
-                            JSON.stringify(res.body, null, 2),
+                        `Expected response body is required.
+                    Response Body:${formattedBody}`,
                     )
                 }
             })
