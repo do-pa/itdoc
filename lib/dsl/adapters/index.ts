@@ -55,17 +55,23 @@ function initializeAdapterSync(): UserTestInterface {
     switch (framework) {
         case TestFramework.Jest: {
             /*
-            참고: Jest의 경우, 반드시 사용할 때만 동적으로 import 해야 합니다.
-            그렇지 않으면 "Do not import `@jest/globals` outside of the Jest test environment"
-            에러가 발생하게 됩니다.
-            */
+      참고: Jest의 경우, 반드시 사용할 때만 동적으로 import 해야 합니다.
+      그렇지 않으면 "Do not import `@jest/globals` outside of the Jest test environment"
+      에러가 발생하게 됩니다.
+      */
             const { JestAdapter } = require("./JestAdapter.js")
             return new JestAdapter()
         }
         case TestFramework.Mocha:
             return new MochaAdapter()
         default:
-            throw new Error("지원하지 않는 테스트 프레임워크입니다.")
+            throw new Error(
+                "Could not detect test framework. Please use one of the following: " +
+                    Object.keys(TestFramework)
+                        .filter((key) => key !== TestFramework.Unknown)
+                        .join(", ") +
+                    ".",
+            )
     }
 }
 

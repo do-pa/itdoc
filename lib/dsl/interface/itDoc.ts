@@ -23,11 +23,11 @@ import { getTestAdapterExports } from "../adapters"
  */
 export const itDoc = (description: string, testFn: () => Promise<void>): void => {
     if (!description) {
-        throw new Error("테스트 설명이 필요합니다.")
+        throw new Error("Test description is required at itDoc.")
     }
 
     if (!testFn) {
-        throw new Error("테스트 함수가 필요합니다.")
+        throw new Error("Test function is required at itDoc.")
     }
 
     const { itCommon } = getTestAdapterExports()
