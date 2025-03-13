@@ -16,7 +16,7 @@
 
 import { HttpMethod } from "../enums/HttpMethod"
 import { getTestAdapterExports } from "../adapters"
-import { ApiDoc, ApiDocOptions } from "./ApiDoc"
+import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
 
 /**
  * API 명세를 위한 describe 함수
@@ -31,27 +31,27 @@ export const describeAPI = (
     url: string,
     options: ApiDocOptions,
     app: unknown, // TODO: 이거 타입지정
-    callback: (apiDoc: ApiDoc) => void,
+    callback: (apiDoc: ItdocBuilderEntry) => void,
 ): void => {
     if (!options.name) {
-        throw new Error("API 이름이 필요합니다.")
+        throw new Error("API name is required.")
     }
 
     if (!url.startsWith("/")) {
-        throw new Error("API URL은 /로 시작해야 합니다.")
+        throw new Error("API URL must start with a '/'")
     }
 
     if (!app) {
-        throw new Error("Express 앱 인스턴스가 필요합니다.")
+        throw new Error("Express app instance is required.")
     }
 
     if (!callback) {
-        throw new Error("API 테스트 함수가 필요합니다.")
+        throw new Error("API test function is required.")
     }
 
     const { describeCommon } = getTestAdapterExports()
     describeCommon(`${options.name} | [${method}] ${url}`, () => {
-        const apiDoc = new ApiDoc(method, url, options, app)
+        const apiDoc = new ItdocBuilderEntry(method, url, options, app)
         callback(apiDoc)
     })
 }
