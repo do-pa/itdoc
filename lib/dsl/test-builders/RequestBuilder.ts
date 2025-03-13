@@ -17,7 +17,7 @@
 import { HttpMethod } from "../enums"
 import { TestCaseConfig } from "./TestCaseConfig"
 import { DSLField } from "../interface"
-import { ExpectBuilder } from "./ExpectBuilder"
+import { ResponseBuilder } from "./ResponseBuilder"
 
 export class RequestBuilder {
     private readonly config: TestCaseConfig
@@ -64,7 +64,7 @@ export class RequestBuilder {
         return this
     }
 
-    public expect(): ExpectBuilder {
-        return new ExpectBuilder(this.config, this.method, this.url, this.app)
+    public res(): ResponseBuilder {
+        return new ResponseBuilder(this.config, this.method, this.url, this.app)
     }
 }

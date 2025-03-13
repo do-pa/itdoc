@@ -21,7 +21,7 @@ describeAPI(
           username: field('아이디', 'penekhun'),
           password: field('패스워드', 'P@ssw0rd123!@#'),
         })
-        .expect()
+        .res()
         .status(HttpStatus.CREATED);
     });
 
@@ -32,7 +32,7 @@ describeAPI(
         .body({
           password: field('패스워드', 'P@ssw0rd123!@#'),
         })
-        .expect()
+        .res()
         .status(HttpStatus.BAD_REQUEST)
         .body({
           "error": field('에러 메세지', 'username is required')
@@ -47,7 +47,7 @@ describeAPI(
           username: field('아이디', 'penekhun'),
           password: field('패스워드', '1234567'),
         })
-        .expect()
+        .res()
         .status(HttpStatus.BAD_REQUEST)
         .body({
           "error": field('에러 메세지', 'password must be at least 8 characters')
@@ -73,7 +73,7 @@ describeAPI(
         .pathParam({
           userId: field('유효한 사용자 ID', 'penek'),
         })
-        .expect()
+        .res()
         .status(HttpStatus.OK)
         .body({
           userId: field('유저 ID', 'penek'),
@@ -90,7 +90,7 @@ describeAPI(
         .pathParam({
           userId: field('존재하지 않는 사용자 ID', 'invalid-user-id'),
         })
-        .expect()
+        .res()
         .status(HttpStatus.NOT_FOUND);
     });
   }
@@ -113,7 +113,7 @@ describeAPI(
         .pathParam({
           userId: field('존재하지 않는 사용자 ID', 'invalid-user-id'),
         })
-        .expect()
+        .res()
         .status(HttpStatus.BAD_REQUEST);
     });
 
@@ -125,7 +125,7 @@ describeAPI(
           userId: field('유효한 사용자 ID', 'penek'),
           friendId: field('존재하지 않는 친구 ID', 'invalid-friend-id'),
         })
-        .expect()
+        .res()
         .status(HttpStatus.NOT_FOUND);
     });
 
@@ -137,7 +137,7 @@ describeAPI(
           userId: field('유효한 사용자 ID', 'penek'),
           friendId: field('유효한 친구 ID', 'zagabi'),
         })
-        .expect()
+        .res()
         .status(HttpStatus.NO_CONTENT);
     });
   }

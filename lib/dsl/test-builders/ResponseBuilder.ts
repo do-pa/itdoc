@@ -20,7 +20,7 @@ import { DSLField } from "../interface"
 import supertest from "supertest"
 import { validateResponse } from "./validateResponse"
 
-export class ExpectBuilder {
+export class ResponseBuilder {
     private config: TestCaseConfig
     private readonly method: HttpMethod
     private readonly url: string
