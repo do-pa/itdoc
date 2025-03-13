@@ -1,0 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JSLinterConfiguration" json-schema-version="1">
+    <option name="allErrors" value="true" />
+    <option name="fix" value="true" />
+  </component>
+</project>

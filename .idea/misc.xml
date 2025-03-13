@@ -1,0 +1,11 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="FLOW" />
+  </component>
+  <component name="NodePackaging">
+    <package path="" />
+    <useNpm value="false" />
+    <usePnpm value="true" />
+  </component>
+</project>
