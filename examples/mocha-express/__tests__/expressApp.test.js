@@ -3,7 +3,6 @@ import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from 'itdoc';
 
 const targetApp = app;
 
-
 describeAPI(
   HttpMethod.POST,
   '/signup',
@@ -19,7 +18,7 @@ describeAPI(
         .test()
         .req()
         .body({
-          username: field('아이디', 'penekhun'),
+          username: 'penekhun',
           password: field('패스워드', 'P@ssw0rd123!@#'),
         })
         .res()
@@ -89,7 +88,7 @@ describeAPI(
         .test()
         .req()
         .pathParam({
-          userId: field('존재하지 않는 사용자 ID', 'invalid-user-id'),
+          userId: 'invalid-user-id',
         })
         .res()
         .status(HttpStatus.NOT_FOUND);
@@ -140,6 +139,70 @@ describeAPI(
         })
         .res()
         .status(HttpStatus.NO_CONTENT);
+    });
+  }
+)
+
+describeAPI(
+  HttpMethod.GET,
+  '/users',
+  {
+    name: '회원 목록 조회 API',
+    tag: 'User',
+    summary: '회원 목록을 조회합니다.',
+  },
+  targetApp,
+  (apiDoc) => {
+    itDoc('회원 목록을 조회한다.', async () => {
+      await apiDoc
+        .test()
+        .req()
+        .queryParam({
+          page: field('페이지', 1),
+          size: field('페이지 사이즈', 3),
+        })
+        .res()
+        .status(HttpStatus.OK)
+        .body({
+            page: 1,
+            size: field('페이지 사이즈', 3),
+            total: field('전체 회원 수', 6),
+            members: field('회원 목록', [
+              { username: field('사용자 아이디', 'penekhun'), name: field('사용자 이름(본명)', 'seonghun') },
+              { username: 'zagabi', name: 'hongchul' },
+              { username: 'json', name: 'jaesong' }])
+          }
+        );
+    });
+
+    itDoc('페이지 번호가 누락 되면 400 응답을 반환한다.', async () => {
+      await apiDoc
+        .test()
+        .req()
+        .queryParam({
+          // page: field('페이지', 1),
+          size: 10,
+        })
+        .res()
+        .status(HttpStatus.BAD_REQUEST)
+        .body({
+          error: field('에러 메세지', 'page are required'),
+        })
+    });
+
+    itDoc('페이지 사이즈가 누락 되면 400 응답을 반환한다.', async () => {
+      await apiDoc
+        .test()
+        .req()
+        .queryParam({
+          page: 1,
+          // size: field('페이지 사이즈', 10),
+        })
+        .res()
+        .status(HttpStatus.BAD_REQUEST)
+        .body({
+          error: 'size are required',
+        })
     });
   }
 )
