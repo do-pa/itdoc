@@ -14,21 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * DSL Field 타입 가드
- * @description
- * @param obj
- * 값이 DSL Field 타입인지 확인합니다.
- * @returns {boolean} DSL Field 여부
- * @example
- * ```typescript
- * if (isField(value)) {
- *   // value는 DSL Field 타입
- * }
- * ```
- */
-const isDSLField = (obj: any): boolean =>
-    obj && typeof obj === "object" && "example" in obj && "description" in obj
+import { isDSLField } from "../interface/field"
 
 /**
  * DSL Field 값을 검증하는 함수

@@ -44,3 +44,13 @@ export const field = <T extends FIELD_TYPES>(
     example: T | ((value: T) => void),
     required: boolean = true,
 ): DSLField<T> => ({ description, example, required })
+
+/**
+ * DSL Field 타입 가드
+ * @description
+ * @param obj
+ * 값이 DSL Field 타입인지 확인합니다.
+ * @returns {boolean} DSL Field 여부
+ */
+export const isDSLField = (obj: any): obj is DSLField<any> =>
+    obj && typeof obj === "object" && "example" in obj && "description" in obj
