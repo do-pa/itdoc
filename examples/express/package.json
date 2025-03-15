@@ -1,9 +1,11 @@
 {
-    "name": "example-jest-express",
+    "name": "example-express",
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
+        "test": "pnpm test:jest && pnpm test:mocha",
+        "test:jest": "echo \"run test as jest\" && NODE_OPTIONS='--experimental-vm-modules' jest",
+        "test:mocha": "echo \"run test as mocha\" && mocha ./__tests__/expressApp.test.js"
     },
     "dependencies": {
         "express": "^4.19.2"
@@ -12,6 +14,7 @@
         "@babel/core": "^7.24.0",
         "@babel/plugin-transform-modules-commonjs": "^7.24.0",
         "babel-jest": "^29.7.0",
+        "mocha": "^10.3.0",
         "itdoc": "workspace:*",
         "jest": "^29.7.0"
     }
