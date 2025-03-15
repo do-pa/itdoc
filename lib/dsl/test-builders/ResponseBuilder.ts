@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-import { TestCaseConfig } from "./TestCaseConfig"
-import { HttpMethod, HttpStatus } from "../enums"
+import { HttpStatus } from "../enums"
 import { DSLField } from "../interface"
 import supertest from "supertest"
 import { validateResponse } from "./validateResponse"
 import { isDSLField } from "../interface/field"
+import { AbstractTestBuilder } from "./AbstractTestBuilder"
 
-export class ResponseBuilder {
-    private config: TestCaseConfig
-    private readonly method: HttpMethod
-    private readonly url: string
-    private readonly app: any
-
-    public constructor(defaults: TestCaseConfig = {}, method: HttpMethod, url: string, app: any) {
-        this.config = { ...defaults }
-        this.method = method
-        this.url = url
-        this.app = app
-    }
-
+/**
+ * API 응답을 검증하기 위한 결과값을 설정하는 빌더 클래스입니다.
+ */
+export class ResponseBuilder extends AbstractTestBuilder {
     public status(status: HttpStatus | number): this {
         this.config.expectedStatus = status
         return this
