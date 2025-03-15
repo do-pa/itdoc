@@ -15,9 +15,10 @@
  */
 
 import { HttpMethod } from "../enums"
-import { TestCaseConfig } from "./TestCaseConfig"
+import { PATH_PARAM_TYPES, QUERY_PARAM_TYPES, TestCaseConfig } from "./TestCaseConfig"
 import { DSLField } from "../interface"
 import { ResponseBuilder } from "./ResponseBuilder"
+import { FIELD_TYPES } from "../interface/field"
 
 export class RequestBuilder {
     private readonly config: TestCaseConfig
@@ -45,7 +46,7 @@ export class RequestBuilder {
      * 요청 바디를 설정합니다.
      * @param body
      */
-    public body(body: Record<string, DSLField<any>>): this {
+    public body(body: Record<string, DSLField<FIELD_TYPES> | FIELD_TYPES>): this {
         this.config.requestBody = body
         return this
     }
@@ -54,12 +55,14 @@ export class RequestBuilder {
      * 요청시 사용할 쿼리 파라미터를 설정합니다.
      * @param params
      */
-    public queryParam(params: Record<string, DSLField<string | number | boolean>>): this {
+    public queryParam(
+        params: Record<string, DSLField<QUERY_PARAM_TYPES> | QUERY_PARAM_TYPES>,
+    ): this {
         this.config.queryParams = params
         return this
     }
 
-    public pathParam(params: Record<string, DSLField<string | number>>): this {
+    public pathParam(params: Record<string, DSLField<PATH_PARAM_TYPES> | PATH_PARAM_TYPES>): this {
         this.config.pathParams = params
         return this
     }

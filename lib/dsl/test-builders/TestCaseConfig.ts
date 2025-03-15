@@ -22,15 +22,16 @@
 
 import { HttpStatus } from "../enums"
 import { DSLField } from "../interface"
+import { FIELD_TYPES } from "../interface/field"
 
 export type PATH_PARAM_TYPES = string | number
 export type QUERY_PARAM_TYPES = string | number | boolean
 
 export interface TestCaseConfig {
-    pathParams?: Record<string, DSLField<PATH_PARAM_TYPES>>
-    queryParams?: Record<string, DSLField<QUERY_PARAM_TYPES>>
-    requestBody?: Record<string, DSLField>
-    requestHeaders?: Record<string, DSLField<string>>
+    pathParams?: Record<string, DSLField<PATH_PARAM_TYPES> | PATH_PARAM_TYPES>
+    queryParams?: Record<string, DSLField<QUERY_PARAM_TYPES> | QUERY_PARAM_TYPES>
+    requestBody?: Record<string, DSLField | FIELD_TYPES>
+    requestHeaders?: Record<string, DSLField<string> | string>
     expectedStatus?: HttpStatus | number
     expectedResponseBody?: Record<string, DSLField>
     prettyPrint?: boolean
