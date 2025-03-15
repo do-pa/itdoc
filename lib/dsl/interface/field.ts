@@ -29,6 +29,7 @@ export type FIELD_TYPES =
 export interface DSLField<T extends FIELD_TYPES = FIELD_TYPES> {
     readonly description: string
     readonly example: T | ((value: T) => void)
+    readonly required: boolean
 }
 
 /**
@@ -36,8 +37,10 @@ export interface DSLField<T extends FIELD_TYPES = FIELD_TYPES> {
  * - DSLField 생성 함수
  * @param description {string} 문서에 표시될 필드 설명
  * @param example {object | function} 필드의 예시 값 또는 검증 함수
+ * @param required {boolean} 필드가 필수인지 여부
  */
 export const field = <T extends FIELD_TYPES>(
     description: string,
     example: T | ((value: T) => void),
-): DSLField<T> => ({ description, example })
+    required: boolean = true,
+): DSLField<T> => ({ description, example, required })

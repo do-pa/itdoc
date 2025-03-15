@@ -15,12 +15,13 @@
  */
 
 import { HttpMethod } from "../enums/HttpMethod"
-import { APITestBuilder, APITestConfig } from "../apiTestHelper"
+import { TestCaseConfig } from "../test-builders/TestCaseConfig"
+import { RootBuilder } from "../test-builders/RootBuilder"
 
 /**
  * Describe API에 넘길 옵션 인터페이스
  */
-export class ApiDoc {
+export class ItdocBuilderEntry {
     public readonly method: HttpMethod
     public readonly url: string
     public readonly options: ApiDocOptions
@@ -33,8 +34,8 @@ export class ApiDoc {
         this.app = app
     }
 
-    public test(): APITestBuilder {
-        return new APITestBuilder(this.options.defaults, this.method, this.url, this.app)
+    public test(): RootBuilder {
+        return new RootBuilder(this.options.defaults, this.method, this.url, this.app)
     }
 }
 
@@ -48,5 +49,5 @@ export interface ApiDocOptions {
     name?: string
     tag?: string
     summary?: string
-    defaults?: APITestConfig
+    defaults?: TestCaseConfig
 }

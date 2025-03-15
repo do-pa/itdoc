@@ -36,25 +36,28 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("회원가입 성공", () =>
-            apiDoc
+        itDoc("회원가입 성공", () => {
+            return apiDoc
                 .test()
-                .withRequestBody({
+                .req()
+                .body({
                     username: field("아이디", "penekhun"),
                     password: field("패스워드", "P@ssw0rd123!@#"),
                 })
-                // .withPrettyPrint()
-                .expectStatus(HttpStatus.CREATED),
-        )
+                .expect()
+                .status(HttpStatus.CREATED)
+        })
 
         itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", async () => {
             await apiDoc
                 .test()
-                .withRequestBody({
+                .req()
+                .body({
                     password: field("패스워드", "P@ssw0rd123!@#"),
                 })
-                .expectStatus(HttpStatus.BAD_REQUEST)
-                .expectResponseBody({
+                .expect()
+                .status(HttpStatus.BAD_REQUEST)
+                .body({
                     error: field("에러 메세지", "username is required"),
                 })
         })
@@ -62,12 +65,14 @@ describeAPI(
         itDoc("패스워드가 8자 이하면 회원가입 실패한다.", async () => {
             await apiDoc
                 .test()
-                .withRequestBody({
+                .req()
+                .body({
                     username: field("아이디", "penekhun"),
                     password: field("패스워드", "1234567"),
                 })
-                .expectStatus(HttpStatus.BAD_REQUEST)
-                .expectResponseBody({
+                .expect()
+                .status(HttpStatus.BAD_REQUEST)
+                .body({
                     error: field("에러 메세지", "password must be at least 8 characters"),
                 })
         })

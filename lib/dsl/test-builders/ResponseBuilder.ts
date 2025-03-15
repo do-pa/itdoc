@@ -14,88 +14,42 @@
  * limitations under the License.
  */
 
-/**
- * API 테스트를 위한 헬퍼 클래스와 타입 정의
- * @description
- * API 테스트를 쉽게 구성하고 실행할 수 있도록 도와주는 빌더 패턴 기반의 헬퍼 클래스입니다.
- */
-
-import { HttpMethod, HttpStatus } from "./enums"
-import supertest, { Response } from "supertest"
-import { DSLField } from "./interface"
+import { TestCaseConfig } from "./TestCaseConfig"
+import { HttpMethod, HttpStatus } from "../enums"
+import { DSLField } from "../interface"
+import supertest from "supertest"
 import { validateResponse } from "./validateResponse"
 
-export type PATH_PARAM_TYPES = string | number
-export type QUERY_PARAM_TYPES = string | number | boolean
-
-export interface APITestConfig {
-    pathParams?: Record<string, DSLField<PATH_PARAM_TYPES>>
-    queryParams?: Record<string, DSLField<QUERY_PARAM_TYPES>>
-    requestBody?: Record<string, DSLField>
-    requestHeaders?: Record<string, DSLField<string>>
-    expectedStatus?: HttpStatus | number
-    expectedResponseBody?: Record<string, DSLField>
-    prettyPrint?: boolean
-}
-
-export class APITestBuilder {
-    private config: APITestConfig
+export class ResponseBuilder {
+    private config: TestCaseConfig
     private readonly method: HttpMethod
     private readonly url: string
     private readonly app: any
 
-    public constructor(defaults: APITestConfig = {}, method: HttpMethod, url: string, app: any) {
+    public constructor(defaults: TestCaseConfig = {}, method: HttpMethod, url: string, app: any) {
         this.config = { ...defaults }
         this.method = method
         this.url = url
         this.app = app
     }
 
-    public withPathParams(params: Record<string, DSLField<string | number>>): this {
-        this.config.pathParams = params
-        return this
-    }
-
-    public withQueryParams(params: Record<string, DSLField<string | number | boolean>>): this {
-        this.config.queryParams = params
-        return this
-    }
-
-    public withRequestBody(body: Record<string, DSLField<any>>): this {
-        this.config.requestBody = body
-        return this
-    }
-
-    public withRequestHeaders(headers: Record<string, DSLField<string>>): this {
-        this.config.requestHeaders = headers
-        return this
-    }
-
-    public withoutHeader(headerName: string): this {
-        if (this.config.requestHeaders && this.config.requestHeaders[headerName]) {
-            delete this.config.requestHeaders[headerName]
-        } else {
-            console.warn(`Header "${headerName}" not found`)
-        }
-        return this
-    }
-
-    public expectStatus(status: HttpStatus | number): this {
+    public status(status: HttpStatus | number): this {
         this.config.expectedStatus = status
         return this
     }
 
-    public expectResponseBody(body: Record<string, DSLField>): this {
+    // public header(headers: Record<string, string>): this {
+    //   TODO: expectHeader 구현
+    //   this.config.expectedHeaders = headers
+    //   return this
+    // }
+
+    public body(body: Record<string, DSLField>): this {
         this.config.expectedResponseBody = body
         return this
     }
 
-    public withPrettyPrint(): this {
-        this.config.prettyPrint = true
-        return this
-    }
-
-    public async runTest(): Promise<Response> {
+    private async runTest(): Promise<Response> {
         if (!this.config.expectedStatus) {
             throw new Error("Expected status is required")
         }
@@ -168,10 +122,11 @@ export class APITestBuilder {
         }
         if (!this.config.expectedResponseBody) {
             req = req.expect((res: Response) => {
-                if (Object.keys(res.body).length > 0) {
+                if (Object.keys(res.body ?? {}).length > 0) {
+                    const formattedBody = JSON.stringify(res.body, null, 2)
                     throw new Error(
-                        "Expected response body is required \n    " +
-                            JSON.stringify(res.body, null, 2),
+                        `Expected response body is required.
+                    Response Body:${formattedBody}`,
                     )
                 }
             })
@@ -190,6 +145,7 @@ export class APITestBuilder {
               Response Body: ${JSON.stringify(res.body, null, 2)}
               `)
             }
+            // @ts-expect-error TODO: ignore 사용하지 않도록 코드 수정
             return res
         } catch (error: any) {
             if (this.config.prettyPrint) {
