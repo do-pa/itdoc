@@ -16,7 +16,13 @@ build/
 !.vscode/tasks.js
 
 # JetBrains IDEs
-.idea/
+.idea/*
+!.idea/codeStyles/
+!.idea/jsLintPlugin.xml
+!.idea/prettier.xml
+!.idea/inspectionProfiles/
+!.idea/misc.xml
+!.idea/jsonSchemas.xml
 
 # Optional npm cache directory
 .npm
