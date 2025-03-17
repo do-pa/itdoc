@@ -46,16 +46,9 @@ export class ResponseBuilder extends AbstractTestBuilder {
             throw new Error("Expected status is required")
         }
         let finalUrl = this.url
-        if (this.config.pathParams) {
-            for (const [key, fieldObj] of Object.entries(this.config.pathParams)) {
-                let paramValue
-                if (isDSLField(fieldObj)) {
-                    paramValue = fieldObj.example.toString()
-                } else {
-                    paramValue = fieldObj.toString
-                }
-                finalUrl = finalUrl.replace(`{${key}}`, encodeURIComponent(paramValue))
-            }
+        for (const [key, fieldObj] of Object.entries(this.config.pathParams || {})) {
+            const paramValue = isDSLField(fieldObj) ? String(fieldObj.example) : String(fieldObj)
+            finalUrl = finalUrl.replace(`{${key}}`, encodeURIComponent(paramValue))
         }
 
         const requestInstance = supertest(this.app)
@@ -81,28 +74,24 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 throw new Error(`Unsupported HTTP method: ${this.method}`)
         }
 
-        if (this.config.requestHeaders) {
-            for (const [key, headerObj] of Object.entries(this.config.requestHeaders)) {
-                const headerValue = isDSLField(headerObj) ? headerObj.example : headerObj
-                if (typeof headerValue === "string") {
-                    req.set(key, headerValue)
-                }
+        for (const [key, headerObj] of Object.entries(this.config.requestHeaders || {})) {
+            const headerValue = isDSLField(headerObj) ? headerObj.example : headerObj
+            if (typeof headerValue === "string") {
+                req.set(key, headerValue)
             }
         }
-        if (this.config.queryParams) {
-            const queryParams: Record<string, any> = {}
-            for (const [key, value] of Object.entries(this.config.queryParams)) {
-                queryParams[key] = isDSLField(value) ? value.example : value
-            }
-            req = req.query(queryParams)
+        const queryParams: Record<string, any> = {}
+        for (const [key, value] of Object.entries(this.config.queryParams || {})) {
+            queryParams[key] = isDSLField(value) ? value.example : value
         }
-        if (this.config.requestBody) {
-            const body: Record<string, any> = {}
-            for (const [key, fieldObj] of Object.entries(this.config.requestBody)) {
-                body[key] = isDSLField(fieldObj) ? fieldObj.example : fieldObj
-            }
-            req = req.send(body)
+        req = req.query(queryParams)
+
+        const body: Record<string, any> = {}
+        for (const [key, fieldObj] of Object.entries(this.config.requestBody || {})) {
+            body[key] = isDSLField(fieldObj) ? fieldObj.example : fieldObj
         }
+        req = req.send(body)
+
         if (this.config.expectedStatus) {
             req = req.expect(this.config.expectedStatus)
         }
@@ -114,8 +103,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
             req = req.expect((res: Response) => {
                 validateResponse(expectedBody, res.body)
             })
-        }
-        if (!this.config.expectedResponseBody) {
+        } else {
             req = req.expect((res: Response) => {
                 if (Object.keys(res.body ?? {}).length > 0) {
                     const formattedBody = JSON.stringify(res.body, null, 2)
