@@ -183,7 +183,6 @@ describeAPI(
                 .test()
                 .req()
                 .queryParam({
-                    // page: field('페이지', 1),
                     size: 10,
                 })
                 .res()
@@ -199,7 +198,6 @@ describeAPI(
                 .req()
                 .queryParam({
                     page: 1,
-                    // size: field('페이지 사이즈', 10),
                 })
                 .res()
                 .status(HttpStatus.BAD_REQUEST)
