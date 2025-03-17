@@ -1,0 +1,49 @@
+name: 📝 Documentation Change
+description: 문서 수정을 제안해주세요
+title: "[Docs]: "
+labels: ["documentation"]
+assignees:
+    - octocat
+body:
+    - type: markdown
+      attributes:
+          value: |
+              문서 개선을 제안해 주셔서 감사합니다. 자세한 내용을 알려주시면 더 나은 문서를 만들 수 있습니다.
+
+    - type: textarea
+      id: add
+      attributes:
+          label: New Content
+          description: 추가하고 싶은 새로운 문서나 내용이 있다면 설명해주세요
+          placeholder: 다음과 같은 내용이 추가되면 좋겠습니다...
+      validations:
+          required: false
+
+    - type: textarea
+      id: remove
+      attributes:
+          label: Content to Remove
+          description: 삭제하거나 수정이 필요한 내용이 있다면 설명해주세요
+          placeholder: 다음 내용은 불필요하거나 수정이 필요합니다...
+      validations:
+          required: false
+
+    - type: textarea
+      id: edit
+      attributes:
+          label: Content to Edit
+          description: 수정이 필요한 내용을 설명해주세요
+          placeholder: |
+              변경 전: ...
+              변경 후: ...
+      validations:
+          required: false
+
+    - type: textarea
+      id: reason
+      attributes:
+          label: Reason for Change
+          description: 문서 변경이 필요한 이유를 설명해주세요
+          placeholder: 이러한 이유로 문서 변경이 필요합니다...
+      validations:
+          required: true
