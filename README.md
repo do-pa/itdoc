@@ -44,7 +44,7 @@ describeAPI(
                     username: field("아이디", "penekhun"),
                     password: field("패스워드", "P@ssw0rd123!@#"),
                 })
-                .expect()
+                .res()
                 .status(HttpStatus.CREATED)
         })
 
@@ -55,7 +55,7 @@ describeAPI(
                 .body({
                     password: field("패스워드", "P@ssw0rd123!@#"),
                 })
-                .expect()
+                .res()
                 .status(HttpStatus.BAD_REQUEST)
                 .body({
                     error: field("에러 메세지", "username is required"),
@@ -70,7 +70,7 @@ describeAPI(
                     username: field("아이디", "penekhun"),
                     password: field("패스워드", "1234567"),
                 })
-                .expect()
+                .res()
                 .status(HttpStatus.BAD_REQUEST)
                 .body({
                     error: field("에러 메세지", "password must be at least 8 characters"),
