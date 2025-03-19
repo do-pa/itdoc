@@ -1,5 +1,5 @@
 name: 📝 Documentation Change
-description: 문서 수정을 제안해주세요
+description: itdoc 라이브러리 관련 문서 수정을 제안해주세요
 title: "[Docs]: "
 labels: ["documentation"]
 assignees:
@@ -8,30 +8,53 @@ body:
     - type: markdown
       attributes:
           value: |
-              문서 개선을 제안해 주셔서 감사합니다. 자세한 내용을 알려주시면 더 나은 문서를 만들 수 있습니다.
+              itdoc 라이브러리 문서 개선을 제안해 주셔서 감사합니다. 테스트 기반 문서화 라이브러리인 itdoc에 대한 더 나은 문서를 함께 만들어 갑시다.
+
+    - type: dropdown
+      id: doc_type
+      attributes:
+          label: 문서 종류
+          description: 어떤 종류의 문서 변경을 제안하시나요?
+          options:
+              - API 사용법 설명
+              - 테스트 작성 예시
+              - 출력 형식 관련 문서
+              - 설치 및 환경 설정
+              - 고급 사용법
+              - 문제 해결(Troubleshooting)
+              - 기타 (Additional Context에 명시해주세요)
+      validations:
+          required: true
 
     - type: textarea
       id: add
       attributes:
-          label: New Content
+          label: 추가할 내용
           description: 추가하고 싶은 새로운 문서나 내용이 있다면 설명해주세요
-          placeholder: 다음과 같은 내용이 추가되면 좋겠습니다...
+          placeholder: |
+              다음과 같은 테스트 작성 예시가 추가되면 좋겠습니다:
+
+              ```javascript
+              import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"
+
+              // 문서화 예시 코드
+              ```
       validations:
           required: false
 
     - type: textarea
       id: remove
       attributes:
-          label: Content to Remove
-          description: 삭제하거나 수정이 필요한 내용이 있다면 설명해주세요
-          placeholder: 다음 내용은 불필요하거나 수정이 필요합니다...
+          label: 삭제할 내용
+          description: 삭제가 필요한 내용이 있다면 설명해주세요
+          placeholder: 다음 내용은 불필요하거나 오해를 줄 수 있습니다.
       validations:
           required: false
 
     - type: textarea
       id: edit
       attributes:
-          label: Content to Edit
+          label: 수정할 내용
           description: 수정이 필요한 내용을 설명해주세요
           placeholder: |
               변경 전: ...
@@ -42,8 +65,29 @@ body:
     - type: textarea
       id: reason
       attributes:
-          label: Reason for Change
+          label: 변경 이유
           description: 문서 변경이 필요한 이유를 설명해주세요
-          placeholder: 이러한 이유로 문서 변경이 필요합니다...
+          placeholder: 이 변경을 통해 사용자들이 itdoc를 더 쉽게 이해하고 활용할 수 있습니다.
       validations:
           required: true
+
+    - type: dropdown
+      id: affected_version
+      attributes:
+          label: 영향 받는 버전
+          description: 이 문서 변경이 어떤 버전에 적용되어야 하나요?
+          options:
+              - 최신 버전만
+              - 모든 버전
+              - 특정 버전 (Additional Context에 명시해주세요)
+      validations:
+          required: true
+
+    - type: textarea
+      id: additional
+      attributes:
+          label: 추가 정보
+          description: 문서 변경에 대한 추가 정보가 있다면 알려주세요
+          placeholder: 참고할 만한 자료, 관련 이슈 링크 등을 첨부해주세요
+      validations:
+          required: false
