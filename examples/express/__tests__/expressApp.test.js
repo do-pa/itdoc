@@ -207,3 +207,33 @@ describeAPI(
         })
     },
 )
+
+describeAPI(
+    HttpMethod.GET,
+    "/secret",
+    {
+        name: "비밀 API",
+        tag: "Secret",
+        summary: "비밀 API 입니다. 인증이 필요합니다.",
+    },
+    targetApp,
+    (apiDoc) => {
+        itDoc("인증 토큰이 없으면 접근할 수 없다.", async () => {
+            await apiDoc.test().req().res().status(HttpStatus.UNAUTHORIZED)
+        })
+
+        itDoc("인증 토큰이 있으면 접근할 수 있다.", async () => {
+            await apiDoc
+                .test()
+                .req()
+                .header({
+                    Authorization: field("인증 토큰", "Bearer 123456"),
+                })
+                .res()
+                .status(HttpStatus.OK)
+                .body({
+                    message: field("비밀 메세지", "This is a secret message"),
+                })
+        })
+    },
+)
