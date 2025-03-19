@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-import { TestCaseConfig } from "./TestCaseConfig"
-import { HttpMethod, HttpStatus } from "../enums"
+import { HttpStatus } from "../enums"
 import { DSLField } from "../interface"
 import supertest from "supertest"
 import { validateResponse } from "./validateResponse"
+import { isDSLField } from "../interface/field"
+import { AbstractTestBuilder } from "./AbstractTestBuilder"
 
-export class ResponseBuilder {
-    private config: TestCaseConfig
-    private readonly method: HttpMethod
-    private readonly url: string
-    private readonly app: any
-
-    public constructor(defaults: TestCaseConfig = {}, method: HttpMethod, url: string, app: any) {
-        this.config = { ...defaults }
-        this.method = method
-        this.url = url
-        this.app = app
-    }
-
+/**
+ * API 응답을 검증하기 위한 결과값을 설정하는 빌더 클래스입니다.
+ */
+export class ResponseBuilder extends AbstractTestBuilder {
     public status(status: HttpStatus | number): this {
         this.config.expectedStatus = status
         return this
@@ -54,13 +46,9 @@ export class ResponseBuilder {
             throw new Error("Expected status is required")
         }
         let finalUrl = this.url
-        if (this.config.pathParams) {
-            for (const [key, fieldObj] of Object.entries(this.config.pathParams)) {
-                finalUrl = finalUrl.replace(
-                    `{${key}}`,
-                    encodeURIComponent(fieldObj.example.toString()),
-                )
-            }
+        for (const [key, fieldObj] of Object.entries(this.config.pathParams || {})) {
+            const paramValue = isDSLField(fieldObj) ? String(fieldObj.example) : String(fieldObj)
+            finalUrl = finalUrl.replace(`{${key}}`, encodeURIComponent(paramValue))
         }
 
         const requestInstance = supertest(this.app)
@@ -86,41 +74,36 @@ export class ResponseBuilder {
                 throw new Error(`Unsupported HTTP method: ${this.method}`)
         }
 
-        if (this.config.requestHeaders) {
-            for (const [key, headerObj] of Object.entries(this.config.requestHeaders)) {
-                const headerValue = headerObj.example
-                if (typeof headerValue === "string") {
-                    req.set(key, headerValue)
-                }
+        for (const [key, headerObj] of Object.entries(this.config.requestHeaders || {})) {
+            const headerValue = isDSLField(headerObj) ? headerObj.example : headerObj
+            if (typeof headerValue === "string") {
+                req.set(key, headerValue)
             }
         }
-        if (this.config.queryParams) {
-            const queryParams: Record<string, any> = {}
-            for (const [key, fieldObj] of Object.entries(this.config.queryParams)) {
-                queryParams[key] = fieldObj.example
-            }
-            req = req.query(queryParams)
+        const queryParams: Record<string, any> = {}
+        for (const [key, value] of Object.entries(this.config.queryParams || {})) {
+            queryParams[key] = isDSLField(value) ? value.example : value
         }
-        if (this.config.requestBody) {
-            const body: Record<string, any> = {}
-            for (const [key, fieldObj] of Object.entries(this.config.requestBody)) {
-                body[key] = fieldObj.example
-            }
-            req = req.send(body)
+        req = req.query(queryParams)
+
+        const body: Record<string, any> = {}
+        for (const [key, fieldObj] of Object.entries(this.config.requestBody || {})) {
+            body[key] = isDSLField(fieldObj) ? fieldObj.example : fieldObj
         }
+        req = req.send(body)
+
         if (this.config.expectedStatus) {
             req = req.expect(this.config.expectedStatus)
         }
         if (this.config.expectedResponseBody) {
             const expectedBody: Record<string, any> = {}
             for (const [key, fieldObj] of Object.entries(this.config.expectedResponseBody)) {
-                expectedBody[key] = fieldObj.example
+                expectedBody[key] = isDSLField(fieldObj) ? fieldObj.example : fieldObj
             }
             req = req.expect((res: Response) => {
                 validateResponse(expectedBody, res.body)
             })
-        }
-        if (!this.config.expectedResponseBody) {
+        } else {
             req = req.expect((res: Response) => {
                 if (Object.keys(res.body ?? {}).length > 0) {
                     const formattedBody = JSON.stringify(res.body, null, 2)

@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-import { HttpMethod } from "../enums"
-import { TestCaseConfig } from "./TestCaseConfig"
+import { PATH_PARAM_TYPES, QUERY_PARAM_TYPES } from "./TestCaseConfig"
 import { DSLField } from "../interface"
 import { ResponseBuilder } from "./ResponseBuilder"
+import { FIELD_TYPES } from "../interface/field"
+import { AbstractTestBuilder } from "./AbstractTestBuilder"
 
-export class RequestBuilder {
-    private readonly config: TestCaseConfig
-    private readonly method: HttpMethod
-    private readonly url: string
-    private readonly app: any
-
-    public constructor(defaults: TestCaseConfig = {}, method: HttpMethod, url: string, app: any) {
-        this.config = { ...defaults }
-        this.method = method
-        this.url = url
-        this.app = app
-    }
-
+/**
+ * API 요청 정보를 설정하는 빌더 클래스입니다.
+ */
+export class RequestBuilder extends AbstractTestBuilder {
     /**
      * 요청시 사용할 헤더를 설정합니다.
      * @param headers
@@ -45,7 +37,7 @@ export class RequestBuilder {
      * 요청 바디를 설정합니다.
      * @param body
      */
-    public body(body: Record<string, DSLField<any>>): this {
+    public body(body: Record<string, DSLField<FIELD_TYPES> | FIELD_TYPES>): this {
         this.config.requestBody = body
         return this
     }
@@ -54,12 +46,14 @@ export class RequestBuilder {
      * 요청시 사용할 쿼리 파라미터를 설정합니다.
      * @param params
      */
-    public queryParam(params: Record<string, DSLField<string | number | boolean>>): this {
+    public queryParam(
+        params: Record<string, DSLField<QUERY_PARAM_TYPES> | QUERY_PARAM_TYPES>,
+    ): this {
         this.config.queryParams = params
         return this
     }
 
-    public pathParam(params: Record<string, DSLField<string | number>>): this {
+    public pathParam(params: Record<string, DSLField<PATH_PARAM_TYPES> | PATH_PARAM_TYPES>): this {
         this.config.pathParams = params
         return this
     }

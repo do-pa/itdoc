@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-import { HttpMethod } from "../enums"
-import { TestCaseConfig } from "./TestCaseConfig"
 import { RequestBuilder } from "./RequestBuilder"
+import { AbstractTestBuilder } from "./AbstractTestBuilder"
 
-export class RootBuilder {
-    private readonly config: TestCaseConfig
-    private readonly method: HttpMethod
-    private readonly url: string
-    private readonly app: any
-
-    public constructor(defaults: TestCaseConfig = {}, method: HttpMethod, url: string, app: any) {
-        this.config = { ...defaults }
-        this.method = method
-        this.url = url
-        this.app = app
-    }
-
+/**
+ * RootBuilder 클래스는 API 테스트의 시작점입니다.
+ */
+export class RootBuilder extends AbstractTestBuilder {
     public req(): RequestBuilder {
         return new RequestBuilder(this.config, this.method, this.url, this.app)
     }

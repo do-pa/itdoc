@@ -58,4 +58,39 @@ app.delete('/users/:userId/friends/:friendName', (req, res) => {
   return res.status(204).json();
 });
 
+app.get('/users', (req, res) => {
+  const { page, size } = req.query;
+
+  const members = [
+    { username: 'penekhun', name: 'seonghun' },
+    { username: 'zagabi', name: 'hongchul' },
+    { username: 'json', name: 'jaesong' },
+    { username: 'clearlove', name: 'sangho' },
+    { username: 'dopa', name: 'sanggil'},
+    { username: 'ageis26', name: 'chanheok'}
+  ]
+
+  if (page === undefined) {
+    return res.status(400).json({ error: 'page are required' });
+  }
+
+  if (size === undefined) {
+    return res.status(400).json({ error: 'size are required' });
+  }
+
+  // sample pagination
+  const pageNumber = parseInt(page);
+  const sizeNumber = parseInt(size);
+  const startIndex = (pageNumber - 1) * sizeNumber;
+  const endIndex = startIndex + sizeNumber;
+
+  const result = members.slice(startIndex, endIndex);
+  return res.status(200).json({
+    page: pageNumber,
+    size: sizeNumber,
+    total: members.length,
+    members: result,
+  });
+})
+
 module.exports = app;
