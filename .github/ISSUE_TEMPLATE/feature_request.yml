@@ -1,0 +1,95 @@
+name: 💡 Feature Request
+description: itdoc 라이브러리에 대한 새로운 기능을 제안해주세요
+title: "[Feature]: "
+labels: ["Priority: High", "Priority: Medium", "Priority: Low"]
+assignees:
+    - octocat
+body:
+    - type: markdown
+      attributes:
+          value: |
+              itdoc 라이브러리에 대한 새로운 기능을 제안해 주셔서 감사합니다. 테스트 기반 문서화 라이브러리인 itdoc를 더욱 발전시키기 위한 제안을 기다립니다.
+
+    - type: dropdown
+      id: feature_type
+      attributes:
+          label: 기능 종류
+          description: 어떤 종류의 기능을 제안하시나요?
+          options:
+              - 테스트 작성 기능
+              - 문서 생성 기능
+              - 출력 형식 지원
+              - IDE/에디터 통합
+              - CI/CD 통합
+              - 성능 개선
+              - 기타 (Additional Context에 명시해주세요)
+      validations:
+          required: true
+
+    - type: textarea
+      id: before
+      attributes:
+          label: 현재 상황
+          description: 현재 상황이나 문제점을 설명해주세요
+          placeholder: |
+              현재 itdoc를 사용할 때 다음과 같은 불편함이 있습니다:
+
+              ```javascript
+              // 현재 코드 예시
+              ```
+      validations:
+          required: true
+
+    - type: textarea
+      id: after
+      attributes:
+          label: 원하는 기능
+          description: 원하시는 기능이나 개선사항을 설명해주세요
+          placeholder: |
+              다음과 같이 개선되었으면 좋겠습니다:
+
+              ```javascript
+              // 개선된 코드 예시
+              ```
+      validations:
+          required: true
+
+    - type: textarea
+      id: alternatives
+      attributes:
+          label: 고려한 대안
+          description: 고려해본 다른 해결방안이 있다면 알려주세요
+          placeholder: |
+              다음과 같은 대안들도 고려해보았습니다:
+
+              1. 다른 라이브러리 사용
+              2. 직접 구현
+              3. 기존 기능 확장
+              등...
+      validations:
+          required: false
+
+    - type: dropdown
+      id: priority
+      attributes:
+          label: 우선순위
+          description: 이 기능의 우선순위를 선택해주세요
+          options:
+              - High (즉시 필요)
+              - Medium (향후 필요)
+              - Low (선택적)
+      validations:
+          required: true
+
+    - type: textarea
+      id: additional
+      attributes:
+          label: 추가 정보
+          description: 기능 제안에 대한 추가 정보가 있다면 알려주세요
+          placeholder: |
+              - 유사 기능을 가진 다른 라이브러리나 도구
+              - 구현 시 고려해야 할 기술적 제약사항
+              - 사용자 시나리오나 예시
+              - 관련 스크린샷이나 다이어그램
+      validations:
+          required: false
