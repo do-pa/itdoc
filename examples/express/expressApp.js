@@ -93,4 +93,17 @@ app.get('/users', (req, res) => {
   });
 })
 
-module.exports = app;
+app.get("/secret", (req, res) => {
+    const { authorization } = req.headers
+
+    // validate authorization (sample)
+    if (authorization !== "Bearer 123456") {
+        return res.status(401).json()
+    }
+
+    return res.status(200).json({
+        message: "This is a secret message",
+    })
+})
+
+module.exports = app
