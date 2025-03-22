@@ -15,13 +15,23 @@
  */
 
 import { getTestAdapterExports } from "../adapters"
+import { resultCollector } from "../generator"
+import { TestResult } from "../generator"
 
 /**
  * 케이스 별 테스트를 정의를 위한 함수
  * @param description 테스트 설명
  * @param testFn 테스트 함수
  */
-export const itDoc = (description: string, testFn: () => Promise<void>): void => {
+export interface TestFnResult {
+    testResult?: TestResult
+    [key: string]: unknown
+}
+
+export const itDoc = (
+    description: string,
+    testFn: () => Promise<TestFnResult | void> | TestFnResult | void,
+): void => {
     if (!description) {
         throw new Error("Test description is required at itDoc.")
     }
@@ -32,6 +42,12 @@ export const itDoc = (description: string, testFn: () => Promise<void>): void =>
 
     const { itCommon } = getTestAdapterExports()
     itCommon(description, async () => {
-        await testFn()
+        const result = await testFn()
+
+        if (result && typeof result === "object" && "testResult" in result && result.testResult) {
+            resultCollector.collectResult(result.testResult)
+        }
+
+        return result
     })
 }

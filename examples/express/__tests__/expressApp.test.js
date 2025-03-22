@@ -1,5 +1,5 @@
 const app = require("../expressApp.js")
-const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod, exportOASToJSON } = require("itdoc")
 
 const targetApp = app
 
@@ -238,3 +238,38 @@ describeAPI(
         })
     },
 )
+
+// 스펙 생성 플래그
+let hasGeneratedSpec = false
+
+// 한 번만 실행되는 스펙 생성 함수
+/**
+ *
+ * @param message
+ */
+function generateSpecOnce(message) {
+    if (hasGeneratedSpec) return
+
+    console.log(message || "테스트 완료 후 OpenAPI 스펙을 생성합니다...")
+    exportOASToJSON("openapi.json")
+    hasGeneratedSpec = true
+}
+
+// 테스트 완료 후 OpenAPI 스펙 생성 (Jest 방식)
+if (typeof afterAll === "function") {
+    afterAll(() =>
+        generateSpecOnce("Jest: 모든 테스트가 완료되었습니다. OpenAPI 스펙을 생성합니다..."),
+    )
+}
+
+// 테스트 완료 후 OpenAPI 스펙 생성 (Mocha 방식)
+if (typeof after === "function") {
+    after(() =>
+        generateSpecOnce("Mocha: 모든 테스트가 완료되었습니다. OpenAPI 스펙을 생성합니다..."),
+    )
+}
+
+// 대비책: 프로세스 종료 시 OpenAPI 스펙 생성
+process.on("exit", () => {
+    generateSpecOnce("프로세스 종료 시 OpenAPI 스펙을 생성합니다...")
+})
