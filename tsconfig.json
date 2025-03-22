@@ -58,7 +58,7 @@
         "sourceMap": true
     },
     // 컴파일 대상 파일
-    "include": ["lib/**/*", "eslint.config.mjs"],
+    "include": ["lib/**/*", "eslint.config.mjs", "script/makedocs/**/*"],
     // 컴파일 제외 대상
     "exclude": ["node_modules", "build", "**/__tests__/**/*"]
 }
