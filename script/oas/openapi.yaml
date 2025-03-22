@@ -1,11 +1,269 @@
 openapi: 3.0.0
 info:
-  title: Sample API
-  version: "1.0"
+    title: Complex Sample API
+    version: "1.0"
+    description: >
+        이 API는 사용자와 게시물을 관리하는 복잡한 기능을 제공합니다. JWT 기반 인증을 사용하며,
+        페이징, 요청/응답 검증 기능도 포함됩니다.
+servers:
+    - url: https://api.example.com/v1
 paths:
-  /hello:
-    get:
-      summary: Returns a greeting message.
-      responses:
-        '200':
-          description: OK
+    /hello:
+        get:
+            summary: 인사 메시지 반환
+            responses:
+                "200":
+                    description: 인사 메시지 반환 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "Hello, world!"
+    /users:
+        get:
+            summary: 사용자 목록 조회
+            description: 페이징 처리된 사용자 목록을 반환합니다.
+            parameters:
+                - in: query
+                  name: limit
+                  schema:
+                      type: integer
+                      default: 10
+                  description: 반환할 사용자 수
+                - in: query
+                  name: offset
+                  schema:
+                      type: integer
+                      default: 0
+                  description: 페이징 오프셋
+            responses:
+                "200":
+                    description: 사용자 목록 반환 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/User"
+        post:
+            summary: 새 사용자 생성
+            requestBody:
+                description: 생성할 사용자 정보
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NewUser"
+            responses:
+                "201":
+                    description: 사용자 생성 성공
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/User"
+    /users/{userId}:
+        parameters:
+            - name: userId
+              in: path
+              required: true
+              schema:
+                  type: string
+              description: 사용자 고유 식별자
+        get:
+            summary: 단일 사용자 조회
+            responses:
+                "200":
+                    description: 사용자 정보 반환 성공
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/User"
+                "404":
+                    description: 사용자를 찾을 수 없음
+        put:
+            summary: 사용자 정보 업데이트
+            requestBody:
+                description: 업데이트할 사용자 정보
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateUser"
+            responses:
+                "200":
+                    description: 사용자 업데이트 성공
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/User"
+                "404":
+                    description: 사용자를 찾을 수 없음
+        delete:
+            summary: 사용자 삭제
+            responses:
+                "204":
+                    description: 사용자 삭제 성공
+                "404":
+                    description: 사용자를 찾을 수 없음
+    /posts:
+        get:
+            summary: 게시물 목록 조회
+            responses:
+                "200":
+                    description: 게시물 목록 반환 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Post"
+        post:
+            summary: 새 게시물 생성
+            requestBody:
+                description: 생성할 게시물 정보
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/NewPost"
+            responses:
+                "201":
+                    description: 게시물 생성 성공
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Post"
+    /posts/{postId}:
+        parameters:
+            - name: postId
+              in: path
+              required: true
+              schema:
+                  type: string
+              description: 게시물 고유 식별자
+        get:
+            summary: 단일 게시물 조회
+            responses:
+                "200":
+                    description: 게시물 정보 반환 성공
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Post"
+                "404":
+                    description: 게시물을 찾을 수 없음
+        put:
+            summary: 게시물 업데이트
+            requestBody:
+                description: 업데이트할 게시물 정보
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdatePost"
+            responses:
+                "200":
+                    description: 게시물 업데이트 성공
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Post"
+                "404":
+                    description: 게시물을 찾을 수 없음
+        delete:
+            summary: 게시물 삭제
+            responses:
+                "204":
+                    description: 게시물 삭제 성공
+                "404":
+                    description: 게시물을 찾을 수 없음
+components:
+    schemas:
+        User:
+            type: object
+            properties:
+                id:
+                    type: string
+                    example: "u12345"
+                username:
+                    type: string
+                    example: "johndoe"
+                email:
+                    type: string
+                    example: "johndoe@example.com"
+                createdAt:
+                    type: string
+                    format: date-time
+                    example: "2023-01-01T12:00:00Z"
+        NewUser:
+            type: object
+            required:
+                - username
+                - email
+                - password
+            properties:
+                username:
+                    type: string
+                    example: "johndoe"
+                email:
+                    type: string
+                    example: "johndoe@example.com"
+                password:
+                    type: string
+                    example: "password123"
+        UpdateUser:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+        Post:
+            type: object
+            properties:
+                id:
+                    type: string
+                    example: "p98765"
+                title:
+                    type: string
+                    example: "My First Post"
+                content:
+                    type: string
+                    example: "This is the content of the post."
+                authorId:
+                    type: string
+                    example: "u12345"
+                createdAt:
+                    type: string
+                    format: date-time
+                    example: "2023-01-01T12:00:00Z"
+        NewPost:
+            type: object
+            required:
+                - title
+                - content
+                - authorId
+            properties:
+                title:
+                    type: string
+                content:
+                    type: string
+                authorId:
+                    type: string
+        UpdatePost:
+            type: object
+            properties:
+                title:
+                    type: string
+                content:
+                    type: string
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+security:
+    - bearerAuth: []
