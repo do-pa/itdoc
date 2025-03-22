@@ -35,4 +35,5 @@ build/
 
 .env
 script/llm/output/
-script/makedocs/output/
+script/output
+script/dist 

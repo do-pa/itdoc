@@ -23,6 +23,7 @@
     "types": "build/index.d.ts",
     "scripts": {
         "build": "pnpm run clean && tsup",
+        "makedocs": "pnpm ts-node --esm ./script/makedocs/index.ts",
         "ci": "pnpm run prettier:check && pnpm run lint && pnpm run test && pnpm run build",
         "clean": "rimraf build",
         "postinstall": "husky",
