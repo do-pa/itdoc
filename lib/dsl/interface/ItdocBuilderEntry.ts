@@ -35,7 +35,7 @@ export class ItdocBuilderEntry {
     }
 
     public test(): RootBuilder {
-        return new RootBuilder(this.options.defaults, this.method, this.url, this.app)
+        return new RootBuilder(this.options.defaults, this.method, this.url, this.app, this.options)
     }
 }
 

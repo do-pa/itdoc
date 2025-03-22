@@ -16,10 +16,11 @@
 
 import { HttpStatus } from "../enums"
 import { DSLField } from "../interface"
-import supertest from "supertest"
+import supertest, { Response } from "supertest"
 import { validateResponse } from "./validateResponse"
 import { isDSLField } from "../interface/field"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
+import { resultCollector } from "../generator"
 import logger from "../../config/logger"
 
 /**
@@ -144,7 +145,20 @@ export class ResponseBuilder extends AbstractTestBuilder {
                     response: logToPrint.response,
                 })
             }
-            // @ts-expect-error TODO: ignore 사용하지 않도록 코드 수정
+            resultCollector.collectResult({
+                method: this.method,
+                url: this.url,
+                options: this.config.apiOptions || { name: "", tag: "", summary: "" },
+                request: {
+                    body: this.config.requestBody,
+                    headers: this.prepareHeadersForCollector(this.config.requestHeaders),
+                },
+                response: {
+                    status: res.status,
+                    body: res.body,
+                    headers: res.headers,
+                },
+            })
             return res
         } catch (error: any) {
             if (this.config.prettyPrint) {
@@ -155,6 +169,18 @@ export class ResponseBuilder extends AbstractTestBuilder {
             }
             throw error
         }
+    }
+
+    private prepareHeadersForCollector(
+        headers?: Record<string, string | DSLField<string>>,
+    ): Record<string, string> | undefined {
+        if (!headers) return undefined
+
+        const result: Record<string, string> = {}
+        for (const [key, value] of Object.entries(headers)) {
+            result[key] = isDSLField(value) ? String(value.example) : String(value)
+        }
+        return result
     }
 
     public then<TResult1 = Response, TResult2 = never>(
