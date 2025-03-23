@@ -33,7 +33,7 @@
         "prettier:check": "prettier \"{lib,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
         "test": "pnpm test:unit && pnpm test:e2e",
         "test:unit": "mocha",
-        "test:e2e": "pnpm --filter example-express test"
+        "test:e2e": "pnpm --filter example-express test && pnpm --filter testframework-compatibility-test test"
     },
     "lint-staged": {
         "*.{ts,mts}": [

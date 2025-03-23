@@ -1,0 +1,10 @@
+{
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "verbose": true,
+    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "transform": {
+        "^.+\\.(js|jsx|ts|tsx)$": "ts-jest"
+    }
+}
