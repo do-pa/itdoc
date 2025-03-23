@@ -1,0 +1,25 @@
+{
+    "name": "testframework-compatibility-test",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "test": "pnpm test:jest && pnpm test:mocha",
+        "test:jest": "echo \"run test as jest\" && jest",
+        "test:mocha": "echo \"run test as mocha\" && mocha ./__tests__/compatibility.test.ts"
+    },
+    "mocha": {
+        "extensions": [
+            ".ts"
+        ],
+        "node-option": [
+            "import=tsx"
+        ],
+        "spec": "./__tests__/**/*.test.ts"
+    },
+    "devDependencies": {
+        "itdoc": "workspace:*",
+        "jest": "^29.7.0",
+        "mocha": "^10.3.0",
+        "ts-jest": "^29.2.6"
+    }
+}
