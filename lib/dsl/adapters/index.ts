@@ -22,24 +22,21 @@ import type { UserTestInterface } from "./UserTestInterface"
  * 테스트 프레임워크를 감지하는 동기 함수
  */
 function detectTestFramework(): TestFramework {
-    // Mocha 환경인지 확인하기 위해 전역 Mocha 함수들의 존재 여부를 검사
-    if (typeof global.describe === "function" && typeof global.it === "function") {
-        return TestFramework.Mocha
-    }
+    const isJest =
+        process.env.JEST_WORKER_ID !== undefined ||
+        typeof (global as any).jest !== "undefined" ||
+        process.argv.some((arg) => arg.includes("jest"))
 
-    // Jest 감지 (기존 로직 유지)
-    if (typeof (global as any).jest !== "undefined") {
-        return TestFramework.Jest
-    }
-    if (
-        typeof (global as any).expect === "function" &&
-        typeof (global as any).expect(1).toBe === "function"
-    ) {
+    if (isJest) {
         return TestFramework.Jest
     }
 
-    // 마지막으로 process.argv에서 mocha 문자열을 찾아 Mocha 환경인지 확인
-    if (process.argv.some((arg) => arg.toLowerCase().includes("mocha"))) {
+    const isMocha =
+        typeof global.describe === "function" &&
+        typeof global.it === "function" &&
+        process.argv.some((arg) => arg.toLowerCase().includes("mocha"))
+
+    if (isMocha) {
         return TestFramework.Mocha
     }
 
@@ -52,6 +49,7 @@ function detectTestFramework(): TestFramework {
 function initializeAdapterSync(): UserTestInterface {
     const framework = detectTestFramework()
 
+    console.log("detected test framework:", framework)
     switch (framework) {
         case TestFramework.Jest: {
             /*
@@ -59,7 +57,7 @@ function initializeAdapterSync(): UserTestInterface {
       그렇지 않으면 "Do not import `@jest/globals` outside of the Jest test environment"
       에러가 발생하게 됩니다.
       */
-            const { JestAdapter } = require("./JestAdapter.js")
+            const { JestAdapter } = require("./JestAdapter")
             return new JestAdapter()
         }
         case TestFramework.Mocha:
