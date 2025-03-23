@@ -49,7 +49,6 @@ function detectTestFramework(): TestFramework {
 function initializeAdapterSync(): UserTestInterface {
     const framework = detectTestFramework()
 
-    console.log("detected test framework:", framework)
     switch (framework) {
         case TestFramework.Jest: {
             /*
