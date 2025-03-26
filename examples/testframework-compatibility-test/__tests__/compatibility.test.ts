@@ -36,7 +36,7 @@ const {
     itCommon: (name: string, fn: () => void) => void
 } = getTestAdapterExports()
 
-const hookOrder: any[] = []
+const hookOrder: string[] = []
 
 describeCommon("TestFramework DSL Functionality", () => {
     beforeCommon(() => {
