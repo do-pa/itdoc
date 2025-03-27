@@ -3,7 +3,8 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "start": "npx tsc && node dist/index.js"
+        "llm": "tsx ./llm/index.ts",
+        "makedocs": "tsx ./makedocs/index.ts"
     },
     "dependencies": {
         "@redocly/cli": "^1.34.0",
