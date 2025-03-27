@@ -80,6 +80,10 @@ describeAPI(
 )
 ```
 
+## Example
+
+openai 를 이용한 문서생성의 경우 .env.example 를 참고, .env를 설정해야 합니다.
+
 ## License
 
 해당 프로젝트는 [Apache 2.0] 라이센스에 따라 배포됩니다.

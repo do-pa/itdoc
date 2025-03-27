@@ -9,5 +9,5 @@
         "strict": true,
         "skipLibCheck": true
     },
-    "include": ["makedocs/**/*"]
+    "include": ["makedocs/**/*", "llm/**/*"]
 }
