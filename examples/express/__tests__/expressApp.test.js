@@ -16,6 +16,7 @@ describeAPI(
         itDoc("회원가입 성공", () => {
             return apiDoc
                 .test()
+                .prettyPrint()
                 .req()
                 .body({
                     username: "penekhun",
