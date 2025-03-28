@@ -1,8 +1,5 @@
-const OpenAI = require('openai');
-const fs = require('fs');
-const path = require('path')
-const dotenv = require('dotenv'); 
-dotenv.config();
+// TODO: 아래 eslint-disable 주석 해제
+/* eslint-disable @typescript-eslint/no-require-imports,no-undef */
 
 const { getCdocprompt } = require('./prompt/index.js');
 
