@@ -7,6 +7,9 @@ import mochaPlugin from "eslint-plugin-mocha"
 import licenseHeader from "eslint-plugin-license-header"
 
 export default tseslint.config(
+    {
+        ignores: ["**/node_modules/**", "**/build/**", "**/examples/**", "tsup.config.ts"],
+    },
     // ESLint 기본 추천 규칙
     eslint.configs.recommended,
     // TypeScript 추천 규칙
@@ -20,16 +23,7 @@ export default tseslint.config(
         },
     },
     {
-        // TypeScript 파일만 대상으로 함
         files: ["**/*.ts"],
-        ignores: [
-            "**/node_modules/**",
-            "**/build/**",
-            "**/dist/**",
-            "**/*.js",
-            "**/*.cjs",
-            "**/*.mjs",
-        ],
         languageOptions: {
             // 사용할 JavaScript 버전 지정
             ecmaVersion: 2022,
