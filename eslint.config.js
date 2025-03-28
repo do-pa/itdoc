@@ -1,10 +1,10 @@
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-import eslintConfigPrettier from "eslint-config-prettier";
-import jsdoc from "eslint-plugin-jsdoc";
-import globals from "globals";
-import mochaPlugin from "eslint-plugin-mocha";
-import licenseHeader from 'eslint-plugin-license-header';
+import eslint from "@eslint/js"
+import tseslint from "typescript-eslint"
+import eslintConfigPrettier from "eslint-config-prettier"
+import jsdoc from "eslint-plugin-jsdoc"
+import globals from "globals"
+import mochaPlugin from "eslint-plugin-mocha"
+import licenseHeader from "eslint-plugin-license-header"
 
 export default tseslint.config(
     // ESLint 기본 추천 규칙
@@ -50,7 +50,7 @@ export default tseslint.config(
         },
         plugins: {
             jsdoc,
-            "license-header": licenseHeader
+            "license-header": licenseHeader,
         },
         rules: {
             // TypeScript 관련 규칙
@@ -137,4 +137,4 @@ export default tseslint.config(
     },
     // Prettier와의 충돌 방지
     eslintConfigPrettier,
-);
+)
