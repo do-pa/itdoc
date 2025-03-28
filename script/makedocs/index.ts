@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO: 아래 eslint-disable 주석 해제
+/* eslint-disable no-console */
+
 import { execSync } from "child_process"
 import { existsSync, mkdirSync } from "fs"
 import { fileURLToPath } from "url"

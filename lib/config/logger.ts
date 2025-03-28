@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-import { RequestBuilder } from "./RequestBuilder"
-import { AbstractTestBuilder } from "./AbstractTestBuilder"
+import pino from "pino"
 
-/**
- * RootBuilder 클래스는 API 테스트의 시작점입니다.
- */
-export class RootBuilder extends AbstractTestBuilder {
-    /**
-     * prettyPrint 설정값을 true로 설정합니다.
-     */
-    public prettyPrint(): this {
-        this.config.prettyPrint = true
-        return this
-    }
+const logger = pino({
+    transport: {
+        target: "pino-pretty",
+        options: {
+            colorize: true,
+        },
+    },
+})
 
-    public req(): RequestBuilder {
-        return new RequestBuilder(this.config, this.method, this.url, this.app)
-    }
-}
+export default logger
