@@ -29,6 +29,10 @@ export const exportOASToJSON = (generator: IOpenAPIGenerator, outputPath: string
     const specJson = JSON.stringify(spec, null, 2)
 
     fs.writeFileSync(path.resolve(outputPath), specJson, "utf8")
-    console.log(`OpenAPI Specification exported to ${outputPath}`)
-    Logger.debug(`OpenAPI Specification JSON: ${specJson.substring(0, 100)}...`)
+
+    // Node 환경에서 process.nextTick을 사용하여 테스트 스택이 완전히 비워진 후 로그가 출력되도록 합니다
+    process.nextTick(() => {
+        console.log(`OpenAPI Specification exported to ${outputPath}`)
+        Logger.debug(`OpenAPI Specification JSON: ${specJson.substring(0, 100)}...`)
+    })
 }
