@@ -18,4 +18,9 @@ export { HttpMethod } from "./enums/HttpMethod"
 export { HttpStatus } from "./enums/HttpStatus"
 export { describeAPI, itDoc, field } from "./interface"
 export type { ApiDocOptions } from "./interface/ItdocBuilderEntry"
-export { exportOASToJSON } from "./generator"
+export {
+    exportOASToJSON,
+    configureOASExport,
+    recordTestFailure,
+    resetOASGenerationState,
+} from "./generator"
