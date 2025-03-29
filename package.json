@@ -24,6 +24,7 @@
     "scripts": {
         "build": "pnpm run clean && tsup",
         "makedocs": "tsx ./script/makedocs/index.ts",
+        "llm": "tsx ./script/llm/index.ts",
         "ci": "pnpm run prettier:check && pnpm run lint && pnpm run test && pnpm run build",
         "clean": "rimraf build",
         "postinstall": "husky",
@@ -60,6 +61,7 @@
         "mocha": "^11.1.0",
         "pino": "^9.6.0",
         "pino-pretty": "^13.0.0",
+        "openai": "^4.90.0",
         "supertest": "^7.0.0",
         "tslib": "~2.8"
     },
