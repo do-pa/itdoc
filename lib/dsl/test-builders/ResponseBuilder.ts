@@ -139,25 +139,19 @@ export class ResponseBuilder extends AbstractTestBuilder {
             }
 
             if (this.config.prettyPrint) {
-                logger.info(
-                    {
-                        request: logToPrint.request,
-                        response: logToPrint.response,
-                    },
-                    "API TEST PASSED",
-                )
+                logger.info("API TEST PASSED", {
+                    request: logToPrint.request,
+                    response: logToPrint.response,
+                })
             }
             // @ts-expect-error TODO: ignore 사용하지 않도록 코드 수정
             return res
         } catch (error: any) {
             if (this.config.prettyPrint) {
-                logger.info(
-                    {
-                        request: logToPrint.request,
-                        error: error.response ? error.response : error.message,
-                    },
-                    "API TEST FAILED",
-                )
+                logger.info("API TEST FAILED", {
+                    request: logToPrint.request,
+                    error: error.response ? error.response : error.message,
+                })
             }
             throw error
         }
