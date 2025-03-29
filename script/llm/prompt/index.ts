@@ -31,7 +31,7 @@ const __dirname: string = dirname(__filename)
  * @param {boolean} isEn - true일 경우 결과물을 영어로, false일 경우 한글로 출력하도록 추가 메시지를 설정.
  * @returns {string} - 생성된 프롬프트 메시지 문자열.
  */
-function getCdocprompt(content: string, isEn: boolean): string {
+function getItdocPrompt(content: string, isEn: boolean): string {
     const itdocExamplePath: string = join(
         __dirname,
         "../../../examples/express/__tests__/expressApp.test.js",
@@ -57,4 +57,4 @@ ${itdocExample}
 `
 }
 
-export default getCdocprompt
+export default getItdocPrompt
