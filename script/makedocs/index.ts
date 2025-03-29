@@ -49,7 +49,7 @@ const printHeader = (title: string): void => {
  * 출력 디렉토리의 경로를 설정합니다.
  * @constant {string}
  */
-const outputDir: string = join(__dirname, "../", "output")
+const outputDir: string = join(__dirname, "../../", "output")
 if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true })
     console.log(chalk.green(`디렉토리 생성됨: ${outputDir}`))

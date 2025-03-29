@@ -19,6 +19,10 @@ Specification], Markdown, HTML 형식 등으로 문서를 내보낼 수 있습�
 [Spring REST Docs]: https://spring.io/projects/spring-restdocs
 [OpenAPI Specification]: https://swagger.io/specification/
 
+## env 설정
+
+.env를 설정해서 GPT API기반으로 테스트를 생성할 수 있습니다. .env.example를 기반으로 설정해주세요.
+
 ## Example
 
 ```javascript
