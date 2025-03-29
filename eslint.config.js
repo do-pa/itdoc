@@ -29,6 +29,7 @@ export default tseslint.config(
             "**/*.js",
             "**/*.cjs",
             "**/*.mjs",
+            "itdoc-doc/**/*"
         ],
         languageOptions: {
             // 사용할 JavaScript 버전 지정
