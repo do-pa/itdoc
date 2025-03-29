@@ -14,13 +14,31 @@
  * limitations under the License.
  */
 
-export { HttpMethod } from "./enums/HttpMethod"
-export { HttpStatus } from "./enums/HttpStatus"
-export { describeAPI, itDoc, field } from "./interface"
-export type { ApiDocOptions } from "./interface/ItdocBuilderEntry"
-export {
-    exportOASToJSON,
-    configureOASExport,
-    recordTestFailure,
-    resetOASGenerationState,
-} from "./generator"
+import { HttpMethod } from "../../enums"
+import { ApiDocOptions } from "../../interface"
+
+/**
+ * 테스트 결과 인터페이스
+ */
+export interface TestResult {
+    method: HttpMethod
+    url: string
+    options: ApiDocOptions
+    request: {
+        body?: unknown
+        headers?: Record<string, string>
+    }
+    response: {
+        status: number
+        body?: unknown
+        headers?: Record<string, string>
+    }
+}
+
+/**
+ * OAS 생성기 인터페이스
+ */
+export interface IOpenAPIGenerator {
+    collectTestResult(result: TestResult): void
+    generateOpenAPISpec(): unknown
+}
