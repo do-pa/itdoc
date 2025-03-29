@@ -20,7 +20,7 @@ import path from "path"
 import dotenv from "dotenv"
 import { fileURLToPath } from "url"
 import chalk from "chalk"
-import getCdocprompt from "./prompt/index.js"
+import getItdocPrompt from "./prompt/index.js"
 
 const __filename: string = fileURLToPath(import.meta.url)
 const __dirname: string = path.dirname(__filename)
@@ -43,9 +43,9 @@ const filePath: string = path.join(outputDir, "output.js")
  * @param {boolean} isEn - 결과물을 영어로 출력할지 여부 (true: 영어, false: 한글).
  * @returns {Promise<string | null>} - 생성된 테스트 코드 문자열 또는 에러 발생 시 null.
  */
-async function makedoc_llm(content: string, isEn: boolean): Promise<string | null> {
+async function makedocLLM(content: string, isEn: boolean): Promise<string | null> {
     try {
-        const msg: string = getCdocprompt(content, isEn)
+        const msg: string = getItdocPrompt(content, isEn)
         const response: any = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [{ role: "user", content: msg }],
@@ -84,7 +84,7 @@ async function main(testspecPath?: string): Promise<void> {
     }
     const msg: string = fs.readFileSync(actualTestspecPath, "utf8")
 
-    const ret = await makedoc_llm(msg, isEn)
+    const ret = await makedocLLM(msg, isEn)
     if (ret !== null) {
         fs.writeFileSync(filePath, ret, "utf8")
         console.log(
