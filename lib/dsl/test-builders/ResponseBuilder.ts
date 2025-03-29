@@ -20,6 +20,7 @@ import supertest from "supertest"
 import { validateResponse } from "./validateResponse"
 import { isDSLField } from "../interface/field"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
+import logger from "../../config/logger"
 
 /**
  * API 응답을 검증하기 위한 결과값을 설정하는 빌더 클래스입니다.
@@ -42,6 +43,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
     }
 
     private async runTest(): Promise<Response> {
+        logger.debug(`runTest: ${this.method} ${this.url}`)
         if (!this.config.expectedStatus) {
             throw new Error("Expected status is required")
         }
@@ -114,33 +116,42 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 }
             })
         }
+
+        const logToPrint = {
+            request: {
+                path: finalUrl,
+                method: this.method,
+                headers: this.config.requestHeaders,
+                queryParams: this.config.queryParams,
+                pathParams: this.config.pathParams,
+                requestBody: this.config.requestBody,
+            },
+            response: {
+                status: 1,
+                responseBody: null,
+            },
+        }
         try {
             const res = await req
+            logToPrint.response = {
+                status: res.status,
+                responseBody: res.body,
+            }
+
             if (this.config.prettyPrint) {
-                console.log(`=== API TEST REQUEST ===
-              Method: ${this.method}
-              URL: ${finalUrl}
-              Headers: ${JSON.stringify(this.config.requestHeaders, null, 2)}
-              Query Params: ${JSON.stringify(this.config.queryParams, null, 2)}
-              Request Body: ${JSON.stringify(this.config.requestBody, null, 2)}
-              === API TEST RESPONSE ===
-              Status: ${res.status}
-              Response Body: ${JSON.stringify(res.body, null, 2)}
-              `)
+                logger.info("API TEST PASSED", {
+                    request: logToPrint.request,
+                    response: logToPrint.response,
+                })
             }
             // @ts-expect-error TODO: ignore 사용하지 않도록 코드 수정
             return res
         } catch (error: any) {
             if (this.config.prettyPrint) {
-                console.log(`=== API TEST REQUEST (on Error) ===
-              Method: ${this.method}
-              URL: ${finalUrl}
-              Headers: ${JSON.stringify(this.config.requestHeaders, null, 2)}
-              Query Params: ${JSON.stringify(this.config.queryParams, null, 2)}
-              Request Body: ${JSON.stringify(this.config.requestBody, null, 2)}
-              === API TEST RESPONSE (Error) ===
-              ${error.response ? error.response : error.message}
-              `)
+                logger.info("API TEST FAILED", {
+                    request: logToPrint.request,
+                    error: error.response ? error.response : error.message,
+                })
             }
             throw error
         }
