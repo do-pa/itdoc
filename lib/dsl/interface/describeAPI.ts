@@ -38,7 +38,7 @@ export const describeAPI = (
     }
 
     if (!url.startsWith("/")) {
-        throw new Error("API URL must start with a '/'")
+        url = "/" + url
     }
 
     if (!app) {

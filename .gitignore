@@ -34,6 +34,4 @@ build/
 .DS_Store
 
 .env
-script/llm/output/
-script/output
-script/dist 
+output
