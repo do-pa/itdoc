@@ -62,6 +62,7 @@
         "pino": "^9.6.0",
         "pino-pretty": "^13.0.0",
         "openai": "^4.90.0",
+        "chalk": "^4.1.2",
         "supertest": "^7.0.0",
         "tslib": "~2.8"
     },
