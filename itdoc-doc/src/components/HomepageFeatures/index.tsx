@@ -13,7 +13,7 @@ const FeatureList: FeatureItem[] = [
   {
     title: 'Easy to Use',
     image: require('@site/static/img/a.png').default,
-    description: <>itdoc은 API 테스트를 매우 쉽게 만들어줍니다.</>,
+    description: <>itdoc은 API 테스트를 매우 쉽게 만들어 줍니다. 인터페이스 자체가 정말 쉬워요!</>,
   },
   {
     title: 'Focus on What Matters',
@@ -25,9 +25,9 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: 'About JS and TS',
+    title: 'For JS and TS',
     image: require('@site/static/img/c.png').default,
-    description: <>itdoc은 자바스크립트와 타입스크립트 테스트 생태계에 큰 변화를 줄 것입니다.</>,
+    description: <>itdoc은 자바스크립트와 타입스크립트 API 테스팅에 중점을 맞춘 테스트를 만들어주는 도구입니다.</>,
   },
 ];
 
