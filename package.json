@@ -1,14 +1,23 @@
 {
     "name": "itdoc",
-    "version": "0.0.0",
-    "private": "true",
-    "description": "POC",
+    "version": "0.0.1",
+    "description": "Test-driven documentation for RESTful services",
     "license": "Apache-2.0",
     "author": {
         "name": "Moon Seonghun",
         "email": "penekhun@gamil.com",
         "url": "https://www.github.com/penekhun"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/do-pa/itdoc.git"
+    },
+    "bugs": {
+        "url": "https://github.com/do-pa/itdoc/issues/"
+    },
+    "discord": "https://discord.gg/ZhXk7VSu5Z",
+    "homepage": "https://github.com/do-pa/itdoc",
+    "logo": "https://github.com/user-attachments/assets/e84820f5-194e-48c0-99d6-f43d8038a157",
     "type": "module",
     "exports": {
         ".": {
