@@ -5,7 +5,7 @@ const targetApp = app
 
 describeAPI(
     HttpMethod.POST,
-    "/signup",
+    "signup",
     {
         name: "회원가입 API",
         tag: "Auth",
@@ -55,7 +55,7 @@ describeAPI(
                 })
         })
     },
-)
+) 
 
 describeAPI(
     HttpMethod.GET,
