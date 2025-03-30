@@ -22,6 +22,9 @@ import { fileURLToPath } from "url"
 import chalk from "chalk"
 import getItdocPrompt from "./prompt/index.js"
 
+/* TODO: no-console 해제 후, console.log() 제거. logger를 사용하도록 변경 해야함. */
+/* eslint-disable no-console */
+
 const __filename: string = fileURLToPath(import.meta.url)
 const __dirname: string = path.dirname(__filename)
 dotenv.config({ path: path.join(__dirname, "../../.env") })

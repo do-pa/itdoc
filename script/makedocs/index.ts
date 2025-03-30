@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/* TODO: no-console 해제 후, console.log() 제거. logger를 사용하도록 변경 해야함. */
+/* eslint-disable no-console */
+
 import { execSync } from "child_process"
 import { existsSync, mkdirSync } from "fs"
 import { fileURLToPath } from "url"
