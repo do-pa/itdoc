@@ -42,7 +42,7 @@ const config: Config = {
         ],
     ],
     themeConfig: {
-        image: "img/itdoc-social-card.jpg",
+        image: "img/logo.jpg",
         navbar: {
             title: "itdoc",
             logo: {
@@ -72,7 +72,7 @@ const config: Config = {
                     items: [
                         {
                             label: "Getting Started",
-                            to: "/docs/getting-started/installation",
+                            to: "/docs/intro",
                         },
                     ],
                 },
