@@ -31,7 +31,7 @@ const levels = {
         color: chalk.blue,
         bgColor: chalk.bgBlue.white.bold,
     },
-    WARNING: {
+    WARN: {
         color: chalk.yellow,
         bgColor: chalk.bgYellow.black.bold,
     },
@@ -89,7 +89,7 @@ const consolaInstance = createConsola({
 const logger: LoggerInterface = {
     debug: (msg, ...extra) => consolaInstance.debug(formatLog("DEBUG", msg), ...extra),
     info: (msg, ...extra) => consolaInstance.info(formatLog("INFO", msg), ...extra),
-    warn: (msg, ...extra) => consolaInstance.warn(formatLog("WARNING", msg), ...extra),
+    warn: (msg, ...extra) => consolaInstance.warn(formatLog("WARN", msg), ...extra),
     error: (msg, ...extra) => consolaInstance.error(formatLog("ERROR", msg), ...extra),
     level: consolaInstance.level,
 }
