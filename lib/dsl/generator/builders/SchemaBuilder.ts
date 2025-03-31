@@ -14,21 +14,5 @@
  * limitations under the License.
  */
 
-/**
- * OpenAPI 스키마 생성을 담당하는 클래스
- */
-export class SchemaBuilder {
-    /**
-     * 데이터로부터 스키마를 추론합니다.
-     * @param {unknown} data 스키마를 추론할 데이터
-     * @returns {unknown} 추론된 스키마 객체
-     */
-    public static inferSchema(data: unknown): unknown {
-        // TODO: 데이터로부터 자동으로 스키마를 추론하는 기능 구현 필요
-        // 현재는 임시 구현이며, 향후 더 정교한 스키마 추론 로직으로 개선해야 함
-        return {
-            type: typeof data,
-            example: data,
-        }
-    }
-}
+// 재구성된 모듈을 내보냅니다
+export * from "./schema"
