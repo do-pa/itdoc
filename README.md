@@ -1,6 +1,17 @@
-# itdoc
+# <img src="https://github.com/user-attachments/assets/e84820f5-194e-48c0-99d6-f43d8038a157" align="right" width="100">itdoc
 
-> ⚠️ 아직은 개발 중인 프로젝트 입니다. 당장은 사용하실 수 없습니다.
+[![NPM](https://img.shields.io/npm/v/itdoc.svg)](https://www.npmjs.com/package/itdoc)
+[![Build Status](https://github.com/do-pa/itdoc/actions/workflows/ci.yml/badge.svg)](https://github.com/do-pa/itdoc/actions/workflows/ci.yml)
+[![License](https://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Discord](https://img.shields.io/badge/Chat-Discord-5765F2.svg)](https://discord.gg/ZhXk7VSu5Z)
+
+`Javascript`로도 신뢰성 있는 API 문서화를 만들어 보세요!
+
+## Quick Start
+
+```bash
+npm install itdoc
+```
 
 ## Overview
 
