@@ -21,7 +21,6 @@ import chalk from "chalk"
 import { LoggerInterface } from "./LoggerInterface"
 
 const DEFAULT_LOG_LEVEL = process.env.ITDOC_DEBUG ? 0 : 4
-
 const levels = {
     DEBUG: {
         color: chalk.gray,
@@ -39,7 +38,8 @@ const levels = {
         color: chalk.red.bold,
         bgColor: chalk.bgRed.white.bold,
     },
-}
+} as const
+const MAX_LOG_LEVEL_LABEL_LENGTH = Math.max(...Object.keys(levels).map((key) => key.length))
 
 const customReporter: ConsolaReporter = {
     log(logObj: LogObject) {
@@ -47,11 +47,13 @@ const customReporter: ConsolaReporter = {
         const levelKey = type.toUpperCase() as keyof typeof levels
         const meta = levels[levelKey]
 
-        const levelText = `[${levelKey.padEnd(5)}]`
+        const levelText = `[${levelKey}]`
         const styledLevel = meta?.bgColor?.(levelText) ?? levelText
 
+        const paddingLength = MAX_LOG_LEVEL_LABEL_LENGTH - levelKey.length
+
         const [message, ...extra] = args
-        console.log(`${styledLevel} ${message}`)
+        console.log(`${styledLevel}${" ".repeat(paddingLength)} ${message}`)
 
         if (extra.length > 0) {
             const formattedExtra = formatExtra(extra)

@@ -43,7 +43,7 @@ describe("logger 는", () => {
         const [labelLine, ...extraLines] = consoleStub.getCalls().map((c) => c.args[0])
 
         expect(labelLine).to.equal(
-            chalk.bgBlue(chalk.white.bold("[INFO ]")) + " " + chalk.blue("회원 가입 성공"),
+            chalk.bgBlue(chalk.white.bold("[INFO]")) + "  " + chalk.blue("회원 가입 성공"),
         )
 
         expect(extraLines).to.deep.equal([
