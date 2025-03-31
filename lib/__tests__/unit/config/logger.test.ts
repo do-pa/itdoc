@@ -19,7 +19,7 @@ import * as sinon from "sinon"
 import chalk from "chalk"
 import logger from "../../../config/logger"
 
-describe("logger 는", () => {
+describe("logger", () => {
     let consoleStub: sinon.SinonStub
 
     beforeEach(() => {
@@ -30,32 +30,34 @@ describe("logger 는", () => {
         consoleStub.restore()
     })
 
-    it("INFO 테스트", () => {
-        logger.info(
-            "회원 가입 성공",
-            {
-                username: "penekhun",
-                name: "MoonSeonghun",
-            },
-            "가입 시기 : 2025-01-01",
-        )
+    context("info 호출시", () => {
+        it("로그가 잘 출력된다.", () => {
+            logger.info(
+                "회원 가입 성공",
+                {
+                    username: "penekhun",
+                    name: "MoonSeonghun",
+                },
+                "가입 시기 : 2025-01-01",
+            )
 
-        const [labelLine, ...extraLines] = consoleStub.getCalls().map((c) => c.args[0])
+            const [labelLine, ...extraLines] = consoleStub.getCalls().map((c) => c.args[0])
 
-        expect(labelLine).to.equal(
-            chalk.bgBlue(chalk.white.bold("[INFO]")) + "  " + chalk.blue("회원 가입 성공"),
-        )
+            expect(labelLine).to.equal(
+                chalk.bgBlue(chalk.white.bold("[INFO]")) + "  " + chalk.blue("회원 가입 성공"),
+            )
 
-        expect(extraLines).to.deep.equal([
-            "       ↳ {\n" +
-                '         "username": "penekhun",\n' +
-                '         "name": "MoonSeonghun"\n' +
-                "       }",
-            "       ↳ 가입 시기 : 2025-01-01",
-        ])
+            expect(extraLines).to.deep.equal([
+                "       ↳ {\n" +
+                    '         "username": "penekhun",\n' +
+                    '         "name": "MoonSeonghun"\n' +
+                    "       }",
+                "       ↳ 가입 시기 : 2025-01-01",
+            ])
+        })
     })
 
-    describe("ITDOC_DEBUG 환경변수가 ", () => {
+    context("ITDOC_DEBUG 환경변수가 ", () => {
         it("설정되지 않으면 로그레벨이 4가 된다.", async () => {
             delete process.env.ITDOC_DEBUG
             const { default: logger } = await import("../../../config/logger?" + Date.now())
