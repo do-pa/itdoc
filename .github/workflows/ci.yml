@@ -2,10 +2,9 @@ name: CI
 
 on:
     push:
-        branches: [main]
+        branches: ["main"]
     pull_request:
-        branches: [main]
-    # 수동으로 워크플로우를 실행할 수 있도록 설정
+        branches: ["main", "develop"]
     workflow_dispatch:
 
 jobs:
