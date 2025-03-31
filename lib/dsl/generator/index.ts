@@ -23,7 +23,6 @@ export { TestResultCollector } from "./TestResultCollector"
 
 // 빌더 클래스 내보내기
 export { SchemaBuilder } from "./builders/SchemaBuilder"
-export { PathBuilder } from "./builders/PathBuilder"
 export { OperationBuilder } from "./builders/OperationBuilder"
 
 // 유틸리티 내보내기
