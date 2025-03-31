@@ -44,10 +44,12 @@ export class ItdocBuilderEntry {
  * @param name API 이름
  * @param tag API 태그
  * @param summary API 요약
+ * @param description API 상세 설명
  */
 export interface ApiDocOptions {
     name?: string
     tag?: string
     summary?: string
+    description?: string
     defaults?: TestCaseConfig
 }
