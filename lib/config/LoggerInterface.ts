@@ -17,6 +17,7 @@
 export interface LoggerInterface {
     debug: (message: string | Error, ...extra: unknown[]) => void
     info: (message: string | Error, ...extra: unknown[]) => void
+    box: (message: string) => void
     warn: (message: string | Error, ...extra: unknown[]) => void
     error: (message: string | Error, ...extra: unknown[]) => void
 
