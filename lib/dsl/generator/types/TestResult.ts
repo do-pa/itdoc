@@ -26,12 +26,14 @@ export interface TestResult {
     options: ApiDocOptions
     request: {
         body?: unknown
-        headers?: Record<string, string>
+        headers?: Record<string, string | unknown>
+        queryParams?: Record<string, string | unknown>
+        pathParams?: Record<string, string | unknown>
     }
     response: {
         status: number
         body?: unknown
-        headers?: Record<string, string>
+        headers?: Record<string, string | unknown>
     }
 }
 
