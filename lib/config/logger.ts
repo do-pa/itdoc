@@ -16,7 +16,7 @@
 
 /* eslint-disable no-console */
 
-import { ConsolaReporter, createConsola, LogObject } from "consola"
+import { ConsolaReporter, createConsola, LogObject, consola as defaultConsola } from "consola"
 import chalk from "chalk"
 import { LoggerInterface } from "./LoggerInterface"
 
@@ -44,6 +44,8 @@ const MAX_LOG_LEVEL_LABEL_LENGTH = Math.max(...Object.keys(levels).map((key) => 
 const customReporter: ConsolaReporter = {
     log(logObj: LogObject) {
         const { type, args } = logObj
+        if (type === "box") return
+
         const levelKey = type.toUpperCase() as keyof typeof levels
         const meta = levels[levelKey]
 
@@ -83,17 +85,18 @@ const formatExtra = (extra: unknown[]): string[] => {
     })
 }
 
-const consolaInstance = createConsola({
+const itdocLoggerInstance = createConsola({
     level: DEFAULT_LOG_LEVEL,
     reporters: [customReporter],
 })
 
 const logger: LoggerInterface = {
-    debug: (msg, ...extra) => consolaInstance.debug(formatLog("DEBUG", msg), ...extra),
-    info: (msg, ...extra) => consolaInstance.info(formatLog("INFO", msg), ...extra),
-    warn: (msg, ...extra) => consolaInstance.warn(formatLog("WARN", msg), ...extra),
-    error: (msg, ...extra) => consolaInstance.error(formatLog("ERROR", msg), ...extra),
-    level: consolaInstance.level,
+    debug: (msg, ...extra) => itdocLoggerInstance.debug(formatLog("DEBUG", msg), ...extra),
+    info: (msg, ...extra) => itdocLoggerInstance.info(formatLog("INFO", msg), ...extra),
+    box: (msg) => defaultConsola.box(msg),
+    warn: (msg) => itdocLoggerInstance.warn(formatLog("WARN", msg)),
+    error: (msg, ...extra) => itdocLoggerInstance.error(formatLog("ERROR", msg), ...extra),
+    level: itdocLoggerInstance.level,
 }
 
 export default logger
