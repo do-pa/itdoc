@@ -2,44 +2,103 @@
     "openapi": "3.0.0",
     "info": {
         "title": "API Documentation",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+        }
     },
+    "servers": [
+        {
+            "url": "/",
+            "description": "기본 서버"
+        }
+    ],
     "paths": {
         "/signup": {
             "post": {
                 "summary": "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
                 "tags": ["Auth"],
+                "operationId": "postSignup",
+                "security": [{}],
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "example": {
+                                "properties": {
                                     "username": {
+                                        "type": "string",
                                         "description": "아이디",
-                                        "example": "penekhun",
-                                        "required": true
+                                        "example": "penekhun"
                                     },
                                     "password": {
+                                        "type": "string",
                                         "description": "패스워드",
-                                        "example": "1234567",
-                                        "required": true
+                                        "example": "1234567"
                                     }
-                                }
+                                },
+                                "required": ["username", "password"]
+                            },
+                            "example": {
+                                "username": "penekhun",
+                                "password": "1234567"
                             }
                         }
-                    }
+                    },
+                    "required": true
                 },
                 "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
                     "400": {
                         "description": "Bad Request",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
-                            "application/json": {
+                            "application/json; charset=utf-8": {
                                 "schema": {
                                     "type": "object",
-                                    "example": {
-                                        "error": "password must be at least 8 characters"
-                                    }
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": ["error"]
+                                },
+                                "example": {
+                                    "error": "password must be at least 8 characters"
                                 }
                             }
                         }
@@ -51,6 +110,43 @@
             "get": {
                 "summary": "사용자 ID를 받아 사용자 정보를 반환합니다.",
                 "tags": ["User"],
+                "operationId": "getUsersByuserid",
+                "security": [{}],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
                 "parameters": [
                     {
                         "name": "userId",
@@ -58,20 +154,265 @@
                         "required": true,
                         "schema": {
                             "type": "string"
+                        },
+                        "description": "userId 파라미터"
+                    }
+                ]
+            },
+            "put": {
+                "summary": "사용자 ID를 받아 해당 사용자의 정보를 전체 수정합니다.",
+                "tags": ["User"],
+                "operationId": "putUsersByuserid",
+                "security": [{}],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "required": ["name", "email"]
+                            },
+                            "example": {
+                                "name": "홍길동",
+                                "email": "hong@example.com"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": ["success", "message"]
+                                },
+                                "example": {
+                                    "success": false,
+                                    "message": "User not found"
+                                }
+                            }
                         }
                     }
-                ],
+                },
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "userId 파라미터"
+                    }
+                ]
+            },
+            "patch": {
+                "summary": "사용자 ID를 받아 해당 사용자의 정보를 부분적으로 수정합니다.",
+                "tags": ["User"],
+                "operationId": "patchUsersByuserid",
+                "security": [{}],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "description": "새 이메일",
+                                        "example": "newemail@example.com"
+                                    }
+                                },
+                                "required": ["email"]
+                            },
+                            "example": {
+                                "email": "newemail@example.com"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "updatedFields": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": ["success", "message", "updatedFields"]
+                                },
+                                "example": {
+                                    "success": true,
+                                    "message": "User partially updated",
+                                    "updatedFields": ["email"]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
                     "404": {
                         "description": "Not Found"
                     }
-                }
+                },
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "userId 파라미터"
+                    }
+                ]
             }
         },
         "/users/{userId}/friends/{friendId}": {
             "delete": {
                 "summary": "특정 사용자의 친구를 삭제합니다.",
                 "tags": ["User"],
+                "operationId": "deleteUsersByuseridFriendsByfriendid",
+                "security": [{}],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {}
+                                },
+                                "example": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
                 "parameters": [
                     {
                         "name": "userId",
@@ -79,7 +420,8 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "description": "userId 파라미터"
                     },
                     {
                         "name": "friendId",
@@ -87,17 +429,69 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "description": "friendId 파라미터"
                     }
-                ],
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "summary": "회원 목록을 조회합니다.",
+                "tags": ["User"],
+                "operationId": "getUsers",
+                "security": [{}],
                 "responses": {
-                    "204": {
-                        "description": "Unknown Status",
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
-                            "application/json": {
+                            "application/json; charset=utf-8": {
                                 "schema": {
                                     "type": "object",
-                                    "example": {}
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": ["error"]
+                                },
+                                "example": {
+                                    "error": "size are required"
                                 }
                             }
                         }
@@ -105,20 +499,771 @@
                 }
             }
         },
-        "/users": {
+        "/secret": {
             "get": {
-                "summary": "회원 목록을 조회합니다.",
-                "tags": ["User"],
+                "summary": "비밀 API 입니다. 인증이 필요합니다.",
+                "tags": ["Secret"],
+                "operationId": "getSecret",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "responses": {
-                    "400": {
-                        "description": "Bad Request",
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
-                            "application/json": {
+                            "application/json; charset=utf-8": {
                                 "schema": {
                                     "type": "object",
-                                    "example": {
-                                        "error": "size are required"
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": ["message"]
+                                },
+                                "example": {
+                                    "message": "This is a secret message"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/orders": {
+            "post": {
+                "summary": "새로운 주문을 생성합니다.",
+                "tags": ["Order"],
+                "operationId": "postOrders",
+                "parameters": [
+                    {
+                        "name": "X-Request-ID",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": false
+                    }
+                ],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "customer": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "고객 ID",
+                                                "example": "cust123"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "description": "고객명",
+                                                "example": "홍길동"
+                                            },
+                                            "contact": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "email": {
+                                                        "type": "string",
+                                                        "format": "email",
+                                                        "description": "이메일",
+                                                        "example": "hong@example.com"
+                                                    },
+                                                    "phone": {
+                                                        "type": "string",
+                                                        "description": "전화번호",
+                                                        "example": "010-1234-5678"
+                                                    }
+                                                },
+                                                "required": ["email", "phone"]
+                                            }
+                                        },
+                                        "required": ["id", "name", "contact"]
+                                    },
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "productId": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "price": {
+                                                    "type": "integer"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer"
+                                                },
+                                                "options": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "productId",
+                                                "name",
+                                                "price",
+                                                "quantity",
+                                                "options"
+                                            ]
+                                        },
+                                        "description": "주문 상품 목록",
+                                        "example": [
+                                            {
+                                                "productId": "prod1",
+                                                "name": "노트북",
+                                                "price": 1500000,
+                                                "quantity": 1,
+                                                "options": ["8GB RAM", "512GB SSD"]
+                                            },
+                                            {
+                                                "productId": "prod2",
+                                                "name": "마우스",
+                                                "price": 30000,
+                                                "quantity": 2,
+                                                "options": []
+                                            }
+                                        ]
+                                    },
+                                    "shipping": {
+                                        "type": "object",
+                                        "properties": {
+                                            "address": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "zipcode": {
+                                                        "type": "string",
+                                                        "description": "우편번호",
+                                                        "example": "06000"
+                                                    },
+                                                    "city": {
+                                                        "type": "string",
+                                                        "description": "도시",
+                                                        "example": "서울"
+                                                    },
+                                                    "street": {
+                                                        "type": "string",
+                                                        "description": "상세주소",
+                                                        "example": "강남대로 123"
+                                                    }
+                                                },
+                                                "required": ["zipcode", "city", "street"]
+                                            },
+                                            "method": {
+                                                "type": "string",
+                                                "description": "배송 방법",
+                                                "example": "express"
+                                            },
+                                            "instructions": {
+                                                "type": "string",
+                                                "description": "배송 지침",
+                                                "example": "부재시 경비실에 맡겨주세요"
+                                            }
+                                        },
+                                        "required": ["address", "method", "instructions"]
+                                    },
+                                    "payment": {
+                                        "type": "object",
+                                        "properties": {
+                                            "method": {
+                                                "type": "string",
+                                                "description": "결제 방법",
+                                                "example": "credit_card"
+                                            },
+                                            "details": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "cardType": {
+                                                        "type": "string",
+                                                        "description": "카드 종류",
+                                                        "example": "visa"
+                                                    },
+                                                    "lastFourDigits": {
+                                                        "type": "string",
+                                                        "description": "마지막 4자리",
+                                                        "example": "1234"
+                                                    }
+                                                },
+                                                "required": ["cardType", "lastFourDigits"]
+                                            }
+                                        },
+                                        "required": ["method", "details"]
+                                    },
+                                    "couponCodes": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "쿠폰 코드",
+                                        "example": ["SUMMER10", "WELCOME"]
                                     }
+                                },
+                                "required": [
+                                    "customer",
+                                    "items",
+                                    "shipping",
+                                    "payment",
+                                    "couponCodes"
+                                ]
+                            },
+                            "example": {
+                                "customer": {
+                                    "id": "cust123",
+                                    "name": "홍길동",
+                                    "contact": {
+                                        "email": "hong@example.com",
+                                        "phone": "010-1234-5678"
+                                    }
+                                },
+                                "items": [
+                                    {
+                                        "productId": "prod1",
+                                        "name": "노트북",
+                                        "price": 1500000,
+                                        "quantity": 1,
+                                        "options": ["8GB RAM", "512GB SSD"]
+                                    },
+                                    {
+                                        "productId": "prod2",
+                                        "name": "마우스",
+                                        "price": 30000,
+                                        "quantity": 2,
+                                        "options": []
+                                    }
+                                ],
+                                "shipping": {
+                                    "address": {
+                                        "zipcode": "06000",
+                                        "city": "서울",
+                                        "street": "강남대로 123"
+                                    },
+                                    "method": "express",
+                                    "instructions": "부재시 경비실에 맡겨주세요"
+                                },
+                                "payment": {
+                                    "method": "credit_card",
+                                    "details": {
+                                        "cardType": "visa",
+                                        "lastFourDigits": "1234"
+                                    }
+                                },
+                                "couponCodes": ["SUMMER10", "WELCOME"]
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "orderId": {
+                                            "type": "string"
+                                        },
+                                        "totalAmount": {
+                                            "type": "integer"
+                                        },
+                                        "estimatedDelivery": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "orderId",
+                                        "totalAmount",
+                                        "estimatedDelivery",
+                                        "status"
+                                    ]
+                                },
+                                "example": {
+                                    "orderId": "order123",
+                                    "totalAmount": 1560000,
+                                    "estimatedDelivery": "2023-09-15",
+                                    "status": "PAYMENT_PENDING"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "summary": "다양한 조건으로 상품을 검색합니다.",
+                "tags": ["Product"],
+                "operationId": "getProducts",
+                "security": [{}],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "products": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "price": {
+                                                        "type": "integer"
+                                                    },
+                                                    "brand": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": ["id", "name", "price", "brand"]
+                                            }
+                                        },
+                                        "pagination": {
+                                            "type": "object",
+                                            "properties": {
+                                                "currentPage": {
+                                                    "type": "integer"
+                                                },
+                                                "pageSize": {
+                                                    "type": "integer"
+                                                },
+                                                "totalItems": {
+                                                    "type": "integer"
+                                                },
+                                                "totalPages": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "currentPage",
+                                                "pageSize",
+                                                "totalItems",
+                                                "totalPages"
+                                            ]
+                                        },
+                                        "filters": {
+                                            "type": "object",
+                                            "properties": {
+                                                "appliedFilters": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": ["appliedFilters"]
+                                        }
+                                    },
+                                    "required": ["products", "pagination", "filters"]
+                                },
+                                "example": {
+                                    "products": [
+                                        {
+                                            "id": "prod1",
+                                            "name": "무선 마우스",
+                                            "price": 50000,
+                                            "brand": "samsung"
+                                        },
+                                        {
+                                            "id": "prod2",
+                                            "name": "블루투스 키보드",
+                                            "price": 120000,
+                                            "brand": "lg"
+                                        }
+                                    ],
+                                    "pagination": {
+                                        "currentPage": 1,
+                                        "pageSize": 20,
+                                        "totalItems": 42,
+                                        "totalPages": 3
+                                    },
+                                    "filters": {
+                                        "appliedFilters": [
+                                            "category",
+                                            "minPrice",
+                                            "maxPrice",
+                                            "brands",
+                                            "features"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/cached-data": {
+            "get": {
+                "summary": "HTTP 캐싱 메커니즘을 활용하여 데이터를 조회합니다.",
+                "tags": ["System"],
+                "operationId": "getCached-data",
+                "security": [{}],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "cache-control": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "last-modified": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "version": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": ["version", "content"]
+                                        },
+                                        "timestamp": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": ["data", "timestamp"]
+                                },
+                                "example": {
+                                    "data": {
+                                        "version": "1.0",
+                                        "content": "캐시 가능한 데이터"
+                                    },
+                                    "timestamp": 1697873280000
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/validate": {
+            "post": {
+                "summary": "다양한 형태의 데이터 유효성을 검증하고 상세한 오류 정보를 제공합니다.",
+                "tags": ["Validation"],
+                "operationId": "postValidate",
+                "security": [{}],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "description": "잘못된 사용자명",
+                                        "example": "a"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "description": "잘못된 이메일",
+                                        "example": "not-an-email"
+                                    },
+                                    "age": {
+                                        "type": "integer",
+                                        "description": "잘못된 나이",
+                                        "example": -5
+                                    },
+                                    "registrationDate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "잘못된 날짜",
+                                        "example": "2023-13-45"
+                                    }
+                                },
+                                "required": ["username", "email", "age", "registrationDate"]
+                            },
+                            "example": {
+                                "username": "a",
+                                "email": "not-an-email",
+                                "age": -5,
+                                "registrationDate": "2023-13-45"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "headers": {
+                            "x-powered-by": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "etag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "date": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "connection": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "field": {
+                                                        "type": "string"
+                                                    },
+                                                    "message": {
+                                                        "type": "string"
+                                                    },
+                                                    "code": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": ["field", "message", "code"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["success", "errors"]
+                                },
+                                "example": {
+                                    "success": false,
+                                    "errors": [
+                                        {
+                                            "field": "username",
+                                            "message": "Username must be at least 3 characters",
+                                            "code": "MIN_LENGTH"
+                                        },
+                                        {
+                                            "field": "email",
+                                            "message": "Invalid email format",
+                                            "code": "INVALID_FORMAT"
+                                        },
+                                        {
+                                            "field": "age",
+                                            "message": "Age must be a positive number",
+                                            "code": "POSITIVE_NUMBER"
+                                        },
+                                        {
+                                            "field": "registrationDate",
+                                            "message": "Invalid date format",
+                                            "code": "INVALID_DATE"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -126,5 +1271,15 @@
                 }
             }
         }
-    }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [{}]
 }
