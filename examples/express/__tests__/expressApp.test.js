@@ -366,6 +366,7 @@ describeAPI(
                             name: "마우스",
                             price: 30000,
                             quantity: 2,
+                            options: [],
                         },
                     ]),
                     shipping: {
