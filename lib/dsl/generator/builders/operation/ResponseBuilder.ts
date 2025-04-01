@@ -35,6 +35,17 @@ export class ResponseBuilder implements ResponseBuilderInterface {
     public generateResponses(result: TestResult): Record<string, ResponseObject> {
         const responses: Record<string, ResponseObject> = {}
 
+        if (result.url.includes("/users/{userId}") && result.method === "GET") {
+            console.log("GENERATOR - Processing /users/{userId} endpoint:")
+            console.log("Response body:", JSON.stringify(result.response.body, null, 2))
+            console.log("Response has body?", !!result.response.body)
+            console.log("Response body type:", typeof result.response.body)
+            console.log(
+                "Response body keys:",
+                result.response.body ? Object.keys(result.response.body) : "no keys",
+            )
+        }
+
         if (result.response.status) {
             const statusCode = result.response.status.toString()
 
@@ -45,20 +56,45 @@ export class ResponseBuilder implements ResponseBuilderInterface {
             if (result.response.headers && Object.keys(result.response.headers).length > 0) {
                 const headers: Record<string, HeaderObject> = {}
 
+                // 필터링할 기본 HTTP 헤더 목록
+                const skipHeaders = [
+                    "x-powered-by",
+                    "content-type",
+                    "date",
+                    "connection",
+                    "content-length",
+                    "etag",
+                    "keep-alive",
+                    "proxy-authenticate",
+                    "proxy-authorization",
+                    "te",
+                    "trailer",
+                    "transfer-encoding",
+                    "upgrade",
+                ]
+
                 for (const [name, value] of Object.entries(result.response.headers)) {
+                    // 기본 헤더는 스킵
+                    if (skipHeaders.includes(name.toLowerCase())) {
+                        continue
+                    }
+
                     headers[name] = {
                         schema: SchemaBuilder.inferSchema(value) as Record<string, any>,
                     }
                 }
 
-                responses[statusCode].headers = headers
+                // 헤더가 하나라도 있는 경우에만 추가
+                if (Object.keys(headers).length > 0) {
+                    responses[statusCode].headers = headers
+                }
             }
 
             if (result.response.body) {
                 const contentType =
                     result.response.headers && "content-type" in result.response.headers
                         ? String(result.response.headers["content-type"])
-                        : "application/json"
+                        : "application/json; charset=utf-8"
 
                 const content: Content = {
                     [contentType]: {
