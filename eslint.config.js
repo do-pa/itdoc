@@ -1,12 +1,15 @@
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-import eslintConfigPrettier from "eslint-config-prettier";
-import jsdoc from "eslint-plugin-jsdoc";
-import globals from "globals";
-import mochaPlugin from "eslint-plugin-mocha";
-import licenseHeader from 'eslint-plugin-license-header';
+import eslint from "@eslint/js"
+import tseslint from "typescript-eslint"
+import eslintConfigPrettier from "eslint-config-prettier"
+import jsdoc from "eslint-plugin-jsdoc"
+import globals from "globals"
+import mochaPlugin from "eslint-plugin-mocha"
+import licenseHeader from "eslint-plugin-license-header"
 
 export default tseslint.config(
+    {
+        ignores: ["**/node_modules/**", "**/build/**", "**/examples/**", "tsup.config.ts"],
+    },
     // ESLint 기본 추천 규칙
     eslint.configs.recommended,
     // TypeScript 추천 규칙
@@ -20,17 +23,7 @@ export default tseslint.config(
         },
     },
     {
-        // TypeScript 파일만 대상으로 함
-        files: ["**/*.ts"],
-        ignores: [
-            "**/node_modules/**",
-            "**/build/**",
-            "**/dist/**",
-            "**/*.js",
-            "**/*.cjs",
-            "**/*.mjs",
-            "itdoc-doc/**/*"
-        ],
+        files: ["**/*.ts"], 
         languageOptions: {
             // 사용할 JavaScript 버전 지정
             ecmaVersion: 2022,
@@ -51,7 +44,7 @@ export default tseslint.config(
         },
         plugins: {
             jsdoc,
-            "license-header": licenseHeader
+            "license-header": licenseHeader,
         },
         rules: {
             // TypeScript 관련 규칙
@@ -94,25 +87,28 @@ export default tseslint.config(
 
             // 라이센스 헤더 규칙
             "license-header/header": [
-              "error",
-              [
-                "/*",
-                " * Copyright " + new Date().getFullYear() + " the original author or authors.",
-                " *",
-                " * Licensed under the Apache License, Version 2.0 (the \"License\");",
-                " * you may not use this file except in compliance with the License.",
-                " * You may obtain a copy of the License at",
-                " *",
-                " *    http://www.apache.org/licenses/LICENSE-2.0",
-                " *",
-                " * Unless required by applicable law or agreed to in writing, software",
-                " * distributed under the License is distributed on an \"AS IS\" BASIS,",
-                " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.",
-                " * See the License for the specific language governing permissions and",
-                " * limitations under the License.",
-                " */"
-              ]
-            ]
+                "error",
+                [
+                    "/*",
+                    " * Copyright " + new Date().getFullYear() + " the original author or authors.",
+                    " *",
+                    ' * Licensed under the Apache License, Version 2.0 (the "License");',
+                    " * you may not use this file except in compliance with the License.",
+                    " * You may obtain a copy of the License at",
+                    " *",
+                    " *    http://www.apache.org/licenses/LICENSE-2.0",
+                    " *",
+                    " * Unless required by applicable law or agreed to in writing, software",
+                    ' * distributed under the License is distributed on an "AS IS" BASIS,',
+                    " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.",
+                    " * See the License for the specific language governing permissions and",
+                    " * limitations under the License.",
+                    " */",
+                ],
+            ],
+
+            // no-console 규칙
+            "no-console": "error",
         },
         // JSDoc 설정
         settings: {
@@ -135,4 +131,4 @@ export default tseslint.config(
     },
     // Prettier와의 충돌 방지
     eslintConfigPrettier,
-);
+)

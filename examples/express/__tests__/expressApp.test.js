@@ -1,11 +1,10 @@
 const app = require("../expressApp.js")
 const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
 
-const targetApp = app
-
+const targetApp = app 
 describeAPI(
     HttpMethod.POST,
-    "/signup",
+    "signup",
     {
         name: "회원가입 API",
         tag: "Auth",
@@ -16,6 +15,7 @@ describeAPI(
         itDoc("회원가입 성공", () => {
             return apiDoc
                 .test()
+                .prettyPrint()
                 .req()
                 .body({
                     username: "penekhun",
@@ -54,7 +54,11 @@ describeAPI(
                 })
         })
     },
+<<<<<<< HEAD
+) 
+=======
 )
+>>>>>>> ff8b7fc (refactor: singup관련 중복되는 테스트 코드 삭제)
 
 describeAPI(
     HttpMethod.GET,

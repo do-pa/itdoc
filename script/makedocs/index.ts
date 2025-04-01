@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/* TODO: no-console 해제 후, console.log() 제거. logger를 사용하도록 변경 해야함. */
+/* eslint-disable no-console */
+
 import { execSync } from "child_process"
 import { existsSync, mkdirSync } from "fs"
 import { fileURLToPath } from "url"
@@ -49,7 +52,7 @@ const printHeader = (title: string): void => {
  * 출력 디렉토리의 경로를 설정합니다.
  * @constant {string}
  */
-const outputDir: string = join(__dirname, "../", "output")
+const outputDir: string = join(__dirname, "../../", "output")
 if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true })
     console.log(chalk.green(`디렉토리 생성됨: ${outputDir}`))

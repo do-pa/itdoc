@@ -24,10 +24,11 @@
     "scripts": {
         "build": "pnpm run clean && tsup",
         "makedocs": "tsx ./script/makedocs/index.ts",
+        "llm": "tsx ./script/llm/index.ts",
         "ci": "pnpm run prettier:check && pnpm run lint && pnpm run test && pnpm run build",
         "clean": "rimraf build",
         "postinstall": "husky",
-        "lint": "eslint ./lib",
+        "lint": "eslint .",
         "lint-staged": "lint-staged",
         "prepare": "husky && husky install",
         "prettier": "prettier \"{lib,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",
@@ -57,8 +58,10 @@
     },
     "dependencies": {
         "@redocly/cli": "^1.34.0",
+        "consola": "^3.4.2",
         "jest": "^29.7.0",
         "mocha": "^11.1.0",
+        "openai": "^4.90.0",
         "supertest": "^7.0.0",
         "tslib": "~2.8"
     },
@@ -80,6 +83,8 @@
         "husky": "^8.0.0",
         "lint-staged": "^15.4.3",
         "prettier": "~3.4",
+        "@types/sinon": "^17.0.2",
+        "sinon": "^20.0.0",
         "rimraf": "^6.0.1",
         "sort-package-json": "^2.15.1",
         "supports-color": "^10.0.0",
