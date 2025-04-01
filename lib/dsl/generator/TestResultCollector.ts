@@ -16,7 +16,6 @@
 
 import { TestResult, IOpenAPIGenerator } from "./types/TestResult"
 import { OpenAPIGenerator } from "./OpenAPIGenerator"
-import { Logger } from "./utils/Logger"
 
 // 싱글톤 인스턴스를 저장할 변수
 let instance: TestResultCollector | null = null
@@ -52,7 +51,6 @@ export class TestResultCollector {
      * @param {TestResult} result 테스트 결과
      */
     public collectResult(result: TestResult): void {
-        Logger.debug("collectResult called with:", result)
         this.generator.collectTestResult(result)
     }
 

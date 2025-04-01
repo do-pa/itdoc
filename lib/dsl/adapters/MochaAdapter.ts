@@ -17,7 +17,6 @@
 import { TestFramework } from "./TestFramework"
 import { UserTestInterface } from "./UserTestInterface"
 import { autoExportOAS, recordTestFailure } from "../generator"
-import { Logger } from "../generator/utils/Logger"
 
 export class MochaAdapter implements UserTestInterface {
     public name = TestFramework.Mocha
@@ -53,13 +52,12 @@ export class MochaAdapter implements UserTestInterface {
                 globalAny.mocha.run = function (...args: any[]): any {
                     const runner = originalRun.apply(this, args)
                     runner.on("end", () => {
-                        Logger.debug("Mocha tests completed (runner.on end), auto-exporting OAS...")
                         autoExportOAS()
                     })
                     return runner
                 }
                 this.autoExportRegistered = true
-                Logger.debug("Auto export hook registered for Mocha via runner events")
+
                 return
             }
 
@@ -72,19 +70,15 @@ export class MochaAdapter implements UserTestInterface {
                     this.mochaGlobals.after(function () {
                         // process.nextTick을 사용하여 모든 테스트 스택이 비워진 후 실행
                         process.nextTick(() => {
-                            Logger.debug(
-                                "Mocha tests completed (after hook), auto-exporting OAS...",
-                            )
                             autoExportOAS()
                         })
                     })
                     globalAny.__itdoc_global_after_registered = true
                     this.autoExportRegistered = true
-                    Logger.debug("Auto export hook registered for Mocha via after hook")
                 }
             }
         } catch (error) {
-            Logger.debug("Failed to register Mocha auto export hook:", error)
+            console.log("Failed to register Mocha auto export hook:", error)
         }
     }
 
@@ -103,12 +97,10 @@ export class MochaAdapter implements UserTestInterface {
 
                     // 테스트 실패를 가로채서 recordTestFailure 호출
                     mocha.Runner.prototype.fail = function (...args: any[]): void {
-                        Logger.debug("Mocha test failure detected")
                         recordTestFailure()
                         return originalFail.apply(this, args)
                     }
                     this.failureDetectionRegistered = true
-                    Logger.debug("Failure detection registered for Mocha via Runner.fail")
                 }
             }
 
@@ -116,7 +108,6 @@ export class MochaAdapter implements UserTestInterface {
             this.mochaGlobals.afterEach(function (this: any, done: () => void) {
                 const currentTest = this.currentTest || (this as any).test
                 if (currentTest && currentTest.state === "failed") {
-                    Logger.debug("Mocha test failure detected in afterEach")
                     recordTestFailure()
                 }
                 done()
@@ -124,20 +115,18 @@ export class MochaAdapter implements UserTestInterface {
 
             if (!this.failureDetectionRegistered) {
                 this.failureDetectionRegistered = true
-                Logger.debug("Failure detection registered for Mocha via afterEach")
             }
         } catch (error) {
-            Logger.debug("Failed to register Mocha failure detection:", error)
+            console.error("Failed to register Mocha failure detection:", error)
 
             // 마지막 방어 수단으로 uncaughtException 이벤트 리스너 추가
             try {
                 process.on("uncaughtException", (err) => {
-                    Logger.debug("Uncaught exception detected:", err)
+                    console.error("Uncaught exception detected:", err)
                     recordTestFailure()
                 })
-                Logger.debug("Registered uncaughtException listener as fallback")
             } catch (processError) {
-                Logger.debug("Failed to register uncaughtException listener:", processError)
+                console.error("Failed to register uncaughtException listener:", processError)
             }
         }
     }
