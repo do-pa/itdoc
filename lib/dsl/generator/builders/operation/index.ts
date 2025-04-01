@@ -28,7 +28,6 @@ export * from "./ResponseBuilder"
 // 주요 클래스들 가져오기
 import { TestResult } from "../../types/TestResult"
 import { OperationBuilderInterface } from "./interfaces"
-import { Logger } from "../../utils/Logger"
 import { ParameterBuilder } from "./ParameterBuilder"
 import { SecurityBuilder } from "./SecurityBuilder"
 import { RequestBodyBuilder } from "./RequestBodyBuilder"
@@ -51,8 +50,6 @@ export class OperationBuilder implements OperationBuilderInterface {
      * @returns OpenAPI Operation 객체
      */
     public generateOperation(result: TestResult): Record<string, unknown> {
-        Logger.debug(`오퍼레이션 생성: ${result.method} ${result.url}`)
-
         const operation: Record<string, unknown> = {
             summary: result.options.summary || `${result.method} ${result.url}`,
             tags: [result.options.tag || this.utilityBuilder.generateDefaultTag(result.url)],

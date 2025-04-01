@@ -15,8 +15,8 @@
  */
 
 import { TestResult, IOpenAPIGenerator } from "./types/TestResult"
-import { OperationBuilder } from "./builders/operation"
-import { Logger } from "./utils/Logger"
+import { OperationBuilder } from "./builders/OperationBuilder"
+import { UtilityBuilder } from "./builders/operation/UtilityBuilder"
 
 // 싱글톤 인스턴스를 저장할 변수
 let instance: OpenAPIGenerator | null = null
@@ -42,6 +42,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     private servers: Array<{ url: string; description?: string }> = []
     private defaultSecurity: Record<string, string[]>[] = [{}] // 기본값은 빈 보안 요구사항 (선택적 보안)
     private operationBuilder = new OperationBuilder()
+    private utilityBuilder = new UtilityBuilder()
 
     /**
      * 생성자 - 싱글톤 패턴을 위해 private으로 설정
@@ -52,14 +53,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             url: "/",
             description: "기본 서버",
         })
-    }
-
-    /**
-     * 디버그 모드를 설정합니다.
-     * @param {boolean} enable 디버그 모드 활성화 여부
-     */
-    public static setDebugMode(enable: boolean): void {
-        Logger.setDebugMode(enable)
     }
 
     /**
@@ -124,7 +117,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      * @param {TestResult} result 테스트 결과 객체
      */
     public collectTestResult(result: TestResult): void {
-        Logger.debug("테스트 결과 수집:", result)
         this.testResults.push(result)
     }
 
@@ -133,25 +125,140 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      * @returns {object} OpenAPI Specification 객체
      */
     public generateOpenAPISpec(): Record<string, unknown> {
-        Logger.debug("OpenAPI 스펙 생성 시작")
+        // 테스트 결과를 그룹화
+        const groupedResults = this.groupTestResults()
 
-        const paths: Record<string, Record<string, unknown>> = {}
-
-        for (const result of this.testResults) {
-            const path = result.url
-            const method = result.method.toLowerCase()
-
-            if (!paths[path]) {
-                paths[path] = {}
-            }
-
-            paths[path][method] = this.operationBuilder.generateOperation(result)
-        }
+        // 경로 객체 생성
+        const paths = this.generatePaths(groupedResults)
 
         // 경로 파라미터 검증 및 수정
         this.validatePathParameters(paths)
 
-        // OpenAPI info 객체 생성
+        // 최종 OpenAPI 문서 생성
+        return this.createFinalOpenAPIDocument(paths)
+    }
+
+    /**
+     * 테스트 결과를 경로, 메서드, 상태 코드별로 그룹화합니다.
+     */
+    private groupTestResults(): Map<string, Map<string, Map<string, TestResult[]>>> {
+        const groupedResults: Map<string, Map<string, Map<string, TestResult[]>>> = new Map()
+
+        // 테스트 결과를 그룹화
+        for (const result of this.testResults) {
+            const path = result.url
+            const method = result.method.toLowerCase()
+            const statusCode = result.response.status?.toString() || "200"
+
+            if (!groupedResults.has(path)) {
+                groupedResults.set(path, new Map())
+            }
+            if (!groupedResults.get(path)!.has(method)) {
+                groupedResults.get(path)!.set(method, new Map())
+            }
+            if (!groupedResults.get(path)!.get(method)!.has(statusCode)) {
+                groupedResults.get(path)!.get(method)!.set(statusCode, [])
+            }
+
+            groupedResults.get(path)!.get(method)!.get(statusCode)!.push(result)
+        }
+
+        return groupedResults
+    }
+
+    /**
+     * 그룹화된 테스트 결과로부터 경로 객체를 생성합니다.
+     * @param groupedResults
+     */
+    private generatePaths(
+        groupedResults: Map<string, Map<string, Map<string, TestResult[]>>>,
+    ): Record<string, Record<string, unknown>> {
+        const paths: Record<string, Record<string, unknown>> = {}
+
+        // 그룹화된 테스트 결과를 처리
+        for (const [path, methods] of groupedResults) {
+            paths[path] = {}
+
+            for (const [method, statusCodes] of methods) {
+                paths[path][method] = this.generateOperationObject(path, method, statusCodes)
+            }
+        }
+
+        return paths
+    }
+
+    /**
+     * 특정 경로와 메서드에 대한 작업 객체를 생성합니다.
+     * @param path
+     * @param method
+     * @param statusCodes
+     */
+    private generateOperationObject(
+        path: string,
+        method: string,
+        statusCodes: Map<string, TestResult[]>,
+    ): Record<string, unknown> {
+        // 각 경로/메서드에 대한 작업 생성
+        const operationObj: Record<string, unknown> = {}
+        const responses: Record<string, unknown> = {}
+
+        // 대표 테스트 결과 선택 (상태 코드 우선순위 무관)
+        // 이 결과는 기본 작업 정보(요약, 태그 등)를 위해 사용됨
+        const representativeResult = this.selectRepresentativeResult(
+            Array.from(statusCodes.values()).flat(),
+        )
+
+        // 기본 작업 정보 설정
+        operationObj.summary =
+            representativeResult.options?.summary || `${method.toUpperCase()} ${path} 요청`
+
+        if (representativeResult.options?.tag) {
+            operationObj.tags = [representativeResult.options.tag]
+        }
+
+        operationObj.operationId = this.utilityBuilder.generateOperationId(representativeResult)
+
+        // 요청 본문, 파라미터 등 공통 작업 정보
+        this.setRequestInformation(operationObj, representativeResult)
+
+        // 각 상태 코드별 응답 처리
+        this.processStatusCodes(statusCodes, responses)
+
+        // 응답 정보 설정
+        operationObj.responses = responses
+
+        // 필수 응답 코드 보장
+        this.ensureRequiredResponses(operationObj.responses as Record<string, unknown>, method)
+
+        operationObj.security = this.defaultSecurity
+
+        return operationObj
+    }
+
+    /**
+     * 상태 코드별 응답을 처리합니다.
+     * @param statusCodes
+     * @param responses
+     */
+    private processStatusCodes(
+        statusCodes: Map<string, TestResult[]>,
+        responses: Record<string, unknown>,
+    ): void {
+        for (const [statusCode, results] of statusCodes) {
+            const bestResult = this.selectBestResult(results)
+
+            const operationObj = this.operationBuilder.generateOperation(bestResult)
+            responses[statusCode] = (operationObj.responses as Record<string, unknown>)[statusCode]
+        }
+    }
+
+    /**
+     * 최종 OpenAPI 문서를 생성합니다.
+     * @param paths
+     */
+    private createFinalOpenAPIDocument(
+        paths: Record<string, Record<string, unknown>>,
+    ): Record<string, unknown> {
         const info: OpenAPIInfo = {
             title: this.title,
             version: this.version,
@@ -161,12 +268,10 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             },
         }
 
-        // 설명이 있는 경우에만 추가
         if (this.description) {
             info.description = this.description
         }
 
-        // 최종 OpenAPI 문서 생성
         const openApiSpec: Record<string, unknown> = {
             openapi: "3.0.0",
             info,
@@ -174,7 +279,22 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             paths,
         }
 
-        // components 섹션 생성
+        const components = this.createComponentsSection()
+        if (Object.keys(components).length > 0) {
+            openApiSpec.components = components
+        }
+
+        if (this.defaultSecurity.length > 0) {
+            openApiSpec.security = this.defaultSecurity
+        }
+
+        return openApiSpec
+    }
+
+    /**
+     * Components 섹션을 생성합니다.
+     */
+    private createComponentsSection(): Record<string, unknown> {
         const components: Record<string, unknown> = {}
 
         // 보안 스키마가 있으면 추가
@@ -183,39 +303,60 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             components.securitySchemes = securitySchemes
         }
 
-        // components 섹션에 내용이 있으면 추가
-        if (Object.keys(components).length > 0) {
-            openApiSpec.components = components
-        }
-
-        // 기본 보안 요구사항이 있으면 추가
-        if (this.defaultSecurity.length > 0) {
-            openApiSpec.security = this.defaultSecurity
-        }
-
-        // 각 경로의 오퍼레이션에 보안 정의가 없는 경우 기본 보안 정의 추가
-        this.ensureSecurityDefinitions(paths, this.defaultSecurity)
-
-        return openApiSpec
+        return components
     }
 
     /**
-     * 모든 오퍼레이션에 보안 정의가 있는지 확인하고 없으면 기본값 추가
-     * @param paths 경로 객체
-     * @param defaultSecurity 기본 보안 요구사항
+     * 여러 테스트 결과 중에서 대표 결과를 선택합니다.
+     * @param results 테스트 결과 배열
+     * @returns 선택된 대표 테스트 결과
      */
-    private ensureSecurityDefinitions(
-        paths: Record<string, Record<string, unknown>>,
-        defaultSecurity: Record<string, string[]>[],
-    ): void {
-        for (const pathItem of Object.values(paths)) {
-            for (const [, operation] of Object.entries(pathItem)) {
-                const op = operation as Record<string, unknown>
+    private selectRepresentativeResult(results: TestResult[]): TestResult {
+        // 옵션 정보가 가장 많은 결과 선택 (요약, 태그 등)
+        return results.reduce((best, current) => {
+            const bestOptionsCount = Object.keys(best.options || {}).length
+            const currentOptionsCount = Object.keys(current.options || {}).length
+            return currentOptionsCount > bestOptionsCount ? current : best
+        }, results[0])
+    }
 
-                if (!op.security) {
-                    op.security = defaultSecurity
+    /**
+     * 여러 테스트 결과 중에서 최적의 결과를 선택합니다.
+     * @param results 테스트 결과 배열
+     * @returns 선택된 최적의 테스트 결과
+     */
+    private selectBestResult(results: TestResult[]): TestResult {
+        return results.reduce((best, current) => {
+            if (!best.response.body && current.response.body) {
+                return current
+            }
+
+            if (!!best.response.body === !!current.response.body) {
+                if (best.response.body && current.response.body) {
+                    const bestSize = JSON.stringify(best.response.body).length
+                    const currentSize = JSON.stringify(current.response.body).length
+                    return currentSize > bestSize ? current : best
                 }
             }
+            return best
+        }, results[0])
+    }
+
+    /**
+     * 작업에 요청 정보를 설정합니다.
+     * @param operation 작업 객체
+     * @param result 테스트 결과
+     */
+    private setRequestInformation(operation: Record<string, unknown>, result: TestResult): void {
+        // 요청 객체 생성 - OperationBuilder가 올바르게 파라미터를 처리하도록 함
+        const requestObj = this.operationBuilder.generateOperation(result)
+
+        if (requestObj.parameters) {
+            operation.parameters = requestObj.parameters
+        }
+
+        if (result.request?.body && requestObj.requestBody) {
+            operation.requestBody = requestObj.requestBody
         }
     }
 
@@ -225,27 +366,27 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      */
     private validatePathParameters(paths: Record<string, Record<string, unknown>>): void {
         for (const [path, pathItem] of Object.entries(paths)) {
-            // 경로에서 파라미터 추출 (예: /users/{userId}/items/{itemId})
             const pathParamMatches = path.match(/\{([^}]+)\}/g) || []
-            const pathParams = pathParamMatches.map((param) => param.slice(1, -1)) // '{userId}' -> 'userId'
+            const pathParams = pathParamMatches.map((param) => param.slice(1, -1))
 
             if (pathParams.length === 0) continue
 
-            // 각 오퍼레이션에 대해 경로 파라미터가 정의되었는지 확인
             for (const [, operation] of Object.entries(pathItem)) {
                 const op = operation as Record<string, unknown>
 
-                // 파라미터가 없으면 생성
                 if (!op.parameters) {
                     op.parameters = []
                 }
 
                 const parameters = op.parameters as Array<Record<string, unknown>>
-                const definedPathParams = new Set(
-                    parameters.filter((param) => param.in === "path").map((param) => param.name),
-                )
 
-                // 누락된 경로 파라미터 추가
+                const definedPathParams = new Map<string, Record<string, unknown>>()
+                parameters
+                    .filter((param) => param.in === "path")
+                    .forEach((param) => {
+                        definedPathParams.set(param.name as string, param)
+                    })
+
                 for (const param of pathParams) {
                     if (!definedPathParams.has(param)) {
                         parameters.push({
@@ -260,6 +401,101 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * 필수 응답 코드 보장
+     * @param responses 응답 객체
+     * @param method HTTP 메서드
+     */
+    private ensureRequiredResponses(responses: Record<string, unknown>, method: string): void {
+        const has4XX = Object.keys(responses).some((code) => code.startsWith("4"))
+        if (!has4XX) {
+            responses["400"] = {
+                description: "Bad Request",
+            }
+        }
+
+        const has2XX = Object.keys(responses).some((code) => code.startsWith("2"))
+        if (!has2XX) {
+            if (method.toUpperCase() === "POST") {
+                responses["201"] = {
+                    description: "Created",
+                }
+            } else {
+                responses["200"] = {
+                    description: "OK",
+                }
+            }
+        }
+
+        for (const statusCode of Object.keys(responses)) {
+            const response = responses[statusCode] as Record<string, any>
+            if (response.content) {
+                for (const contentType in response.content) {
+                    const contentObj = response.content[contentType] as Record<string, any>
+                    if (contentObj.example && contentObj.schema) {
+                        contentObj.example = this.normalizeExample(
+                            contentObj.example,
+                            contentObj.schema,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 스키마에 맞게 예제를 정규화
+     * @param example 예제 값
+     * @param schema 스키마 정의
+     * @returns 정규화된 예제
+     */
+    private normalizeExample(example: any, schema: Record<string, any>): any {
+        if (example === null || example === undefined || !schema) {
+            return example
+        }
+
+        const schemaType = schema.type
+        if (!schemaType) {
+            return example
+        }
+
+        switch (schemaType) {
+            case "object":
+                if (typeof example === "object" && !Array.isArray(example) && schema.properties) {
+                    const result: Record<string, any> = {}
+                    for (const [propName, propSchema] of Object.entries(schema.properties)) {
+                        if (example[propName] !== undefined) {
+                            if (
+                                typeof example[propName] === "object" &&
+                                example[propName] !== null &&
+                                "example" in example[propName]
+                            ) {
+                                result[propName] = example[propName].example
+                            } else {
+                                result[propName] = this.normalizeExample(
+                                    example[propName],
+                                    propSchema as Record<string, any>,
+                                )
+                            }
+                        }
+                    }
+                    return result
+                }
+                return example
+
+            case "array":
+                if (Array.isArray(example) && schema.items) {
+                    return example.map((item) =>
+                        this.normalizeExample(item, schema.items as Record<string, any>),
+                    )
+                }
+                return example
+
+            default:
+                return example
         }
     }
 }
