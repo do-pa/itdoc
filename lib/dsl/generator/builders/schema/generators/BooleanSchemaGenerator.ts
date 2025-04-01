@@ -23,10 +23,24 @@ export class BooleanSchemaGenerator extends BaseSchemaGenerator {
     /**
      * 불리언 값으로부터 스키마를 생성합니다.
      * @param value 불리언 값
-     * @param _value
-     * @returns 생성된 불리언 스키마
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
+     * @returns 생성된 스키마
      */
-    public generateSchema(_value: boolean): Record<string, unknown> {
-        return { type: "boolean" }
+    public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
+        // 불리언 값이 아닌 경우 기본 불리언 스키마 반환
+        if (typeof value !== "boolean") {
+            return { type: "boolean" }
+        }
+
+        const schema: Record<string, unknown> = {
+            type: "boolean",
+        }
+
+        // 예제 값 설정 (선택적)
+        if (includeExample) {
+            schema.example = value
+        }
+
+        return schema
     }
 }

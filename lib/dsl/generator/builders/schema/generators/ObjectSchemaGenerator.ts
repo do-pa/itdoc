@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Logger } from "../../../utils/Logger"
 import { isDSLField } from "../../../../interface/field"
 import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 import { SchemaFactory } from "../interfaces"
@@ -23,32 +22,45 @@ import { SchemaFactory } from "../interfaces"
  * 객체 값의 스키마를 생성하는 클래스
  */
 export class ObjectSchemaGenerator extends BaseSchemaGenerator {
-    private schemaFactory: SchemaFactory
+    private factory: SchemaFactory
 
     /**
      * 생성자
-     * @param schemaFactory 스키마 팩토리
+     * @param factory 스키마 팩토리
      */
-    public constructor(schemaFactory: SchemaFactory) {
+    public constructor(factory: SchemaFactory) {
         super()
-        this.schemaFactory = schemaFactory
+        this.factory = factory
     }
 
     /**
      * 객체 값으로부터 스키마를 생성합니다.
      * @param value 객체 값
-     * @returns 생성된 객체 스키마
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
+     * @returns 생성된 스키마
      */
-    public generateSchema(value: object): Record<string, unknown> {
-        Logger.debug("ObjectSchemaGenerator.generateSchema called with:", value)
+    public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
+        const obj = value as Record<string, unknown>
 
-        const result = this.buildPropertiesWithRequired(value)
-        const properties = result.properties
-        const required = result.required
+        const properties: Record<string, unknown> = {}
+        const required: string[] = []
+
+        for (const [propName, propValue] of Object.entries(obj)) {
+            if (propValue === undefined) continue
+
+            if (isDSLField(propValue) && propValue.required) {
+                required.push(propName)
+            }
+
+            properties[propName] = this.factory.createSchema(propValue, includeExample)
+        }
 
         const schema: Record<string, unknown> = {
             type: "object",
-            properties,
+        }
+
+        if (Object.keys(properties).length > 0) {
+            schema.properties = properties
         }
 
         if (required.length > 0) {
@@ -56,36 +68,5 @@ export class ObjectSchemaGenerator extends BaseSchemaGenerator {
         }
 
         return schema
-    }
-
-    /**
-     * 객체의 프로퍼티와 필수 필드 목록을 생성합니다.
-     * @param obj 대상 객체
-     * @returns properties와 required 배열을 포함한 객체
-     */
-    private buildPropertiesWithRequired(obj: object): {
-        properties: Record<string, unknown>
-        required: string[]
-    } {
-        const properties: Record<string, unknown> = {}
-        const required: string[] = []
-
-        for (const [key, value] of Object.entries(obj)) {
-            if (isDSLField(value)) {
-                properties[key] = this.schemaFactory.createSchema(value)
-
-                if (value.required) {
-                    required.push(key)
-                }
-            } else {
-                properties[key] = this.schemaFactory.createSchema(value)
-
-                if (value !== undefined && value !== null) {
-                    required.push(key)
-                }
-            }
-        }
-
-        return { properties, required }
     }
 }

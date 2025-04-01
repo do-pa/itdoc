@@ -15,7 +15,6 @@
  */
 
 import { SchemaFactory } from "./SchemaFactory"
-import { Logger } from "../../utils/Logger"
 import { SchemaGenerator } from "./interfaces"
 
 // 인터페이스 및 기본 클래스 내보내기
@@ -43,11 +42,11 @@ export class SchemaBuilder {
     /**
      * 값으로부터 스키마를 추론합니다.
      * @param value 스키마를 생성할 값
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
      * @returns 생성된 OpenAPI 스키마
      */
-    public static inferSchema(value: unknown): unknown {
-        Logger.debug(`스키마 추론 시작: ${typeof value}`)
-        return this.schemaFactory.createSchema(value)
+    public static inferSchema(value: unknown, includeExample: boolean = true): unknown {
+        return this.schemaFactory.createSchema(value, includeExample)
     }
 
     /**
@@ -56,7 +55,6 @@ export class SchemaBuilder {
      * @param generator 스키마 제너레이터 인스턴스
      */
     public static registerGenerator(type: string, generator: SchemaGenerator): void {
-        Logger.debug(`스키마 제너레이터 등록: ${type}`)
         this.schemaFactory.registerGenerator(type, generator)
     }
 }

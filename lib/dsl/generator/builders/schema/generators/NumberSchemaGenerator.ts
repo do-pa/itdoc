@@ -23,11 +23,22 @@ export class NumberSchemaGenerator extends BaseSchemaGenerator {
     /**
      * 숫자 값으로부터 스키마를 생성합니다.
      * @param value 숫자 값
-     * @returns 생성된 숫자 스키마
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
+     * @returns 생성된 스키마
      */
-    public generateSchema(value: number): Record<string, unknown> {
-        return {
+    public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
+        if (typeof value !== "number") {
+            return { type: "number" }
+        }
+
+        const schema: Record<string, unknown> = {
             type: Number.isInteger(value) ? "integer" : "number",
         }
+
+        if (includeExample) {
+            schema.example = value
+        }
+
+        return schema
     }
 }

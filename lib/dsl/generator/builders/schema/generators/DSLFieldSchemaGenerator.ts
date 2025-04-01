@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Logger } from "../../../utils/Logger"
 import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 import { SchemaFactory } from "../interfaces"
 import { DSLField, FIELD_TYPES } from "../../../../interface/field"
@@ -37,15 +36,15 @@ export class DSLFieldSchemaGenerator extends BaseSchemaGenerator {
     /**
      * DSL 필드로부터 스키마를 생성합니다.
      * @param value DSL 필드 객체
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
      * @returns 생성된 스키마
      */
-    public generateSchema(value: unknown): Record<string, unknown> {
-        Logger.debug("DSL 필드 스키마 생성 시작")
+    public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         const field = value as DSLField<FIELD_TYPES>
 
         const schema = this.factory.createSchema(field.example) as Record<string, unknown>
 
-        this.enrichSchemaWithMetadata(schema, field)
+        this.enrichSchemaWithMetadata(schema, field, includeExample)
 
         return schema
     }
@@ -54,16 +53,18 @@ export class DSLFieldSchemaGenerator extends BaseSchemaGenerator {
      * 필드의 메타데이터로 스키마를 보강합니다.
      * @param schema 보강할 스키마
      * @param field DSL 필드
+     * @param includeExample example 필드 포함 여부
      */
     private enrichSchemaWithMetadata(
         schema: Record<string, unknown>,
         field: DSLField<FIELD_TYPES>,
+        includeExample: boolean = true,
     ): void {
         if (field.description) {
             schema.description = field.description
         }
 
-        if (field.example !== undefined && typeof field.example !== "function") {
+        if (includeExample && field.example !== undefined && typeof field.example !== "function") {
             schema.example = field.example
         }
 
