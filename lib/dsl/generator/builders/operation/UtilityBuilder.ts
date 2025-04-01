@@ -72,6 +72,10 @@ export class UtilityBuilder implements UtilityBuilderInterface {
      */
     public extractSimpleExampleValue(value: any): any {
         if (isDSLField(value)) {
+            // DSL 필드의 example 값이 또 다른 DSL 필드인 경우 재귀적으로 처리
+            if (isDSLField(value.example)) {
+                return this.extractSimpleExampleValue(value.example)
+            }
             return value.example
         } else if (Array.isArray(value)) {
             return value.map((item) => this.extractSimpleExampleValue(item))
