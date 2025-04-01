@@ -22,7 +22,6 @@ import { ArraySchemaGenerator } from "./generators/ArraySchemaGenerator"
 import { ObjectSchemaGenerator } from "./generators/ObjectSchemaGenerator"
 import { DSLFieldSchemaGenerator } from "./generators/DSLFieldSchemaGenerator"
 import { isDSLField } from "../../../interface/field"
-import { Logger } from "../../utils/Logger"
 
 /**
  * 스키마 제너레이터 팩토리 클래스
@@ -57,43 +56,42 @@ export class SchemaFactory implements ISchemaFactory {
      * @param generator 스키마 제너레이터 인스턴스
      */
     public registerGenerator(type: string, generator: SchemaGenerator): void {
-        Logger.debug(`스키마 제너레이터 등록: ${type}`)
         this.generators[type] = generator
     }
 
     /**
      * 값의 타입에 따라 적절한 스키마 제너레이터를 선택하여 스키마를 생성합니다.
      * @param value 스키마를 생성할 값
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
      * @returns 생성된 OpenAPI 스키마
      */
-    public createSchema(value: unknown): unknown {
+    public createSchema(value: unknown, includeExample: boolean = true): unknown {
         if (value === undefined || value === null) {
             return { type: "object" }
         }
 
         // DSL 필드 처리
         if (isDSLField(value)) {
-            return this.generators["dslfield"].generateSchema(value)
+            return this.generators["dslfield"].generateSchema(value, includeExample)
         }
 
         // 배열 처리
         if (Array.isArray(value)) {
-            return this.generators["array"].generateSchema(value)
+            return this.generators["array"].generateSchema(value, includeExample)
         }
 
         // 객체 처리
         if (typeof value === "object") {
-            return this.generators["object"].generateSchema(value)
+            return this.generators["object"].generateSchema(value, includeExample)
         }
 
         // 기본 타입 처리 (문자열, 숫자, 불리언)
         const type = typeof value
         if (this.generators[type]) {
-            return this.generators[type].generateSchema(value)
+            return this.generators[type].generateSchema(value, includeExample)
         }
 
         // 알 수 없는 타입인 경우
-        Logger.debug(`알 수 없는 타입: ${type}, 기본 문자열 스키마 사용`)
         return { type: "string" }
     }
 }
