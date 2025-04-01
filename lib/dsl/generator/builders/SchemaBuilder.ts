@@ -14,5 +14,32 @@
  * limitations under the License.
  */
 
-// 재구성된 모듈을 내보냅니다
+import { SchemaFactory } from "./schema/SchemaFactory"
+
+/**
+ * OpenAPI Schema 객체를 생성하기 위한 빌더 클래스
+ * 이 클래스는 복잡한 스키마 생성 로직을 추상화하여 사용자가 쉽게 스키마를 생성할 수 있도록 합니다.
+ */
+export class SchemaBuilder {
+    private schemaFactory = new SchemaFactory()
+
+    /**
+     * 주어진 값에 대한 OpenAPI Schema를 생성합니다.
+     * 값의 타입에 따라 적절한 스키마 생성기를 선택하여 사용합니다.
+     * @param value 스키마를 생성할 값 (객체, 배열, 원시값 등)
+     * @returns 생성된 OpenAPI Schema 객체
+     */
+    public createSchema(value: unknown): Record<string, unknown> {
+        try {
+            const schema = this.schemaFactory.createSchema(value)
+            return schema as Record<string, unknown>
+        } catch (error) {
+            console.log("스키마 생성 중 오류 발생:", error)
+            // 오류 발생 시 기본 스키마 반환
+            return { type: "object", description: "스키마 생성 실패" }
+        }
+    }
+}
+
+// 스키마 관련 타입 및 인터페이스 내보내기
 export * from "./schema"
