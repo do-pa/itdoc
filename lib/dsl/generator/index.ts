@@ -25,19 +25,12 @@ export { TestResultCollector } from "./TestResultCollector"
 export { SchemaBuilder } from "./builders/SchemaBuilder"
 export { OperationBuilder } from "./builders/OperationBuilder"
 
-// 유틸리티 내보내기
-export { Logger } from "./utils/Logger"
-
 // 함수 내보내기 (직접 내보내지 않고 아래에서 래퍼 함수로 내보냄)
 import { exportOASToJSON as rawExportOASToJSON } from "./commands"
 
 // 싱글톤 인스턴스 내보내기
 import { OpenAPIGenerator } from "./OpenAPIGenerator"
 import { TestResultCollector } from "./TestResultCollector"
-import { Logger } from "./utils/Logger"
-
-// 디버그 모드 설정 (기본값: false)
-OpenAPIGenerator.setDebugMode(false)
 
 // 싱글톤 인스턴스
 export const oasGenerator = OpenAPIGenerator.getInstance()
@@ -66,10 +59,9 @@ export const resetOASGenerationState = (): void => {
 try {
     process.on("beforeExit", () => {
         resetOASGenerationState()
-        Logger.debug("OAS generation state reset on process exit")
     })
 } catch (error) {
-    Logger.debug("Failed to register beforeExit handler:", error)
+    console.error("Failed to register beforeExit handler:", error)
 }
 
 // 예상치 못한 종료 시에도 OAS를 생성하기 위한 시그널 핸들러
@@ -77,21 +69,19 @@ try {
     ;["SIGINT", "SIGTERM"].forEach((signal) => {
         process.on(signal, () => {
             if (!oasAlreadyGenerated && oasOutputPath && !hasTestFailures) {
-                Logger.debug(`Process ${signal} detected, generating OAS before exit...`)
                 rawExportOASToJSON(oasGenerator, oasOutputPath)
             }
             process.exit(0)
         })
     })
 } catch (error) {
-    Logger.debug("Failed to register signal handlers:", error)
+    console.error("Failed to register signal handlers:", error)
 }
 
 // 편의를 위한 래퍼 함수
 export const exportOASToJSON = (outputPath: string): void => {
     // 이미 OAS가 생성되었다면 중복 생성 방지
     if (oasAlreadyGenerated) {
-        Logger.debug("OAS already generated, skipping duplicate generation")
         return
     }
 
@@ -113,7 +103,6 @@ export const configureOASExport = (outputPath: string): void => {
  */
 export const recordTestFailure = (): void => {
     hasTestFailures = true
-    Logger.debug("Test failure recorded - OAS will not be generated automatically")
 }
 
 /**
@@ -124,25 +113,22 @@ export const recordTestFailure = (): void => {
 export const autoExportOAS = (): void => {
     // 이미 OAS가 생성되었다면 중복 생성 방지
     if (oasAlreadyGenerated) {
-        Logger.debug("OAS already generated, skipping duplicate generation")
         return
     }
 
     if (hasTestFailures) {
-        Logger.debug("Tests failed - skipping automatic OAS generation")
         return
     }
 
     if (oasOutputPath) {
-        Logger.debug("All tests passed - generating OAS automatically")
         // 이중 안전장치로 try-catch 추가
         try {
             rawExportOASToJSON(oasGenerator, oasOutputPath)
             oasAlreadyGenerated = true
         } catch (error) {
-            Logger.debug("Error during OAS generation:", error)
+            console.error("Error during OAS generation:", error)
         }
     } else {
-        Logger.debug("No output path configured, skipping OAS generation")
+        console.log("No output path configured, skipping OAS generation")
     }
 }

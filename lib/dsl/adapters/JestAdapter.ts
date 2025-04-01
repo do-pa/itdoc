@@ -17,7 +17,6 @@
 import { TestFramework } from "./TestFramework"
 import { UserTestInterface } from "./UserTestInterface"
 import { autoExportOAS, recordTestFailure } from "../generator"
-import { Logger } from "../generator/utils/Logger"
 
 export class JestAdapter implements UserTestInterface {
     public name = TestFramework.Jest
@@ -44,16 +43,14 @@ export class JestAdapter implements UserTestInterface {
             ;(globalAny as any).afterAll(function () {
                 // process.nextTick을 사용하여 테스트 스택이 완전히 비워진 후 실행
                 process.nextTick(() => {
-                    Logger.debug("Jest tests completed, auto-exporting OAS...")
                     autoExportOAS()
                 })
             })
 
             globalAny.__itdoc_jest_global_after_registered = true
             this.autoExportRegistered = true
-            Logger.debug("Auto export hook registered for Jest")
         } catch (error) {
-            Logger.debug("Failed to register Jest auto export hook:", error)
+            console.error("Failed to register Jest auto export hook:", error)
         }
     }
 
@@ -70,11 +67,10 @@ export class JestAdapter implements UserTestInterface {
                         expectState &&
                         expectState.assertionCalls !== expectState.assertionsPassed
                     ) {
-                        Logger.debug("Jest test failure detected")
                         recordTestFailure()
                     }
                 } catch (error) {
-                    Logger.debug("Error in failure detection:", error)
+                    console.error("Error in failure detection:", error)
                 }
                 done()
             })
@@ -91,7 +87,6 @@ export class JestAdapter implements UserTestInterface {
                         ...args: any[]
                     ): any {
                         if (!passed) {
-                            Logger.debug("Jest test failure detected via jasmine")
                             recordTestFailure()
                         }
                         return originalAddExpectationResult.apply(this, [passed, ...args])
@@ -100,9 +95,8 @@ export class JestAdapter implements UserTestInterface {
             }
 
             this.failureDetectionRegistered = true
-            Logger.debug("Failure detection registered for Jest")
         } catch (error) {
-            Logger.debug("Failed to register Jest failure detection:", error)
+            console.error("Failed to register Jest failure detection:", error)
         }
     }
 
