@@ -23,14 +23,25 @@ export class StringSchemaGenerator extends BaseSchemaGenerator {
     /**
      * 문자열 값으로부터 스키마를 생성합니다.
      * @param value 문자열 값
-     * @returns 생성된 문자열 스키마
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
+     * @returns 생성된 스키마
      */
-    public generateSchema(value: string): Record<string, unknown> {
-        const schema: Record<string, unknown> = { type: "string" }
+    public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
+        if (typeof value !== "string") {
+            return { type: "string" }
+        }
+
+        const schema: Record<string, unknown> = {
+            type: "string",
+        }
 
         const format = this.detectStringFormat(value)
         if (format) {
             schema.format = format
+        }
+
+        if (includeExample) {
+            schema.example = value
         }
 
         return schema

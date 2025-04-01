@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Logger } from "../../../utils/Logger"
 import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 import { SchemaFactory } from "../interfaces"
 
@@ -36,26 +35,26 @@ export class ArraySchemaGenerator extends BaseSchemaGenerator {
     /**
      * 배열 값으로부터 스키마를 생성합니다.
      * @param value 배열 값
-     * @returns 생성된 배열 스키마
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
+     * @returns 생성된 스키마
      */
-    public generateSchema(value: unknown[]): Record<string, unknown> {
-        Logger.debug(
-            "ArraySchemaGenerator.generateSchema called with array of length:",
-            value.length,
-        )
+    public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
+        const array = value as unknown[]
 
-        if (value.length === 0) {
+        if (array.length === 0) {
             return {
                 type: "array",
                 items: { type: "string" },
             }
         }
 
-        const itemSchema = this.schemaFactory.createSchema(value[0])
+        const itemSchema = this.schemaFactory.createSchema(array[0], includeExample)
 
-        return {
+        const result: Record<string, unknown> = {
             type: "array",
             items: itemSchema,
         }
+
+        return result
     }
 }

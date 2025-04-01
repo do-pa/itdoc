@@ -19,11 +19,12 @@
  */
 export interface SchemaGenerator {
     /**
-     * 값으로부터 OpenAPI 스키마를 생성합니다.
+     * 값으로부터 스키마를 생성합니다.
      * @param value 스키마를 생성할 값
-     * @returns 생성된 OpenAPI 스키마
+     * @param includeExample 스키마에 example 필드 포함 여부
+     * @returns 생성된 스키마
      */
-    generateSchema(value: unknown): Record<string, unknown>
+    generateSchema(value: unknown, includeExample?: boolean): Record<string, unknown>
 }
 
 /**
@@ -33,9 +34,10 @@ export interface SchemaFactory {
     /**
      * 값의 타입에 따라 적절한 스키마 제너레이터를 선택하여 스키마를 생성합니다.
      * @param value 스키마를 생성할 값
-     * @returns 생성된 OpenAPI 스키마
+     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
+     * @returns 생성된 스키마
      */
-    createSchema(value: unknown): unknown
+    createSchema(value: unknown, includeExample?: boolean): unknown
 
     /**
      * 스키마 타입에 따른 제너레이터를 등록합니다.
