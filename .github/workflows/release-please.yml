@@ -1,0 +1,57 @@
+name: Release Please
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release_please:
+    name: release-please
+    runs-on: ubuntu-latest
+    if: >
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+         github.event.workflow_run.event == 'push' &&
+         startsWith(github.event.workflow_run.ref, 'refs/heads/main') }}
+    outputs:
+      releaseCreated: ${{ steps.release.outputs.release_created }}
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: .github/release-please/config.json
+          manifest-file: .github/release-please/manifest.json
+
+  npm_publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    environment: npm
+    needs: release_please
+    # release_please 잡에서 release가 생성되었는지 여부로 publish 실행 여부 결정
+    if: needs.release_please.outputs.releaseCreated
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.3'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.5.2
+      - name: Install dependencies
+        run: pnpm install
+      - run: pnpm publish --provenance --access public --tag=next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
