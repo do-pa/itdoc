@@ -19,11 +19,14 @@ import { ParameterObject } from "../../types/OpenAPITypes"
 import { ParameterBuilderInterface } from "./interfaces"
 import { isDSLField } from "../../../interface/field"
 import { SchemaBuilder } from "../schema"
+import { UtilityBuilder } from "./UtilityBuilder"
 
 /**
  * OpenAPI Parameter 객체 생성을 담당하는 빌더 클래스
  */
 export class ParameterBuilder implements ParameterBuilderInterface {
+    private utilityBuilder = new UtilityBuilder()
+
     /**
      * 테스트 결과에서 파라미터를 추출합니다.
      * @param result 테스트 결과
@@ -56,14 +59,46 @@ export class ParameterBuilder implements ParameterBuilderInterface {
         const parameters: ParameterObject[] = []
 
         for (const [name, value] of Object.entries(pathParams)) {
-            const schema = SchemaBuilder.inferSchema(value) as Record<string, any>
-            parameters.push({
+            // 기본 파라미터 객체 생성
+            const parameter: ParameterObject = {
                 name,
                 in: "path",
                 required: true,
-                schema,
-                example: value,
-            })
+                schema: {
+                    type: "string",
+                },
+            }
+
+            // DSL 필드인 경우 메타데이터 추출 (description 및 example)
+            if (isDSLField(value)) {
+                if (value.description) {
+                    parameter.description = value.description
+                }
+
+                // example 값 직접 설정 (DSL 필드의 example 값 자체가 필요)
+                if (value.example !== undefined && value.example !== null) {
+                    if (isDSLField(value.example)) {
+                        // example이 다시 DSL 필드인 경우 재귀적으로 처리
+                        parameter.example = this.utilityBuilder.extractSimpleExampleValue(
+                            value.example,
+                        )
+                    } else {
+                        parameter.example = value.example
+                    }
+                }
+
+                // 스키마 생성 시 example 제외하고 생성
+                parameter.schema = SchemaBuilder.inferSchema(value.example, false) as Record<
+                    string,
+                    any
+                >
+            } else {
+                // 일반 값인 경우
+                parameter.schema = SchemaBuilder.inferSchema(value, false) as Record<string, any>
+                parameter.example = value
+            }
+
+            parameters.push(parameter)
         }
 
         return parameters
