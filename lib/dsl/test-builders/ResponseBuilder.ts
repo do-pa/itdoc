@@ -145,6 +145,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
                     response: logToPrint.response,
                 })
             }
+
             resultCollector.collectResult({
                 method: this.method,
                 url: this.url,
@@ -152,10 +153,12 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 request: {
                     body: this.config.requestBody,
                     headers: this.prepareHeadersForCollector(this.config.requestHeaders),
+                    queryParams: this.config.queryParams,
+                    pathParams: this.config.pathParams,
                 },
                 response: {
                     status: res.status,
-                    body: res.body,
+                    body: this.config.expectedResponseBody || res.body, // 검증을 위한 예상 응답 본문을 우선으로 사용
                     headers: res.headers,
                 },
             })
