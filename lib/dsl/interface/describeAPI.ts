@@ -36,7 +36,6 @@ export const describeAPI = (
     if (!options.name) {
         throw new Error("API name is required.")
     }
-
     if (!url.startsWith("/")) {
         url = "/" + url
     }
