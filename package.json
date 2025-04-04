@@ -36,7 +36,9 @@
         "test": "pnpm test:unit && pnpm test:e2e",
         "test:unit": "mocha",
         "test:e2e": "pnpm --filter example-express test && pnpm --filter testframework-compatibility-test test",
-        "docs": "cd itdoc-doc && pnpm install && pnpm run start"
+        "docs": "cd itdoc-doc && pnpm install && pnpm run start",
+        "docs-build": "cd itdoc-doc && pnpm install && pnpm run build",
+        "docs-deploy": "cd itdoc-doc && pnpm install && pnpm run deploy"
     },
     "lint-staged": {
         "*.{ts,mts}": [
