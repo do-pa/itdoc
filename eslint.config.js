@@ -8,7 +8,7 @@ import licenseHeader from "eslint-plugin-license-header"
 
 export default tseslint.config(
     {
-        ignores: ["**/node_modules/**", "**/build/**", "**/examples/**", "tsup.config.ts"],
+        ignores: ["**/node_modules/**", "**/build/**", "**/examples/**", "tsup.config.ts", "itdoc-doc/**"],
     },
     // ESLint 기본 추천 규칙
     eslint.configs.recommended,

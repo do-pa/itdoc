@@ -35,3 +35,6 @@ build/
 
 .env
 output
+itdoc-doc/.docusaurus
+itdoc-doc/build
+itdoc-doc/node_modules
