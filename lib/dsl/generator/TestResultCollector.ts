@@ -53,12 +53,4 @@ export class TestResultCollector {
     public collectResult(result: TestResult): void {
         this.generator.collectTestResult(result)
     }
-
-    /**
-     * OpenAPI Specification을 생성합니다
-     * @returns {unknown} OpenAPI Specification 객체
-     */
-    public generateOpenAPISpec(): unknown {
-        return this.generator.generateOpenAPISpec()
-    }
 }

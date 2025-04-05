@@ -17,6 +17,7 @@
 import { TestResult, IOpenAPIGenerator } from "./types/TestResult"
 import { OperationBuilder } from "./builders/OperationBuilder"
 import { UtilityBuilder } from "./builders/operation/UtilityBuilder"
+import logger from "../../config/logger"
 
 // 싱글톤 인스턴스를 저장할 변수
 let instance: OpenAPIGenerator | null = null
@@ -25,10 +26,6 @@ interface OpenAPIInfo {
     title: string
     version: string
     description?: string
-    license?: {
-        name: string
-        url: string
-    }
 }
 
 /**
@@ -67,56 +64,12 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * API 문서의 기본 정보를 설정합니다.
-     * @param {object} options API 문서 기본 정보 옵션
-     * @param options.title
-     * @param options.version
-     * @param options.description
-     * @returns {OpenAPIGenerator} 메서드 체이닝을 위한 인스턴스
-     */
-    public setInfo(options: {
-        title?: string
-        version?: string
-        description?: string
-    }): OpenAPIGenerator {
-        if (options.title) this.title = options.title
-        if (options.version) this.version = options.version
-        if (options.description) this.description = options.description
-        return this
-    }
-
-    /**
-     * API 서버 정보를 추가합니다.
-     * @param {string} url 서버 URL
-     * @param {string} description 서버 설명
-     * @returns {OpenAPIGenerator} 메서드 체이닝을 위한 인스턴스
-     */
-    public addServer(url: string, description?: string): OpenAPIGenerator {
-        this.servers.push({ url, description })
-        return this
-    }
-
-    /**
-     * 모든 API에 적용할 기본 보안 요구사항을 설정합니다.
-     * @param {string} scheme 보안 스키마 이름
-     * @param {string[]} scopes 스코프 목록 (OAuth2의 경우)
-     * @returns {OpenAPIGenerator} 메서드 체이닝을 위한 인스턴스
-     */
-    public setDefaultSecurity(scheme: string, scopes: string[] = []): OpenAPIGenerator {
-        if (!scheme) {
-            // 빈 보안 요구사항 (선택적 보안)
-            this.defaultSecurity = [{}]
-        } else {
-            this.defaultSecurity = [{ [scheme]: scopes }]
-        }
-        return this
-    }
-
-    /**
      * 테스트가 통과했을 때 결과를 수집합니다.
      * @param {TestResult} result 테스트 결과 객체
      */
     public collectTestResult(result: TestResult): void {
+        logger.debug(`Collecting test result for ${result.method} ${result.url}`)
+        logger.debug(`API options: ${JSON.stringify(result.options)}`)
         this.testResults.push(result)
     }
 
@@ -148,7 +101,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         for (const result of this.testResults) {
             const path = result.url
             const method = result.method.toLowerCase()
-            const statusCode = result.response.status?.toString() || "200"
+            const statusCode = result.response.status.toString()
 
             if (!groupedResults.has(path)) {
                 groupedResults.set(path, new Map())
@@ -216,6 +169,14 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             operationObj.tags = [representativeResult.options.tag]
         }
 
+        // description 설정 추가
+        if (representativeResult.options?.description) {
+            logger.debug(
+                `Adding description for ${method} ${path}: ${representativeResult.options.description}`,
+            )
+            operationObj.description = representativeResult.options.description
+        }
+
         operationObj.operationId = this.utilityBuilder.generateOperationId(representativeResult)
 
         // 요청 본문, 파라미터 등 공통 작업 정보
@@ -230,7 +191,18 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         // 필수 응답 코드 보장
         this.ensureRequiredResponses(operationObj.responses as Record<string, unknown>, method)
 
-        operationObj.security = this.defaultSecurity
+        // 보안 요구사항 추출
+        const security = this.operationBuilder.generateOperation(representativeResult).security
+
+        // Authorization 헤더가 있으면 보안 요구사항 적용, 없으면 기본값 사용
+        // security가 비어있거나 [{}]인 경우는 제외
+        const hasBearerAuth =
+            security &&
+            Array.isArray(security) &&
+            security.length > 0 &&
+            security.some((item) => Object.keys(item).length > 0)
+
+        operationObj.security = hasBearerAuth ? security : this.defaultSecurity
 
         return operationObj
     }
@@ -262,10 +234,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         const info: OpenAPIInfo = {
             title: this.title,
             version: this.version,
-            license: {
-                name: "Apache 2.0",
-                url: "https://www.apache.org/licenses/LICENSE-2.0.html",
-            },
         }
 
         if (this.description) {
@@ -312,7 +280,18 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      * @returns 선택된 대표 테스트 결과
      */
     private selectRepresentativeResult(results: TestResult[]): TestResult {
-        // 옵션 정보가 가장 많은 결과 선택 (요약, 태그 등)
+        // 먼저 Authorization 헤더가 있는 테스트 케이스를 찾습니다
+        const authTestCase = results.find(
+            (result) => result.request.headers && "Authorization" in result.request.headers,
+        )
+
+        // Authorization 헤더가 있는 테스트 케이스가 있으면 반환
+        if (authTestCase) {
+            logger.debug(`선택된 대표 테스트 케이스: Authorization 헤더 있음`)
+            return authTestCase
+        }
+
+        // 그렇지 않으면 옵션 정보가 가장 많은 결과 선택 (요약, 태그 등)
         return results.reduce((best, current) => {
             const bestOptionsCount = Object.keys(best.options || {}).length
             const currentOptionsCount = Object.keys(current.options || {}).length
@@ -357,6 +336,11 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
 
         if (result.request?.body && requestObj.requestBody) {
             operation.requestBody = requestObj.requestBody
+        }
+
+        // 보안 요구사항이 있으면 설정
+        if (requestObj.security) {
+            operation.security = requestObj.security
         }
     }
 
