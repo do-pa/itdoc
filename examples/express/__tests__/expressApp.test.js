@@ -10,6 +10,8 @@ describeAPI(
         name: "회원가입 API",
         tag: "Auth",
         summary: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+        description:
+            "신규 사용자를 시스템에 등록하기 위한 API입니다. 아이디와 패스워드를 필수적으로 입력해야 하며, 패스워드는 8자 이상이어야 합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -55,7 +57,7 @@ describeAPI(
                 })
         })
     },
-) 
+)
 
 describeAPI(
     HttpMethod.GET,
@@ -64,6 +66,8 @@ describeAPI(
         name: "사용자 조회 API",
         tag: "User",
         summary: "사용자 ID를 받아 사용자 정보를 반환합니다.",
+        description:
+            "특정 사용자의 상세 정보를 조회하는 API입니다. 사용자 ID가 유효한 경우에는 사용자 정보를 반환하고, 그렇지 않은 경우에는 404 응답을 반환합니다.",
     },
     targetApp,
     (apiDoc) => {
