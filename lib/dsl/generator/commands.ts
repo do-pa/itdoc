@@ -17,7 +17,7 @@
 import * as fs from "fs"
 import * as path from "path"
 import { IOpenAPIGenerator } from "./types/TestResult"
-
+import logger from "../../config/logger"
 /**
  * 테스트 결과를 기반으로 OpenAPI Specification을 JSON 파일로 내보냅니다.
  * @param {IOpenAPIGenerator} generator OAS 생성기 인스턴스
@@ -51,13 +51,11 @@ export const exportOASToJSON = (generator: IOpenAPIGenerator, outputPath: string
         // 파일 쓰기
         fs.writeFileSync(path.resolve(outputPath), specJson, "utf8")
 
-        // Node 환경에서 process.nextTick을 사용하여 테스트 스택이 완전히 비워진 후 로그가 출력되도록 합니다
-        process.nextTick(() => {
-            console.log(`OpenAPI Specification exported to ${outputPath}`)
-        })
+        // 테스트 환경에서 로그 출력 문제 방지를 위해 debug 레벨로 출력
+        logger.debug(`OpenAPI Specification exported to ${outputPath}`)
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류 발생"
-        console.error(`OpenAPI Specification 내보내기 실패: ${errorMessage}`)
+        logger.error(`OpenAPI Specification 내보내기 실패: ${errorMessage}`)
         // 오류를 다시 던지지 않고 로깅만 수행하여 테스트 실행을 중단하지 않음
     }
 }
