@@ -2,11 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "API Documentation",
-        "version": "1.0.0",
-        "license": {
-            "name": "Apache 2.0",
-            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
-        }
+        "version": "1.0.0"
     },
     "servers": [
         {
@@ -19,6 +15,7 @@
             "post": {
                 "summary": "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
                 "tags": ["Auth"],
+                "description": "신규 사용자를 시스템에 등록하기 위한 API입니다. 아이디와 패스워드를 필수적으로 입력해야 하며, 패스워드는 8자 이상이어야 합니다.",
                 "operationId": "postSignup",
                 "requestBody": {
                     "content": {
@@ -46,6 +43,7 @@
                     },
                     "required": true
                 },
+                "security": [{}],
                 "responses": {
                     "201": {
                         "description": "Created"
@@ -71,15 +69,15 @@
                             }
                         }
                     }
-                },
-                "security": [{}]
+                }
             }
         },
         "/users/{userId}": {
             "get": {
                 "summary": "사용자 ID를 받아 사용자 정보를 반환합니다.",
                 "tags": ["User"],
-                "operationId": "getUsersuserId",
+                "description": "특정 사용자의 상세 정보를 조회하는 API입니다. 사용자 ID가 유효한 경우에는 사용자 정보를 반환하고, 그렇지 않은 경우에는 404 응답을 반환합니다.",
+                "operationId": "getUsersByuserid",
                 "parameters": [
                     {
                         "name": "userId",
@@ -92,6 +90,7 @@
                         "example": "penek"
                     }
                 ],
+                "security": [{}],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -140,13 +139,12 @@
                     "404": {
                         "description": "Not Found"
                     }
-                },
-                "security": [{}]
+                }
             },
             "put": {
                 "summary": "사용자 ID를 받아 해당 사용자의 정보를 전체 수정합니다.",
                 "tags": ["User"],
-                "operationId": "putUsersuserId",
+                "operationId": "putUsersByuserid",
                 "parameters": [
                     {
                         "name": "userId",
@@ -219,6 +217,7 @@
                     },
                     "required": true
                 },
+                "security": [{}],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -270,13 +269,12 @@
                             }
                         }
                     }
-                },
-                "security": [{}]
+                }
             },
             "patch": {
                 "summary": "사용자 ID를 받아 해당 사용자의 정보를 부분적으로 수정합니다.",
                 "tags": ["User"],
-                "operationId": "patchUsersuserId",
+                "operationId": "patchUsersByuserid",
                 "parameters": [
                     {
                         "name": "userId",
@@ -311,6 +309,7 @@
                     },
                     "required": true
                 },
+                "security": [{}],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -347,15 +346,14 @@
                     "400": {
                         "description": "Bad Request"
                     }
-                },
-                "security": [{}]
+                }
             }
         },
         "/users/{userId}/friends/{friendId}": {
             "delete": {
                 "summary": "특정 사용자의 친구를 삭제합니다.",
                 "tags": ["User"],
-                "operationId": "deleteUsersuserIdfriendsfriendId",
+                "operationId": "deleteUsersByuseridFriendsByfriendid",
                 "parameters": [
                     {
                         "name": "userId",
@@ -377,6 +375,7 @@
                         "description": "friendId 파라미터"
                     }
                 ],
+                "security": [{}],
                 "responses": {
                     "204": {
                         "description": "No Content",
@@ -395,8 +394,7 @@
                     "404": {
                         "description": "Not Found"
                     }
-                },
-                "security": [{}]
+                }
             }
         },
         "/users": {
@@ -428,6 +426,7 @@
                         "description": "페이지 사이즈"
                     }
                 ],
+                "security": [{}],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -538,8 +537,7 @@
                             }
                         }
                     }
-                },
-                "security": [{}]
+                }
             }
         },
         "/secret": {
@@ -547,6 +545,11 @@
                 "summary": "비밀 API 입니다. 인증이 필요합니다.",
                 "tags": ["Secret"],
                 "operationId": "getSecret",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -572,8 +575,7 @@
                     "401": {
                         "description": "Unauthorized"
                     }
-                },
-                "security": [{}]
+                }
             }
         },
         "/orders": {
@@ -802,6 +804,11 @@
                     },
                     "required": true
                 },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -851,8 +858,7 @@
                     "400": {
                         "description": "Bad Request"
                     }
-                },
-                "security": [{}]
+                }
             }
         },
         "/products": {
@@ -965,6 +971,7 @@
                         "description": "특징"
                     }
                 ],
+                "security": [{}],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1097,8 +1104,7 @@
                     "400": {
                         "description": "Bad Request"
                     }
-                },
-                "security": [{}]
+                }
             }
         },
         "/cached-data": {
@@ -1135,6 +1141,7 @@
                         "required": false
                     }
                 ],
+                "security": [{}],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1215,8 +1222,7 @@
                     "400": {
                         "description": "Bad Request"
                     }
-                },
-                "security": [{}]
+                }
             }
         },
         "/validate": {
@@ -1264,6 +1270,7 @@
                     },
                     "required": true
                 },
+                "security": [{}],
                 "responses": {
                     "201": {
                         "description": "Created"
@@ -1353,8 +1360,7 @@
                             }
                         }
                     }
-                },
-                "security": [{}]
+                }
             }
         }
     },
