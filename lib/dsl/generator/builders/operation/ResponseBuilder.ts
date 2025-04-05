@@ -19,7 +19,7 @@ import { Content, HeaderObject, ResponseObject } from "../../types/OpenAPITypes"
 import { ResponseBuilderInterface } from "./interfaces"
 import { SchemaBuilder } from "../schema"
 import { UtilityBuilder } from "./UtilityBuilder"
-import { HTTP_STATUS_DESCRIPTIONS, DEFAULT_SUCCESS_STATUS_CODES } from "./constants"
+import { HttpStatus } from "../../../enums/HttpStatus"
 import logger from "../../../../config/logger"
 
 /**
@@ -124,15 +124,7 @@ export class ResponseBuilder implements ResponseBuilderInterface {
      * @param method HTTP 메서드
      */
     private addDefaultResponses(responses: Record<string, ResponseObject>, method: string): void {
-        const has2xx = Object.keys(responses).some((status) => status.startsWith("2"))
         const has4xx = Object.keys(responses).some((status) => status.startsWith("4"))
-
-        if (!has2xx) {
-            const defaultStatusCode = DEFAULT_SUCCESS_STATUS_CODES[method.toUpperCase()] || "200"
-            responses[defaultStatusCode] = {
-                description: this.getStatusDescription(parseInt(defaultStatusCode)),
-            }
-        }
 
         if (!has4xx) {
             responses["400"] = { description: "Bad Request" }
@@ -149,6 +141,42 @@ export class ResponseBuilder implements ResponseBuilderInterface {
      * @returns 상태 코드 설명
      */
     private getStatusDescription(status: number): string {
-        return HTTP_STATUS_DESCRIPTIONS[status] || `Status ${status}`
+        const enumKey = Object.keys(HttpStatus).find(
+            (key) => HttpStatus[key as keyof typeof HttpStatus] === status,
+        )
+
+        if (enumKey) {
+            return this.formatEnumKey(enumKey)
+        }
+
+        return `Status ${status}`
+    }
+
+    /**
+     * SNAKE_CASE를 "Title Case"로 변환하는 유틸리티 함수
+     * @param key 변환할 enum 키
+     * @returns 포맷팅된 문자열
+     */
+    private formatEnumKey(key: string): string {
+        // 특별 케이스 처리
+        if (key === "OK") {
+            return "OK"
+        }
+        if (key === "IM_A_TEAPOT") {
+            return "I'm a Teapot"
+        }
+
+        // 단어별로 분리하여 처리
+        return key
+            .split("_")
+            .map((word) => {
+                // URI, URL 같은 약어는 대문자 유지
+                if (word === "URI" || word === "URL" || word === "HTTP") {
+                    return word
+                }
+                // 일반 단어는 첫 글자만 대문자로
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            })
+            .join(" ")
     }
 }
