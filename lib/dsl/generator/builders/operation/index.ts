@@ -16,7 +16,6 @@
 
 // 기본 인터페이스 및 상수 내보내기
 export * from "./interfaces"
-export * from "./constants"
 
 // 각 빌더 클래스 내보내기
 export * from "./UtilityBuilder"
