@@ -20,7 +20,7 @@ import supertest, { Response } from "supertest"
 import { validateResponse } from "./validateResponse"
 import { isDSLField } from "../interface/field"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
-import { resultCollector } from "../generator"
+import { resultCollector, testEventManager } from "../generator"
 import logger from "../../config/logger"
 
 /**
@@ -170,6 +170,8 @@ export class ResponseBuilder extends AbstractTestBuilder {
                     error: error.response ? error.response : error.message,
                 })
             }
+            // 테스트 실패를 기록하여 OAS 생성 방지
+            testEventManager.completeTestFailure()
             throw error
         }
     }

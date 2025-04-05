@@ -15,8 +15,9 @@
  */
 
 import { getTestAdapterExports } from "../adapters"
-import { resultCollector } from "../generator"
+import { resultCollector, recordTestFailure, testEventManager } from "../generator"
 import { TestResult } from "../generator"
+import logger from "../../config/logger"
 
 /**
  * 케이스 별 테스트를 정의를 위한 함수
@@ -33,21 +34,39 @@ export const itDoc = (
     testFn: () => Promise<TestFnResult | void> | TestFnResult | void,
 ): void => {
     if (!description) {
-        throw new Error("Test description is required at itDoc.")
+        throw new Error("테스트 설명이 itDoc에 필요합니다.")
     }
 
     if (!testFn) {
-        throw new Error("Test function is required at itDoc.")
+        throw new Error("테스트 함수가 itDoc에 필요합니다.")
     }
+
+    // 테스트 등록
+    testEventManager.registerTest()
 
     const { itCommon } = getTestAdapterExports()
     itCommon(description, async () => {
-        const result = await testFn()
+        try {
+            const result = await testFn()
 
-        if (result && typeof result === "object" && "testResult" in result && result.testResult) {
-            resultCollector.collectResult(result.testResult)
+            if (
+                result &&
+                typeof result === "object" &&
+                "testResult" in result &&
+                result.testResult
+            ) {
+                resultCollector.collectResult(result.testResult)
+            }
+
+            // 테스트 성공 기록
+            testEventManager.completeTestSuccess()
+            return result
+        } catch (error) {
+            // 테스트 실패 기록
+            recordTestFailure()
+            testEventManager.completeTestFailure()
+            logger.error(`테스트 실패: ${description}`, error)
+            throw error
         }
-
-        return result
     })
 }
