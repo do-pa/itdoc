@@ -20,6 +20,7 @@ import { ResponseBuilderInterface } from "./interfaces"
 import { SchemaBuilder } from "../schema"
 import { UtilityBuilder } from "./UtilityBuilder"
 import { HTTP_STATUS_DESCRIPTIONS, DEFAULT_SUCCESS_STATUS_CODES } from "./constants"
+import logger from "../../../../config/logger"
 
 /**
  * OpenAPI Response 객체 생성을 담당하는 빌더 클래스
@@ -36,11 +37,11 @@ export class ResponseBuilder implements ResponseBuilderInterface {
         const responses: Record<string, ResponseObject> = {}
 
         if (result.url.includes("/users/{userId}") && result.method === "GET") {
-            console.log("GENERATOR - Processing /users/{userId} endpoint:")
-            console.log("Response body:", JSON.stringify(result.response.body, null, 2))
-            console.log("Response has body?", !!result.response.body)
-            console.log("Response body type:", typeof result.response.body)
-            console.log(
+            logger.info("GENERATOR - Processing /users/{userId} endpoint:")
+            logger.info("Response body:", JSON.stringify(result.response.body, null, 2))
+            logger.info("Response has body?", !!result.response.body)
+            logger.info("Response body type:", typeof result.response.body)
+            logger.info(
                 "Response body keys:",
                 result.response.body ? Object.keys(result.response.body) : "no keys",
             )

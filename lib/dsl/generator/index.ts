@@ -27,6 +27,7 @@ export { OperationBuilder } from "./builders/OperationBuilder"
 
 // 함수 내보내기 (직접 내보내지 않고 아래에서 래퍼 함수로 내보냄)
 import { exportOASToJSON as rawExportOASToJSON } from "./commands"
+import logger from "../../config/logger"
 
 // 싱글톤 인스턴스 내보내기
 import { OpenAPIGenerator } from "./OpenAPIGenerator"
@@ -61,7 +62,7 @@ try {
         resetOASGenerationState()
     })
 } catch (error) {
-    console.error("Failed to register beforeExit handler:", error)
+    logger.error("Failed to register beforeExit handler:", error)
 }
 
 // 예상치 못한 종료 시에도 OAS를 생성하기 위한 시그널 핸들러
@@ -75,7 +76,7 @@ try {
         })
     })
 } catch (error) {
-    console.error("Failed to register signal handlers:", error)
+    logger.error("Failed to register signal handlers:", error)
 }
 
 // 편의를 위한 래퍼 함수
@@ -126,9 +127,9 @@ export const autoExportOAS = (): void => {
             rawExportOASToJSON(oasGenerator, oasOutputPath)
             oasAlreadyGenerated = true
         } catch (error) {
-            console.error("Error during OAS generation:", error)
+            logger.error("Error during OAS generation:", error)
         }
     } else {
-        console.log("No output path configured, skipping OAS generation")
+        logger.info("No output path configured, skipping OAS generation")
     }
 }
