@@ -20,6 +20,31 @@ import { ConsolaReporter, createConsola, LogObject, consola as defaultConsola } 
 import chalk from "chalk"
 import { LoggerInterface } from "./LoggerInterface"
 
+// 테스트 환경 감지
+const isTestEnv = (): boolean => {
+    return (
+        process.env.NODE_ENV === "test" ||
+        process.env.JEST_WORKER_ID !== undefined ||
+        typeof (global as any).jest !== "undefined" ||
+        process.argv.some((arg) => arg.includes("jest")) ||
+        process.env.ITDOC_TESTING === "true"
+    )
+}
+
+// 테스트 완료 여부 추적 (Jest 환경에서만 사용)
+let testsCompleted = false
+
+// Jest 환경에서 테스트 완료 후 로그 안전하게 처리
+try {
+    if (isTestEnv() && typeof (global as any).afterAll === "function") {
+        ;(global as any).afterAll(() => {
+            testsCompleted = true
+        })
+    }
+} catch {
+    // 무시
+}
+
 const DEFAULT_LOG_LEVEL = process.env.ITDOC_DEBUG ? 0 : 4
 const levels = {
     DEBUG: {
@@ -41,6 +66,33 @@ const levels = {
 } as const
 const MAX_LOG_LEVEL_LABEL_LENGTH = Math.max(...Object.keys(levels).map((key) => key.length))
 
+// 안전한 로그 출력 함수
+const safeConsoleLog = (message: string, ...args: any[]): void => {
+    // 테스트 모드이고 테스트가 완료된 상태라면 로그 출력 안함
+    if (isTestEnv() && testsCompleted) {
+        return
+    }
+
+    // 테스트 모드이지만 테스트가 아직 완료되지 않았으면, 콘솔 사용
+    if (isTestEnv()) {
+        // 테스트 중에는 stdout에 직접 쓰기 (Jest의 console.log 대체)
+        process.stdout.write(message + "\n")
+        if (args.length > 0) {
+            args.forEach((arg) => {
+                try {
+                    const str = typeof arg === "string" ? arg : JSON.stringify(arg, null, 2)
+                    process.stdout.write(str + "\n")
+                } catch {
+                    // 무시
+                }
+            })
+        }
+    } else {
+        // 일반 환경에서는 console.log 사용
+        console.log(message, ...args)
+    }
+}
+
 const customReporter: ConsolaReporter = {
     log(logObj: LogObject) {
         const { type, args } = logObj
@@ -55,12 +107,13 @@ const customReporter: ConsolaReporter = {
         const paddingLength = MAX_LOG_LEVEL_LABEL_LENGTH - levelKey.length
 
         const [message, ...extra] = args
-        console.log(`${styledLevel}${" ".repeat(paddingLength)} ${message}`)
+
+        safeConsoleLog(`${styledLevel}${" ".repeat(paddingLength)} ${message}`)
 
         if (extra.length > 0) {
             const formattedExtra = formatExtra(extra)
             for (const line of formattedExtra) {
-                console.log(`       ${line}`)
+                safeConsoleLog(`       ${line}`)
             }
         }
     },
@@ -86,16 +139,29 @@ const formatExtra = (extra: unknown[]): string[] => {
 }
 
 const itdocLoggerInstance = createConsola({
-    level: DEFAULT_LOG_LEVEL,
+    level: isTestEnv() ? 5 : DEFAULT_LOG_LEVEL, // 테스트 환경에서는 로깅 레벨을 더 높게 설정 (오류만 표시)
     reporters: [customReporter],
 })
 
 const logger: LoggerInterface = {
-    debug: (msg, ...extra) => itdocLoggerInstance.debug(formatLog("DEBUG", msg), ...extra),
-    info: (msg, ...extra) => itdocLoggerInstance.info(formatLog("INFO", msg), ...extra),
-    box: (msg) => defaultConsola.box(msg),
-    warn: (msg) => itdocLoggerInstance.warn(formatLog("WARN", msg)),
-    error: (msg, ...extra) => itdocLoggerInstance.error(formatLog("ERROR", msg), ...extra),
+    debug: (msg, ...extra) => {
+        if (isTestEnv() && !process.env.ITDOC_DEBUG) return
+        itdocLoggerInstance.debug(formatLog("DEBUG", msg), ...extra)
+    },
+    info: (msg, ...extra) => {
+        if (isTestEnv() && !process.env.ITDOC_DEBUG) return
+        itdocLoggerInstance.info(formatLog("INFO", msg), ...extra)
+    },
+    box: (msg) => {
+        if (isTestEnv()) return
+        defaultConsola.box(msg)
+    },
+    warn: (msg) => {
+        itdocLoggerInstance.warn(formatLog("WARN", msg))
+    },
+    error: (msg, ...extra) => {
+        itdocLoggerInstance.error(formatLog("ERROR", msg), ...extra)
+    },
     level: itdocLoggerInstance.level,
 }
 

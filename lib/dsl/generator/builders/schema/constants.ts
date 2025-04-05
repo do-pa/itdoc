@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-export { HttpMethod } from "./enums/HttpMethod"
-export { HttpStatus } from "./enums/HttpStatus"
-export { describeAPI, itDoc, field } from "./interface"
-export type { ApiDocOptions } from "./interface/ItdocBuilderEntry"
-export {
-    exportOASToJSON,
-    configureOASExport,
-    recordTestFailure,
-    resetOASGenerationState,
-} from "./generator"
+/**
+ * 포맷 검출을 위한 정규식 패턴
+ */
+export const FORMAT_PATTERNS = {
+    UUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    EMAIL: /^[^@]+@[^@]+\.[^@]+$/,
+    DATE: /^\d{4}-\d{2}-\d{2}$/,
+    DATE_TIME: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/,
+    URI: /^https?:\/\/[^\s/$.?#].[^\s]*$/i,
+    IPV4: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+    IPV6: /^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$/i,
+}
