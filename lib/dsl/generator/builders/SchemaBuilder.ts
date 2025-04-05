@@ -15,6 +15,7 @@
  */
 
 import { SchemaFactory } from "./schema/SchemaFactory"
+import logger from "../../../config/logger"
 
 /**
  * OpenAPI Schema 객체를 생성하기 위한 빌더 클래스
@@ -34,7 +35,7 @@ export class SchemaBuilder {
             const schema = this.schemaFactory.createSchema(value)
             return schema as Record<string, unknown>
         } catch (error) {
-            console.log("스키마 생성 중 오류 발생:", error)
+            logger.error("스키마 생성 중 오류 발생:", error)
             // 오류 발생 시 기본 스키마 반환
             return { type: "object", description: "스키마 생성 실패" }
         }
