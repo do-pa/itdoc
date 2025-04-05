@@ -35,7 +35,11 @@ export class ItdocBuilderEntry {
     }
 
     public test(): RootBuilder {
-        return new RootBuilder(this.options.defaults, this.method, this.url, this.app, this.options)
+        const config = {
+            apiOptions: this.options,
+            ...this.options.defaults,
+        }
+        return new RootBuilder(config, this.method, this.url, this.app)
     }
 }
 

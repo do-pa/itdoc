@@ -16,7 +16,6 @@
 
 import { TestCaseConfig } from "./TestCaseConfig"
 import { HttpMethod } from "../enums"
-import { ApiDocOptions } from "../interface/ItdocBuilderEntry"
 
 /**
  * test-builders 하위 빌더 클래스들의 공통 설정이 포함된 추상 클래스입니다.
@@ -28,20 +27,10 @@ export abstract class AbstractTestBuilder {
     protected readonly url: string
     protected readonly app: any
 
-    public constructor(
-        defaults: TestCaseConfig = {},
-        method: HttpMethod,
-        url: string,
-        app: any,
-        apiOptions?: ApiDocOptions,
-    ) {
+    public constructor(defaults: TestCaseConfig = {}, method: HttpMethod, url: string, app: any) {
         this.config = { ...defaults }
         this.method = method
         this.url = url
         this.app = app
-
-        if (apiOptions) {
-            this.config.apiOptions = apiOptions
-        }
     }
 }
