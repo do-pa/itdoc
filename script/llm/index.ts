@@ -19,12 +19,8 @@ import fs from "fs"
 import path from "path"
 import dotenv from "dotenv"
 import { fileURLToPath } from "url"
-import chalk from "chalk"
 import getItdocPrompt from "./prompt/index.js"
-
-/* TODO: no-console 해제 후, console.log() 제거. logger를 사용하도록 변경 해야함. */
-/* eslint-disable no-console */
-
+import logger from "../../lib/config/logger"
 const __filename: string = fileURLToPath(import.meta.url)
 const __dirname: string = path.dirname(__filename)
 dotenv.config({ path: path.join(__dirname, "../../.env") })
@@ -60,11 +56,7 @@ async function makedocLLM(content: string, isEn: boolean): Promise<string | null
             .trim()
         return ret
     } catch (error: unknown) {
-        if (error instanceof Error) {
-            console.error("에러 발생:", error.message)
-        } else {
-            console.error("에러 발생:", error)
-        }
+        logger.error(`makedocLLM() 에러 발생: ${error}`)
         return null
     }
 }
@@ -82,7 +74,7 @@ async function main(testspecPath?: string): Promise<void> {
         testspecPath ?? path.join(__dirname, "../../", "md", "testspec.md")
 
     if (!fs.existsSync(actualTestspecPath)) {
-        console.error(`Error: File does not exist at ${actualTestspecPath}`)
+        logger.error(`Error: File does not exist at ${actualTestspecPath}`)
         process.exit(1)
     }
     const msg: string = fs.readFileSync(actualTestspecPath, "utf8")
@@ -90,11 +82,7 @@ async function main(testspecPath?: string): Promise<void> {
     const ret = await makedocLLM(msg, isEn)
     if (ret !== null) {
         fs.writeFileSync(filePath, ret, "utf8")
-        console.log(
-            chalk.green.bold(
-                "\n========== GPT를 기반으로 테스트가 다 완성되었습니다. ==========\n",
-            ),
-        )
+        logger.info(`GPT를 기반으로 테스트생성이 다 완성되었습니다.`)
     }
 }
 
