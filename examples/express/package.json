@@ -17,5 +17,8 @@
         "itdoc": "workspace:*",
         "jest": "^29.7.0",
         "mocha": "^10.3.0"
+    },
+    "itdoc": {
+        "output": "output"
     }
 }
