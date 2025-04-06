@@ -2,7 +2,7 @@ const app = require("../expressApp.js")
 const { describeAPI, itDoc, HttpStatus, field, HttpMethod, configureOASExport } = require("itdoc")
 
 const targetApp = app
-configureOASExport("./openapi.json")
+
 describeAPI(
     HttpMethod.POST,
     "signup",
