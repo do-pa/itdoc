@@ -30,6 +30,20 @@
     "main": "build/index.cjs",
     "module": "build/index.js",
     "types": "build/index.d.ts",
+    "files": [
+        "build",
+        "README.md",
+        "LICENSE"
+    ],
+    "keywords": [
+        "documentation",
+        "test",
+        "rest",
+        "openapi",
+        "swagger",
+        "restdocs",
+        "typescript"
+    ],
     "scripts": {
         "build": "pnpm run clean && tsup",
         "makedocs": "tsx ./script/makedocs/index.ts",
