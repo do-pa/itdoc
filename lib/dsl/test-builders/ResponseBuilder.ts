@@ -32,11 +32,10 @@ export class ResponseBuilder extends AbstractTestBuilder {
         return this
     }
 
-    // public header(headers: Record<string, string>): this {
-    //   TODO: expectHeader 구현
-    //   this.config.expectedHeaders = headers
-    //   return this
-    // }
+    public header(headers: Record<string, string | DSLField<string>>): this {
+        this.config.expectedResponseHeaders = headers
+        return this
+    }
 
     public body(body: Record<string, DSLField>): this {
         this.config.expectedResponseBody = body
@@ -110,10 +109,30 @@ export class ResponseBuilder extends AbstractTestBuilder {
             req = req.expect((res: Response) => {
                 if (Object.keys(res.body ?? {}).length > 0) {
                     const formattedBody = JSON.stringify(res.body, null, 2)
+                    logger.debug(`Response body is required. Response Body:${formattedBody}`)
                     throw new Error(
-                        `Expected response body is required.
-                    Response Body:${formattedBody}`,
+                        `Expected response body is required. Response Body:${formattedBody}`,
                     )
+                }
+            })
+        }
+        if (this.config.expectedResponseHeaders) {
+            req = req.expect((res: Response) => {
+                for (const [headerName, headerValue] of Object.entries(
+                    this.config.expectedResponseHeaders!,
+                )) {
+                    const expectedHeaderValue = isDSLField(headerValue)
+                        ? headerValue.example
+                        : headerValue
+                    const actualHeaderValue = res.headers[headerName.toLowerCase()]
+                    if (expectedHeaderValue !== actualHeaderValue) {
+                        logger.debug(
+                            `Expected response header "${headerName}" to be "${expectedHeaderValue}", but got "${actualHeaderValue}"`,
+                        )
+                        throw new Error(
+                            `Expected response header "${headerName}" to be "${expectedHeaderValue}", but got "${actualHeaderValue}"`,
+                        )
+                    }
                 }
             })
         }

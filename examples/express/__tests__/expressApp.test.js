@@ -226,7 +226,7 @@ describeAPI(
         itDoc("인증 토큰이 없으면 접근할 수 없다.", async () => {
             await apiDoc.test().req().res().status(HttpStatus.UNAUTHORIZED)
         })
-
+        const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMDI1MDQwNiIsIm5hbWUiOiJpdGRvYyIsImFkbWluIjp0cnVlLCJpYXQiOjE3NDM5MjQzNDEsImV4cCI6MTc0MzkyNzk0MX0.LXswgSAv_hjAH3KntMqnr-aLxO4ZytGeXk5q8lzzUM8"
         itDoc("인증 토큰이 있으면 접근할 수 있다.", async () => {
             await apiDoc
                 .test()
@@ -236,6 +236,11 @@ describeAPI(
                 })
                 .res()
                 .status(HttpStatus.OK)
+                .header({
+                    "Content-Type": "application/json; charset=utf-8",       
+                    "itdoc-custom-Header":  "secret-header-value",
+                    "Authorization": `Bearer ${token}`   
+                })
                 .body({
                     message: field("비밀 메세지", "This is a secret message"),
                 })
