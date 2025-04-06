@@ -61,7 +61,7 @@ export interface RequestBodyObject {
 
 // 응답 객체
 export interface ResponseObject {
-    description: string
+    description?: string
     headers?: Record<string, HeaderObject>
     content?: Content
 }

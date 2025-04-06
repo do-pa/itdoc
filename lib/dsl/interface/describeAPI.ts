@@ -36,7 +36,7 @@ export const describeAPI = (
     app: unknown, // TODO: 이거 타입지정
     callback: (apiDoc: ItdocBuilderEntry) => void,
 ): void => {
-    if (!options.name) {
+    if (!options.summary) {
         throw new Error("API name is required.")
     }
 
@@ -53,7 +53,7 @@ export const describeAPI = (
     }
     configureOASExport(outputPath)
     const { describeCommon } = getTestAdapterExports()
-    describeCommon(`${options.name} | [${method}] ${url}`, () => {
+    describeCommon(`${options.summary} | [${method}] ${url}`, () => {
         const apiDoc = new ItdocBuilderEntry(method, url, options, app)
         callback(apiDoc)
     })
