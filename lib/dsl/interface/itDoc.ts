@@ -17,7 +17,6 @@
 import { getTestAdapterExports } from "../adapters"
 import { recordTestFailure, testEventManager } from "../generator"
 import { TestResult } from "../generator"
-import logger from "../../config/logger"
 
 /**
  * 케이스 별 테스트를 정의를 위한 함수
@@ -56,8 +55,6 @@ export const itDoc = (
         } catch (error) {
             // 테스트 실패 기록
             recordTestFailure()
-            testEventManager.completeTestFailure()
-            logger.error(`테스트 실패: ${description}`, error)
             throw error
         }
     })
