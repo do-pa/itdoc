@@ -15,7 +15,7 @@
  */
 
 import { getTestAdapterExports } from "../adapters"
-import { resultCollector, recordTestFailure, testEventManager } from "../generator"
+import { recordTestFailure, testEventManager } from "../generator"
 import { TestResult } from "../generator"
 import logger from "../../config/logger"
 
@@ -45,18 +45,10 @@ export const itDoc = (
     testEventManager.registerTest()
 
     const { itCommon } = getTestAdapterExports()
+
     itCommon(description, async () => {
         try {
             const result = await testFn()
-
-            if (
-                result &&
-                typeof result === "object" &&
-                "testResult" in result &&
-                result.testResult
-            ) {
-                resultCollector.collectResult(result.testResult)
-            }
 
             // 테스트 성공 기록
             testEventManager.completeTestSuccess()
