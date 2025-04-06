@@ -101,6 +101,7 @@ export class TestEventManager {
             this.oasGenerationScheduled = true
 
             // setTimeout을 사용하여 현재 이벤트 루프가 완료된 후 실행
+            // TODO: setTimeout이 왜 필요한지.
             setTimeout(() => {
                 this.onAllTestsCompleted()
             }, 0)
