@@ -51,6 +51,8 @@ jobs:
           version: 10.5.2
       - name: Install dependencies
         run: pnpm install
+      - name: Build
+        run: pnpm build
       - run: pnpm publish --provenance --access public --tag=next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
