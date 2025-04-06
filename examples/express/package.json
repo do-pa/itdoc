@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "test": "pnpm test:jest && pnpm test:mocha",
+        "test": "ITDOC_DEBUG=true pnpm test:jest && pnpm test:mocha",
         "test:jest": "echo \"run test as jest\" && NODE_OPTIONS='--experimental-vm-modules' jest",
         "test:mocha": "echo \"run test as mocha\" && mocha ./__tests__/expressApp.test.js"
     },
