@@ -35,7 +35,7 @@ describeAPI(
     {
         summary: "회원가입 API",
         tag: "Auth",
-        summary: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+        description: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
     },
     targetApp,
     (apiDoc) => {
