@@ -35,7 +35,6 @@ export class ResponseBuilder implements ResponseBuilderInterface {
      */
     public generateResponses(result: TestResult): Record<string, ResponseObject> {
         const responses: Record<string, ResponseObject> = {}
-
         if (result.url.includes("/users/{userId}") && result.method === "GET") {
             logger.info("GENERATOR - Processing /users/{userId} endpoint:")
             logger.info("Response body:", JSON.stringify(result.response.body, null, 2))

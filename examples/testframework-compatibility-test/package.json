@@ -4,8 +4,8 @@
     "private": true,
     "scripts": {
         "test": "pnpm test:jest && pnpm test:mocha",
-        "test:jest": "echo \"run test as jest\" && jest",
-        "test:mocha": "echo \"run test as mocha\" && mocha ./__tests__/compatibility.test.ts"
+        "test:jest": "echo \"run test as jest::examples-testframework\" && jest",
+        "test:mocha": "echo \"run test as mocha::examples-testframework\" && mocha ./__tests__/compatibility.test.ts"
     },
     "mocha": {
         "extensions": [
