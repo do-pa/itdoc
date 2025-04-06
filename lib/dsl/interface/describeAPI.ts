@@ -17,6 +17,7 @@
 import { HttpMethod } from "../enums/HttpMethod"
 import { getTestAdapterExports } from "../adapters"
 import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
+import { configureOASExport } from "../generator"
 
 /**
  * API 명세를 위한 describe 함수
@@ -49,6 +50,7 @@ export const describeAPI = (
         throw new Error("API test function is required.")
     }
 
+    configureOASExport("./openapi.json")
     const { describeCommon } = getTestAdapterExports()
     describeCommon(`${options.name} | [${method}] ${url}`, () => {
         const apiDoc = new ItdocBuilderEntry(method, url, options, app)
