@@ -224,6 +224,8 @@ describeAPI(
         })
 
         itDoc("인증 토큰이 있으면 접근할 수 있다.", () => {
+            const token =
+                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMDI1MDQwNiIsIm5hbWUiOiJpdGRvYyIsImFkbWluIjp0cnVlLCJpYXQiOjE3NDM5MjQzNDEsImV4cCI6MTc0MzkyNzk0MX0.LXswgSAv_hjAH3KntMqnr-aLxO4ZytGeXk5q8lzzUM8"
             return apiDoc
                 .test()
                 .req()
@@ -232,6 +234,11 @@ describeAPI(
                 })
                 .res()
                 .status(HttpStatus.OK)
+                .header({
+                    "Content-Type": "application/json; charset=utf-8",
+                    "itdoc-custom-Header": "secret-header-value",
+                    Authorization: `Bearer ${token}`,
+                })
                 .body({
                     message: field("비밀 메세지", "This is a secret message"),
                 })
