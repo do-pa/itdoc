@@ -7,11 +7,9 @@ describeAPI(
     HttpMethod.POST,
     "signup",
     {
-        name: "회원가입 API",
+        summary: "회원 가입 API",
         tag: "Auth",
-        summary: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
-        description:
-            "신규 사용자를 시스템에 등록하기 위한 API입니다. 아이디와 패스워드를 필수적으로 입력해야 하며, 패스워드는 8자 이상이어야 합니다.",
+        description: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -63,11 +61,9 @@ describeAPI(
     HttpMethod.GET,
     "/users/{userId}",
     {
-        name: "사용자 조회 API",
+        summary: "사용자 조회 API",
         tag: "User",
-        summary: "사용자 ID를 받아 사용자 정보를 반환합니다.",
-        description:
-            "특정 사용자의 상세 정보를 조회하는 API입니다. 사용자 ID가 유효한 경우에는 사용자 정보를 반환하고, 그렇지 않은 경우에는 404 응답을 반환합니다.",
+        description: "특정 사용자의 상세 정보를 조회하는 API입니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -105,9 +101,9 @@ describeAPI(
     HttpMethod.DELETE,
     "/users/{userId}/friends/{friendId}",
     {
-        name: "특정 사용자의 특정 친구 삭제 API",
-        tag: "User",
         summary: "특정 사용자의 친구를 삭제합니다.",
+        tag: "User",
+        description: "특정 사용자의 특정 친구 삭제 API",
     },
     targetApp,
     (apiDoc) => {
@@ -152,9 +148,9 @@ describeAPI(
     HttpMethod.GET,
     "/users",
     {
-        name: "회원 목록 조회 API",
+        summary: "회원 목록 조회 API",
         tag: "User",
-        summary: "회원 목록을 조회합니다.",
+        description: "회원 목록을 조회합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -217,9 +213,9 @@ describeAPI(
     HttpMethod.GET,
     "/secret",
     {
-        name: "비밀 API",
+        summary: "비밀 API",
         tag: "Secret",
-        summary: "비밀 API 입니다. 인증이 필요합니다.",
+        description: "비밀 API 입니다. 인증이 필요합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -247,9 +243,9 @@ describeAPI(
     HttpMethod.PUT,
     "/users/{userId}",
     {
-        name: "사용자 정보 수정 API",
+        summary: "사용자 정보 수정 API",
         tag: "User",
-        summary: "사용자 ID를 받아 해당 사용자의 정보를 전체 수정합니다.",
+        description: "사용자 ID를 받아 해당 사용자의 정보를 전체 수정합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -303,9 +299,9 @@ describeAPI(
     HttpMethod.PATCH,
     "/users/{userId}",
     {
-        name: "사용자 부분 정보 수정 API",
+        summary: "사용자 부분 정보 수정 API",
         tag: "User",
-        summary: "사용자 ID를 받아 해당 사용자의 정보를 부분적으로 수정합니다.",
+        description: "사용자 ID를 받아 해당 사용자의 정보를 부분적으로 수정합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -334,9 +330,9 @@ describeAPI(
     HttpMethod.POST,
     "/orders",
     {
-        name: "주문 생성 API",
+        summary: "주문 생성 API",
         tag: "Order",
-        summary: "새로운 주문을 생성합니다.",
+        description: "새로운 주문을 생성합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -407,9 +403,9 @@ describeAPI(
     HttpMethod.GET,
     "/products",
     {
-        name: "상품 검색 API",
+        summary: "상품 검색 API",
         tag: "Product",
-        summary: "다양한 조건으로 상품을 검색합니다.",
+        description: "다양한 조건으로 상품을 검색합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -459,9 +455,9 @@ describeAPI(
     HttpMethod.GET,
     "/cached-data",
     {
-        name: "캐시된 데이터 조회 API",
+        summary: "캐시된 데이터 조회 API",
         tag: "System",
-        summary: "HTTP 캐싱 메커니즘을 활용하여 데이터를 조회합니다.",
+        description: "HTTP 캐싱 메커니즘을 활용하여 데이터를 조회합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -496,10 +492,9 @@ describeAPI(
     HttpMethod.POST,
     "/validate",
     {
-        name: "데이터 유효성 검증 API",
+        summary: "데이터 유효성 검증 API",
         tag: "Validation",
-        summary: "다양한 형태의 데이터 유효성을 검증하고 상세한 오류 정보를 제공합니다.",
-        description: "asd",
+        description: "다양한 형태의 데이터 유효성을 검증하고 상세한 오류 정보를 제공합니다.",
     },
     targetApp,
     (apiDoc) => {
@@ -543,25 +538,3 @@ describeAPI(
         })
     },
 )
-
-// 의도적으로 실패하는 API 테스트
-// describeAPI(
-//     HttpMethod.GET,
-//     "/failed-test",
-//     {
-//         name: "실패하는 테스트 API",
-//         tag: "Test",
-//         summary: "이 API 테스트는 의도적으로 실패하도록 설계되었습니다.",
-//     },
-//     targetApp,
-//     (apiDoc) => {
-//         itDoc("응답 상태 코드 불일치로 인한 실패 테스트", async () => {
-//             await apiDoc
-//                 .test()
-//                 .req()
-//                 .res()
-//                 // 실제 응답은 404지만 200을 기대하도록 설정하여 의도적으로 실패
-//                 .status(HttpStatus.OK)
-//         })
-//     },
-// )
