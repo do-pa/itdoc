@@ -20,7 +20,7 @@ import supertest, { Response } from "supertest"
 import { validateResponse } from "./validateResponse"
 import { isDSLField } from "../interface/field"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
-import { recordTestFailure, resultCollector } from "../generator"
+import { recordTestFailure, TestResult } from "../generator"
 import logger from "../../config/logger"
 
 /**
@@ -42,7 +42,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
         return this
     }
 
-    private async runTest(): Promise<Response> {
+    private async runTest(): Promise<TestResult> {
         logger.debug(`runTest: ${this.method} ${this.url}`)
         if (!this.config.expectedStatus) {
             throw new Error("Expected status is required")
@@ -165,10 +165,10 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 })
             }
 
-            resultCollector.collectResult({
+            return {
                 method: this.method,
                 url: this.url,
-                options: this.config.apiOptions || { name: "", tag: "", summary: "" },
+                options: this.config.apiOptions || {},
                 request: {
                     body: this.config.requestBody,
                     headers: this.prepareHeadersForCollector(this.config.requestHeaders),
@@ -180,8 +180,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
                     body: this.config.expectedResponseBody || res.body, // 검증을 위한 예상 응답 본문을 우선으로 사용
                     headers: res.headers,
                 },
-            })
-            return res
+            }
         } catch (error: any) {
             if (this.config.prettyPrint) {
                 logger.info("API TEST FAILED", {
@@ -206,8 +205,8 @@ export class ResponseBuilder extends AbstractTestBuilder {
         return result
     }
 
-    public then<TResult1 = Response, TResult2 = never>(
-        resolve?: ((value: Response) => TResult1 | PromiseLike<TResult1>) | null,
+    public then<TResult1 = TestResult, TResult2 = never>(
+        resolve?: ((value: TestResult) => TResult1 | PromiseLike<TResult1>) | null,
         reject?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
     ): Promise<TResult1 | TResult2> {
         return this.runTest().then(resolve, reject)

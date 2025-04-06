@@ -50,7 +50,6 @@ export class OperationBuilder implements OperationBuilderInterface {
      */
     public generateOperation(result: TestResult): Record<string, unknown> {
         const operation: Record<string, unknown> = {
-            summary: result.options.summary || `${result.method} ${result.url}`,
             tags: [result.options.tag || this.utilityBuilder.generateDefaultTag(result.url)],
         }
 

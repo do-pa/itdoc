@@ -18,6 +18,7 @@ import { TestResult, IOpenAPIGenerator } from "./types/TestResult"
 import { OperationBuilder } from "./builders/OperationBuilder"
 import { UtilityBuilder } from "./builders/operation/UtilityBuilder"
 import logger from "../../config/logger"
+import { HttpStatus } from "../enums"
 
 // 싱글톤 인스턴스를 저장할 변수
 let instance: OpenAPIGenerator | null = null
@@ -47,6 +48,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     private constructor() {
         // 기본 서버 설정
         this.servers.push({
+            // TODO: 이거 packagejson으로 받도록 변경
             url: "/",
             description: "기본 서버",
         })
@@ -115,6 +117,8 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
 
             groupedResults.get(path)!.get(method)!.get(statusCode)!.push(result)
         }
+
+        logger.info("Grouped test results:", groupedResults)
 
         return groupedResults
     }
@@ -188,9 +192,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         // 응답 정보 설정
         operationObj.responses = responses
 
-        // 필수 응답 코드 보장
-        this.ensureRequiredResponses(operationObj.responses as Record<string, unknown>, method)
-
         // 보안 요구사항 추출
         const security = this.operationBuilder.generateOperation(representativeResult).security
 
@@ -207,21 +208,74 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         return operationObj
     }
 
-    /**
-     * 상태 코드별 응답을 처리합니다.
-     * @param statusCodes
-     * @param responses
-     */
     private processStatusCodes(
         statusCodes: Map<string, TestResult[]>,
         responses: Record<string, unknown>,
     ): void {
         for (const [statusCode, results] of statusCodes) {
-            const bestResult = this.selectBestResult(results)
+            const combinedContent: Record<string, any> = {}
 
-            const operationObj = this.operationBuilder.generateOperation(bestResult)
-            responses[statusCode] = (operationObj.responses as Record<string, unknown>)[statusCode]
+            for (const result of results) {
+                const opObj = this.operationBuilder.generateOperation(result)
+                const res = (opObj.responses as Record<string, any>)[statusCode]
+                if (!res?.content) {
+                    // body가 없는 경우도 example 잘 되도록.
+                    const defaultContentType = "application/json"
+                    if (!combinedContent[defaultContentType]) {
+                        combinedContent[defaultContentType] = {
+                            schema: {
+                                type: typeof result.context === "object" ? "object" : "string",
+                            },
+                            examples: {},
+                        }
+                    }
+                    const exampleKey = result.context
+                        ? result.context
+                        : `example${Object.keys(combinedContent[defaultContentType].examples).length}`
+                    combinedContent[defaultContentType].examples[exampleKey] = {
+                        value: null,
+                    }
+                    continue
+                }
+
+                for (const [contentType, rawContentObj] of Object.entries(res.content)) {
+                    const contentObj = rawContentObj as Record<string, any>
+
+                    if (!combinedContent[contentType]) {
+                        combinedContent[contentType] = {
+                            schema: contentObj.schema,
+                            examples: {},
+                        }
+                    }
+
+                    const exampleKey =
+                        result.context ||
+                        `example${Object.keys(combinedContent[contentType].examples).length}`
+                    const exampleValue = this.normalizeExample(
+                        contentObj.example,
+                        contentObj.schema,
+                    )
+
+                    combinedContent[contentType].examples[exampleKey] = {
+                        value: exampleValue,
+                    }
+                }
+            }
+
+            const statusDescription = this.getStatusText(statusCode)
+
+            responses[statusCode] = {
+                description: statusDescription,
+                content: combinedContent,
+            }
         }
+    }
+
+    private getStatusText(code: string): string {
+        const numericCode = parseInt(code, 10)
+        const statusText = HttpStatus[numericCode]
+
+        return statusText ? `${code} ${statusText.replace(/_/g, " ")}` : code
     }
 
     /**
@@ -300,28 +354,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 여러 테스트 결과 중에서 최적의 결과를 선택합니다.
-     * @param results 테스트 결과 배열
-     * @returns 선택된 최적의 테스트 결과
-     */
-    private selectBestResult(results: TestResult[]): TestResult {
-        return results.reduce((best, current) => {
-            if (!best.response.body && current.response.body) {
-                return current
-            }
-
-            if (!!best.response.body === !!current.response.body) {
-                if (best.response.body && current.response.body) {
-                    const bestSize = JSON.stringify(best.response.body).length
-                    const currentSize = JSON.stringify(current.response.body).length
-                    return currentSize > bestSize ? current : best
-                }
-            }
-            return best
-        }, results[0])
-    }
-
-    /**
      * 작업에 요청 정보를 설정합니다.
      * @param operation 작업 객체
      * @param result 테스트 결과
@@ -382,48 +414,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
                             },
                             description: `${param} 파라미터`,
                         })
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 필수 응답 코드 보장
-     * @param responses 응답 객체
-     * @param method HTTP 메서드
-     */
-    private ensureRequiredResponses(responses: Record<string, unknown>, method: string): void {
-        const has4XX = Object.keys(responses).some((code) => code.startsWith("4"))
-        if (!has4XX) {
-            responses["400"] = {
-                description: "Bad Request",
-            }
-        }
-
-        const has2XX = Object.keys(responses).some((code) => code.startsWith("2"))
-        if (!has2XX) {
-            if (method.toUpperCase() === "POST") {
-                responses["201"] = {
-                    description: "Created",
-                }
-            } else {
-                responses["200"] = {
-                    description: "OK",
-                }
-            }
-        }
-
-        for (const statusCode of Object.keys(responses)) {
-            const response = responses[statusCode] as Record<string, any>
-            if (response.content) {
-                for (const contentType in response.content) {
-                    const contentObj = response.content[contentType] as Record<string, any>
-                    if (contentObj.example && contentObj.schema) {
-                        contentObj.example = this.normalizeExample(
-                            contentObj.example,
-                            contentObj.schema,
-                        )
                     }
                 }
             }

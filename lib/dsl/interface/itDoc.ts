@@ -15,23 +15,9 @@
  */
 
 import { getTestAdapterExports } from "../adapters"
-import { recordTestFailure, testEventManager } from "../generator"
-import { TestResult } from "../generator"
+import { recordTestFailure, resultCollector, testEventManager, TestResult } from "../generator"
 
-/**
- * 케이스 별 테스트를 정의를 위한 함수
- * @param description 테스트 설명
- * @param testFn 테스트 함수
- */
-export interface TestFnResult {
-    testResult?: TestResult
-    [key: string]: unknown
-}
-
-export const itDoc = (
-    description: string,
-    testFn: () => Promise<TestFnResult | void> | TestFnResult | void,
-): void => {
+export const itDoc = (description: string, testFn: () => Promise<TestResult | void>): void => {
     if (!description) {
         throw new Error("테스트 설명이 itDoc에 필요합니다.")
     }
@@ -47,11 +33,16 @@ export const itDoc = (
 
     itCommon(description, async () => {
         try {
-            const result = await testFn()
+            const result: TestResult | void = await testFn()
+            if (!result) {
+                throw new Error("testFn을 await로 실행하지 말고 return 하세요.")
+            }
+            result.context = description
 
+            resultCollector.collectResult(result)
             // 테스트 성공 기록
             testEventManager.completeTestSuccess()
-            return result
+            return null
         } catch (error) {
             // 테스트 실패 기록
             recordTestFailure()
