@@ -78,26 +78,25 @@ function initializeAdapterSync(): UserTestInterface {
  * @returns {object} 테스트 프레임워크의 공통 메서드들
  * @property {Function} describeCommon 테스트 스위트를 정의하는 함수
  * @property {Function} itCommon 테스트 케이스를 정의하는 함수
- * @property {Function} beforeCommon 전체 테스트 전에 실행되는 함수
- * @property {Function} afterCommon 전체 테스트 후에 실행되는 함수
+ * @property {Function} beforeAllCommon 전체 테스트 전에 실행되는 함수
+ * @property {Function} afterAllCommon 전체 테스트 후에 실행되는 함수
  * @property {Function} beforeEachCommon 각 테스트 전에 실행되는 함수
  * @property {Function} afterEachCommon 각 테스트 후에 실행되는 함수
  */
 export function getTestAdapterExports(): {
     describeCommon: (name: string, fn: () => void) => void
     itCommon: (name: string, fn: () => void) => void
-    beforeCommon: (fn: () => void) => void
-    afterCommon: (fn: () => void) => void
+    beforeAllCommon: (fn: () => void) => void
+    afterAllCommon: (fn: () => void) => void
     beforeEachCommon: (fn: () => void) => void
     afterEachCommon: (fn: () => void) => void
 } {
-    // 실제 어댑터 객체를 동기적으로 반환 (Promise가 아님)
     const adapter = initializeAdapterSync()
     return {
         describeCommon: adapter.describe.bind(adapter),
         itCommon: adapter.it.bind(adapter),
-        beforeCommon: adapter.before.bind(adapter),
-        afterCommon: adapter.after.bind(adapter),
+        beforeAllCommon: adapter.before.bind(adapter),
+        afterAllCommon: adapter.after.bind(adapter),
         beforeEachCommon: adapter.beforeEach.bind(adapter),
         afterEachCommon: adapter.afterEach.bind(adapter),
     }

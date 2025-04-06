@@ -21,16 +21,16 @@
 
 import { getTestAdapterExports } from "../../../lib/dsl/adapters"
 const {
-    afterCommon,
+    afterAllCommon,
     afterEachCommon,
-    beforeCommon,
+    beforeAllCommon,
     beforeEachCommon,
     describeCommon,
     itCommon,
 }: {
-    afterCommon: (fn: () => void) => void
+    afterAllCommon: (fn: () => void) => void
     afterEachCommon: (fn: () => void) => void
-    beforeCommon: (fn: () => void) => void
+    beforeAllCommon: (fn: () => void) => void
     beforeEachCommon: (fn: () => void) => void
     describeCommon: (name: string, fn: () => void) => void
     itCommon: (name: string, fn: () => void) => void
@@ -39,7 +39,7 @@ const {
 const hookOrder: string[] = []
 
 describeCommon("TestFramework DSL Functionality", () => {
-    beforeCommon(() => {
+    beforeAllCommon(() => {
         hookOrder.push("beforeCommon")
     })
 
@@ -63,7 +63,7 @@ describeCommon("TestFramework DSL Functionality", () => {
         hookOrder.push("afterEachCommon")
     })
 
-    afterCommon(() => {
+    afterAllCommon(() => {
         hookOrder.push("afterCommon")
 
         // prettier-ignore
