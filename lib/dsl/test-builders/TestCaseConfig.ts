@@ -36,5 +36,6 @@ export interface TestCaseConfig {
     requestHeaders?: Record<string, DSLField<string> | string>
     expectedStatus?: HttpStatus | number
     expectedResponseBody?: Record<string, DSLField>
+    expectedResponseHeaders?: Record<string, DSLField<string> | string>
     prettyPrint?: boolean
 }
