@@ -15,27 +15,24 @@
  */
 
 import * as path from "path"
-import { readPackageJson } from "./readPackageJson"
+import { readItdocConfig } from "./readPackageJson"
 import logger from "./logger"
+
 /**
  *
  */
 export function getOutputPath(): string {
-    const packageJson = readPackageJson()
-    let outputPath: string
+    let outputPath = readItdocConfig("output", "output")
 
-    if (packageJson && packageJson.itdoc && packageJson.itdoc.output) {
-        outputPath = packageJson.itdoc.output
-        if (!path.isAbsolute(outputPath)) {
-            outputPath = path.resolve(process.cwd(), outputPath)
-        }
-    } else {
-        outputPath = path.resolve(process.cwd(), "output")
+    if (!path.isAbsolute(outputPath)) {
+        outputPath = path.resolve(process.cwd(), outputPath)
     }
+
     logger.info(`itdoc - output 경로는 다음과 같습니다. : ${outputPath}`)
     logger.info(
         "경로는 다음과 같이 package.json내의 itdoc - output을 수정해서 바꿀 수 있습니다.:",
         "{itdoc:{output : 'output'}}",
     )
+
     return outputPath
 }
