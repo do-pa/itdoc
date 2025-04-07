@@ -21,7 +21,7 @@ import logger from "./logger"
 /**
  * package.json의 "itdoc" 항목 내에서 특정 인자를 읽어옵니다.
  * 만약 해당 인자가 존재하지 않으면, 기본값을 반환합니다.
- * @param key 조회할 인자명
+ * @param key 조회할 인자명 (.으로 depth 추가 가능)
  * @param defaultValue 기본값
  * @returns itdoc[key] 값 또는 defaultValue
  */
@@ -36,9 +36,18 @@ export function readItdocConfig(key: string, defaultValue: string): string {
         return defaultValue
     }
 
-    logger.info("ASD??", itdocConfig[key], packageJson)
+    const keys = key.split(".")
+    let value: any = itdocConfig
 
-    return itdocConfig[key] || defaultValue
+    for (const k of keys) {
+        if (value && typeof value === "object" && k in value) {
+            value = value[k]
+        } else {
+            return defaultValue
+        }
+    }
+
+    return typeof value === "string" ? value : defaultValue
 }
 
 /**

@@ -19,6 +19,11 @@ import { OperationBuilder } from "./builders/OperationBuilder"
 import { UtilityBuilder } from "./builders/operation/UtilityBuilder"
 import logger from "../../config/logger"
 import { HttpStatus } from "../enums"
+import {
+    getOpenAPIBaseUrl,
+    getOpenAPIDocumentDescription,
+    getOpenAPITitle,
+} from "../../config/getOpenAPIConfig"
 
 // 싱글톤 인스턴스를 저장할 변수
 let instance: OpenAPIGenerator | null = null
@@ -34,9 +39,9 @@ interface OpenAPIInfo {
  */
 export class OpenAPIGenerator implements IOpenAPIGenerator {
     private testResults: TestResult[] = []
-    private title: string = "API Documentation"
+    private title: string = getOpenAPITitle()
     private version: string = "1.0.0"
-    private description: string = ""
+    private description: string = getOpenAPIDocumentDescription()
     private servers: Array<{ url: string; description?: string }> = []
     private defaultSecurity: Record<string, string[]>[] = [{}] // 기본값은 빈 보안 요구사항 (선택적 보안)
     private operationBuilder = new OperationBuilder()
@@ -46,11 +51,9 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      * 생성자 - 싱글톤 패턴을 위해 private으로 설정
      */
     private constructor() {
-        // 기본 서버 설정
         this.servers.push({
-            // TODO: 이거 packagejson으로 받도록 변경
-            url: "/",
-            description: "기본 서버",
+            url: getOpenAPIBaseUrl(),
+            description: "",
         })
     }
 
@@ -290,6 +293,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     ): Record<string, unknown> {
         const info: OpenAPIInfo = {
             title: this.title,
+            description: this.description,
             version: this.version,
         }
 
