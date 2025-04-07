@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { HttpMethod } from "../enums/HttpMethod"
+import { HttpMethod } from "../enums"
 import { getTestAdapterExports } from "../adapters"
 import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
 import { configureOASExport } from "../generator"

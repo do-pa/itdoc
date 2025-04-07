@@ -15,8 +15,7 @@
  */
 
 import { TestResult, IOpenAPIGenerator } from "./types/TestResult"
-import { OperationBuilder } from "./builders/OperationBuilder"
-import { UtilityBuilder } from "./builders/operation/UtilityBuilder"
+import { OperationBuilder, UtilityBuilder } from "./builders/operation"
 import logger from "../../config/logger"
 import { HttpStatus } from "../enums"
 import {
