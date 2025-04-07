@@ -31,14 +31,6 @@ export class TestEventManager {
     private oasAlreadyGenerated = false
     private oasGenerationScheduled = false
 
-    // 싱글톤 패턴
-    private constructor() {
-        // process.exit 이벤트 핸들러를 제거하고 completeTest 메서드에서 처리
-    }
-
-    /**
-     * 싱글톤 인스턴스를 반환합니다.
-     */
     public static getInstance(): TestEventManager {
         if (!TestEventManager.instance) {
             TestEventManager.instance = new TestEventManager()
@@ -55,17 +47,11 @@ export class TestEventManager {
         logger.debug(`OAS 출력 경로 설정: ${path}`)
     }
 
-    /**
-     * 테스트를 등록합니다. 테스트가 시작될 때 호출됩니다.
-     */
     public registerTest(): void {
         this.testCount++
         logger.debug(`테스트 등록: 현재 총 ${this.testCount}개 테스트`)
     }
 
-    /**
-     * 테스트 성공을 기록합니다.
-     */
     public completeTestSuccess(): void {
         this.completedTests++
         logger.debug(
@@ -74,9 +60,6 @@ export class TestEventManager {
         this.checkAllTestsCompleted()
     }
 
-    /**
-     * 테스트 실패를 기록합니다.
-     */
     public completeTestFailure(): void {
         this.completedTests++
         this.failedTests++
@@ -91,33 +74,14 @@ export class TestEventManager {
      * 모든 테스트가 완료되었는지 확인하고 필요한 경우 OAS 생성을 예약합니다.
      */
     private checkAllTestsCompleted(): void {
-        // 모든 테스트가 완료되었고, OAS 생성이 예약되지 않았으며, 아직 OAS를 생성하지 않았다면
         if (
             this.completedTests === this.testCount &&
             !this.oasGenerationScheduled &&
             !this.oasAlreadyGenerated
         ) {
-            // 이벤트 루프의 다음 틱에서 OAS 생성 (테스트 프레임워크가 완전히 테스트를 마무리하도록)
             this.oasGenerationScheduled = true
-
-            // setTimeout을 사용하여 현재 이벤트 루프가 완료된 후 실행
-            // TODO: setTimeout이 왜 필요한지.
-            setTimeout(() => {
-                this.onAllTestsCompleted()
-            }, 0)
+            this.onAllTestsCompleted()
         }
-    }
-
-    /**
-     * 상태를 초기화합니다.
-     */
-    public reset(): void {
-        this.testCount = 0
-        this.completedTests = 0
-        this.failedTests = 0
-        this.oasAlreadyGenerated = false
-        this.oasGenerationScheduled = false
-        // oasOutputPath는 유지 (재설정하지 않는 한)
     }
 
     /**
@@ -149,7 +113,6 @@ export class TestEventManager {
             return
         }
 
-        // OAS 생성
         const oasGenerator = OpenAPIGenerator.getInstance()
         exportOASToJSON(oasGenerator, this.oasOutputPath)
         this.oasAlreadyGenerated = true
