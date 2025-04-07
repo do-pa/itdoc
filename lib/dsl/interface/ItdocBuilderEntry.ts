@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { HttpMethod } from "../enums/HttpMethod"
+import { HttpMethod } from "../enums"
 import { TestCaseConfig } from "../test-builders/TestCaseConfig"
 import { RootBuilder } from "../test-builders/RootBuilder"
 

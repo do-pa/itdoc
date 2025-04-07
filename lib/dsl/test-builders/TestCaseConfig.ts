@@ -17,7 +17,7 @@
 import { HttpStatus } from "../enums"
 import { DSLField } from "../interface"
 import { FIELD_TYPES } from "../interface/field"
-import { ApiDocOptions } from "../interface/ItdocBuilderEntry"
+import { ApiDocOptions } from "../interface"
 
 export type PATH_PARAM_TYPES = string | number
 export type QUERY_PARAM_TYPES = string | number | boolean

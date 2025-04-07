@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { SchemaFactory } from "./schema/SchemaFactory"
+import { SchemaFactory } from "./schema"
 import logger from "../../../config/logger"
 
 /**
