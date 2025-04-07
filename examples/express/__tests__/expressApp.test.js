@@ -1,5 +1,5 @@
 const app = require("../expressApp.js")
-const { describeAPI, itDoc, HttpStatus, field, HttpMethod, configureOASExport } = require("itdoc")
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
 
 const targetApp = app
 
@@ -13,8 +13,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("회원가입 성공", () => {
-            return apiDoc
+        itDoc("회원가입 성공", async () => {
+            await apiDoc
                 .test()
                 .prettyPrint()
                 .req()
@@ -26,8 +26,8 @@ describeAPI(
                 .status(HttpStatus.CREATED)
         })
 
-        itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", () => {
-            return apiDoc
+        itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .body({
@@ -40,8 +40,8 @@ describeAPI(
                 })
         })
 
-        itDoc("패스워드가 8자 이하면 회원가입 실패한다.", () => {
-            return apiDoc
+        itDoc("패스워드가 8자 이하면 회원가입 실패한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .body({

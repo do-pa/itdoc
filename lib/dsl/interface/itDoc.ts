@@ -15,9 +15,10 @@
  */
 
 import { getTestAdapterExports } from "../adapters"
-import { recordTestFailure, resultCollector, testEventManager, TestResult } from "../generator"
+import { testContext } from "./testContext"
+import { recordTestFailure, testEventManager } from "../generator"
 
-export const itDoc = (description: string, testFn: () => Promise<TestResult | void>): void => {
+export const itDoc = (description: string, testFn: () => Promise<void>): void => {
     if (!description) {
         throw new Error("테스트 설명이 itDoc에 필요합니다.")
     }
@@ -26,23 +27,16 @@ export const itDoc = (description: string, testFn: () => Promise<TestResult | vo
         throw new Error("테스트 함수가 itDoc에 필요합니다.")
     }
 
-    // 테스트 등록
     testEventManager.registerTest()
 
     const { itCommon } = getTestAdapterExports()
 
     itCommon(description, async () => {
         try {
-            const result: TestResult | void = await testFn()
-            if (!result) {
-                throw new Error("testFn을 await로 실행하지 말고 return 하세요.")
-            }
-            result.context = description
-
-            resultCollector.collectResult(result)
-            // 테스트 성공 기록
-            testEventManager.completeTestSuccess()
-            return null
+            return testContext.run(description, async () => {
+                await testFn()
+                testEventManager.completeTestSuccess()
+            })
         } catch (error) {
             // 테스트 실패 기록
             recordTestFailure()

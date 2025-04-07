@@ -38,7 +38,7 @@ export class ResponseBuilder implements ResponseBuilderInterface {
             const statusCode = result.response.status.toString()
 
             responses[statusCode] = {
-                description: result.context,
+                description: result.testSuiteDescription,
             }
 
             if (result.response.headers && Object.keys(result.response.headers).length > 0) {

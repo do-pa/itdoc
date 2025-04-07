@@ -224,13 +224,16 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
                     if (!combinedContent[defaultContentType]) {
                         combinedContent[defaultContentType] = {
                             schema: {
-                                type: typeof result.context === "object" ? "object" : "string",
+                                type:
+                                    typeof result.testSuiteDescription === "object"
+                                        ? "object"
+                                        : "string",
                             },
                             examples: {},
                         }
                     }
-                    const exampleKey = result.context
-                        ? result.context
+                    const exampleKey = result.testSuiteDescription
+                        ? result.testSuiteDescription
                         : `example${Object.keys(combinedContent[defaultContentType].examples).length}`
                     combinedContent[defaultContentType].examples[exampleKey] = {
                         value: null,
@@ -249,7 +252,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
                     }
 
                     const exampleKey =
-                        result.context ||
+                        result.testSuiteDescription ||
                         `example${Object.keys(combinedContent[contentType].examples).length}`
                     const exampleValue = this.normalizeExample(
                         contentObj.example,
