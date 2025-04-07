@@ -20,8 +20,9 @@ import supertest, { Response } from "supertest"
 import { validateResponse } from "./validateResponse"
 import { isDSLField } from "../interface/field"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
-import { recordTestFailure, TestResult } from "../generator"
+import { recordTestFailure, resultCollector, TestResult } from "../generator"
 import logger from "../../config/logger"
+import { testContext } from "../interface/testContext"
 
 /**
  * API 응답을 검증하기 위한 결과값을 설정하는 빌더 클래스입니다.
@@ -165,7 +166,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 })
             }
 
-            return {
+            const testResult: TestResult = {
                 method: this.method,
                 url: this.url,
                 options: this.config.apiOptions || {},
@@ -180,7 +181,11 @@ export class ResponseBuilder extends AbstractTestBuilder {
                     body: this.config.expectedResponseBody || res.body, // 검증을 위한 예상 응답 본문을 우선으로 사용
                     headers: res.headers,
                 },
+                testSuiteDescription: testContext.get() || "",
             }
+
+            resultCollector.collectResult(testResult)
+            return testResult
         } catch (error: any) {
             if (this.config.prettyPrint) {
                 logger.info("API TEST FAILED", {

@@ -21,6 +21,7 @@ import { configureOASExport } from "../generator"
 import { getOutputPath } from "../../config/getOutputPath"
 import * as path from "path"
 const outputPath = path.resolve(getOutputPath(), "oas.json")
+
 /**
  * API 명세를 위한 describe 함수
  * @param method {HttpMethod} HTTP 메서드

@@ -19,7 +19,7 @@ import { ApiDocOptions } from "../../interface"
 
 /**
  * 테스트 결과 인터페이스
- * @param context 테스트 컨텍스트 EX: itDoc("테스트 컨텍스트", () => {
+ * @param testSuiteDescription 테스트 컨텍스트 EX: itDoc("테스트 컨텍스트", () => {
  */
 export interface TestResult {
     method: HttpMethod
@@ -36,7 +36,7 @@ export interface TestResult {
         body?: unknown
         headers?: Record<string, string | unknown>
     }
-    context?: string
+    testSuiteDescription?: string
 }
 
 /**
