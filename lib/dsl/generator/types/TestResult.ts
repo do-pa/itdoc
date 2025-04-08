@@ -55,7 +55,10 @@ export interface TestResult {
 }
 
 /**
- * OAS 생성기 인터페이스
+ * OpenAPI Specification 생성기 인터페이스
+ *
+ * 이 인터페이스는 테스트 결과를 기반으로 OpenAPI 문서를 생성하는 부분을 담당합니다.
+ * @interface IOpenAPIGenerator
  */
 export interface IOpenAPIGenerator {
     collectTestResult(result: TestResult): void
