@@ -14,7 +14,15 @@ const config: Config = {
     onBrokenMarkdownLinks: "warn",
     i18n: {
         defaultLocale: "en",
-        locales: ["en"],
+        locales: ["ko", "en"],
+        localeConfigs: {
+            ko: {
+                htmlLang: "ko-KR",
+            },
+            en: {
+                htmlLang: "en-US",
+            },
+        },
     },
     presets: [
         [
@@ -60,6 +68,10 @@ const config: Config = {
                 {
                     href: "https://github.com/do-pa/itdoc",
                     label: "GitHub",
+                    position: "right",
+                },
+                {
+                    type: "localeDropdown",
                     position: "right",
                 },
             ],
