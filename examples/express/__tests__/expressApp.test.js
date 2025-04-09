@@ -19,7 +19,7 @@ describeAPI(
                 .prettyPrint()
                 .req()
                 .body({
-                    username: "penekhun",
+                    username: field("사용자 이름", "username"),
                     password: field("패스워드", "P@ssw0rd123!@#"),
                 })
                 .res()
