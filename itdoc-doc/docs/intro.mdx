@@ -1,0 +1,230 @@
+---
+sidebar_position: 1
+---
+
+# Getting Started with itdoc
+
+**itdoc** is a lightweight library that helps automatically generate test code based on Jest,
+Mocha.js, as well as OAS documentation, Markdown, and Redocli-HTML documents using its own
+interface. It's ideal for developers who want to naturally create API documentation while practicing
+Test-Driven Development (TDD).
+
+## Installation
+
+1. You need [Node.js](https://nodejs.org/en/download/) 20 installed.
+
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
+<Tabs>
+    {/* prettier-ignore */}
+    <TabItem value="pnpm" label="pnpm" default>
+        ```zsh
+        pnpm install itdoc --save-dev
+        ```
+    </TabItem>
+    {/* prettier-ignore */}
+    <TabItem value="yarn" label="yarn">
+        ```zsh
+        yarn add -D itdoc
+        ```
+    </TabItem>
+    {/* prettier-ignore */}
+    <TabItem value="npm" label="npm">
+        ```zsh
+        npm install itdoc --save-dev
+        ```
+    </TabItem>
+</Tabs>
+
+---
+
+### Test Writing Example
+
+JavaScript:
+
+```js
+describeAPI(
+    HttpMethod.POST,
+    "/signup",
+    {
+        summary: "User Registration API",
+        tag: "Auth",
+        description: "Registers a new user with username and password.",
+    },
+    targetApp,
+    (apiDoc) => {
+        itDoc("Successful registration", () => {
+            return apiDoc
+                .test()
+                .req()
+                .body({
+                    username: field("username", "penekhun"),
+                    password: field("password", "P@ssw0rd123!@#"),
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        })
+    },
+)
+```
+
+## Overview
+
+**itdoc** is a library designed for test automation and API documentation generation. Key features
+include:
+
+- **Domain-Specific Language (DSL):** Provides an interface for declaratively describing test cases
+  and API behavior.
+- **Builder Pattern:** Offers various builder classes like `RootBuilder`, `RequestBuilder`, and
+  `ResponseBuilder` for test case composition.
+- **Multiple Test Framework Support:** Includes adapters (`MochaAdapter`, `JestAdapter`) to
+  accommodate different test frameworks such as Mocha and Jest.
+- **HTTP-Related Constants:** Provides enumerations (`HttpMethod`, `HttpStatus`) for managing HTTP
+  methods and status codes.
+
+## API Reference
+
+### Exported Functions and Types
+
+```typescript
+// Main functions
+export { HttpMethod } from "./enums/HttpMethod"
+export { HttpStatus } from "./enums/HttpStatus"
+export { describeAPI, itDoc, field } from "./interface"
+export type { ApiDocOptions, DSLField } from "./interface"
+```
+
+### ApiDocOptions Interface
+
+```typescript
+/**
+ * Describe API에 넘길 옵션 인터페이스
+ * @param summary API 이름 (한줄 설명)
+ * @param tag API 태그
+ * @param description API 상세 설명
+ */
+export interface ApiDocOptions {
+    summary?: string
+    tag?: string
+    description?: string
+    defaults?: TestCaseConfig
+}
+```
+
+### DSLField Interface
+
+```typescript
+/**
+ * DSL Field 인터페이스
+ * - example은 값 또는 값 검증 함수일 수 있습니다.
+ */
+export interface DSLField<T = any> {
+    readonly description: string
+    readonly example: T | ((value: T) => void)
+    readonly required: boolean
+}
+```
+
+### Builder Classes
+
+itdoc는 빌더 패턴을 통해 직관적인 테스트 코드 작성을 지원합니다. 주요 빌더 클래스는 다음과 같습니다:
+
+#### RootBuilder
+
+```typescript
+/**
+ * RootBuilder 클래스는 API 테스트의 시작점입니다.
+ */
+export class RootBuilder extends AbstractTestBuilder {
+    /**
+     * prettyPrint 설정값을 true로 설정합니다.
+     */
+    public prettyPrint(): this
+
+    /**
+     * 요청 정보를 구성하는 RequestBuilder로 전환합니다.
+     */
+    public req(): RequestBuilder
+}
+```
+
+#### RequestBuilder
+
+```typescript
+/**
+ * API 요청 정보를 설정하는 빌더 클래스입니다.
+ */
+export class RequestBuilder extends AbstractTestBuilder {
+    /**
+     * 요청시 사용할 헤더를 설정합니다.
+     */
+    public header(headers: Record<string, DSLField<string>>): this
+
+    /**
+     * 요청 바디를 설정합니다.
+     */
+    public body(body: Record<string, DSLField | any>): this
+
+    /**
+     * 요청시 사용할 쿼리 파라미터를 설정합니다.
+     */
+    public queryParam(params: Record<string, DSLField | any>): this
+
+    /**
+     * 경로 파라미터를 설정합니다.
+     */
+    public pathParam(params: Record<string, DSLField | any>): this
+
+    /**
+     * 응답 정보를 구성하는 ResponseBuilder로 전환합니다.
+     */
+    public res(): ResponseBuilder
+}
+```
+
+#### ResponseBuilder
+
+```typescript
+/**
+ * API 응답 정보를 설정하는 빌더 클래스입니다.
+ */
+export class ResponseBuilder extends AbstractTestBuilder {
+    /**
+     * 예상되는 HTTP 상태 코드를 설정합니다.
+     */
+    public status(status: HttpStatus | number): this
+
+    /**
+     * 예상되는 응답 헤더를 설정합니다.
+     */
+    public header(headers: Record<string, string | DSLField<string>>): this
+
+    /**
+     * 예상되는 응답 바디를 설정합니다.
+     */
+    public body(body: Record<string, DSLField>): this
+}
+```
+
+### TestCaseConfig Interface
+
+```typescript
+/**
+ * 각 testcase 마다 설정하는 설정값을 정의합니다.
+ */
+export interface TestCaseConfig {
+    /**
+     * API 문서화를 위한 옵션
+     */
+    apiOptions?: ApiDocOptions
+    pathParams?: Record<string, DSLField | any>
+    queryParams?: Record<string, DSLField | any>
+    requestBody?: Record<string, DSLField | any>
+    requestHeaders?: Record<string, DSLField<string> | string>
+    expectedStatus?: HttpStatus | number
+    expectedResponseBody?: Record<string, DSLField>
+    expectedResponseHeaders?: Record<string, DSLField<string> | string>
+    prettyPrint?: boolean
+}
+```

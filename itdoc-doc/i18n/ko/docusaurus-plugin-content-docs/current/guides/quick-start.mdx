@@ -1,0 +1,242 @@
+---
+sidebar_position: 1
+---
+
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
+# 빠른 시작 가이드
+
+이 가이드는 Express.js를 사용한 간단한 예제를 통해 itdoc을 빠르게 시작하는 데 도움을 줍니다.
+
+## 사전 요구사항
+
+- Node.js (버전 20 이상)
+- 테스트 러너 (Jest 또는 Mocha)
+- Express.js 애플리케이션 (예제용)
+
+## 설치
+
+선호하는 패키지 매니저를 사용하여 itdoc을 설치하세요:
+
+<Tabs>
+    {/* prettier-ignore */}
+    <TabItem value="pnpm" label="pnpm" default>
+        ```bash
+        pnpm install itdoc --save-dev
+        ```
+    </TabItem>
+    {/* prettier-ignore */}
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn add -D itdoc
+        ```
+    </TabItem>
+    {/* prettier-ignore */}
+    <TabItem value="npm" label="npm">
+        ```bash
+        npm install itdoc --save-dev
+        ```
+    </TabItem>
+</Tabs>
+
+## 기본 사용법
+
+Express 애플리케이션을 위한 간단한 API 문서를 만들어 보겠습니다.
+
+### 1. Express 애플리케이션 생성
+
+간단한 Express 애플리케이션을 생성하세요 (또는 기존 애플리케이션을 사용하세요):
+
+<Tabs>
+    <TabItem value="js" label="JavaScript" default>
+        ```js
+        const express = require("express")
+        const app = express()
+
+        app.use(express.json())
+
+        app.post("/signup", (req, res) => {
+            const { username, password } = req.body
+
+            if (!username) {
+                return res.status(400).json({ error: "username is required" })
+            }
+
+            if (password && password.length < 8) {
+                return res.status(400).json({ error: "password must be at least 8 characters" })
+            }
+
+            return res.status(201).json({ message: "User created successfully" })
+        })
+
+        module.exports = app
+        ```
+    </TabItem>
+    <TabItem value="ts" label="TypeScript">
+        ```ts
+        import express, { Request, Response } from "express"
+
+        const app = express()
+        app.use(express.json())
+
+        app.post("/signup", (req: Request, res: Response) => {
+            const { username, password } = req.body
+
+            if (!username) {
+                return res.status(400).json({ error: "username is required" })
+            }
+
+            if (password && password.length < 8) {
+                return res.status(400).json({ error: "password must be at least 8 characters" })
+            }
+
+            return res.status(201).json({ message: "User created successfully" })
+        })
+
+        export default app
+        ```
+    </TabItem>
+
+</Tabs>
+
+### 2. 테스트 파일 작성
+
+itdoc을 사용하여 API를 문서화하는 테스트 파일을 작성하세요:
+
+<Tabs>
+    <TabItem value="js" label="JavaScript" default>
+        ```js
+        const app = require("./expressApp")
+        const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+
+        describeAPI(
+            HttpMethod.POST,
+            "/signup",
+            {
+                summary: "회원가입 API",
+                tag: "Auth",
+                description: "사용자로부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+            },
+            app,
+            (apiDoc) => {
+                itDoc("회원가입 성공", () => {
+                    return apiDoc
+                        .test()
+                        .req()
+                        .body({
+                            username: field("아이디", "testuser"),
+                            password: field("패스워드", "Password123!"),
+                        })
+                        .res()
+                        .status(HttpStatus.CREATED)
+                        .body({
+                            message: field("성공 메시지", "User created successfully"),
+                        })
+                })
+
+                itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", () => {
+                    return apiDoc
+                        .test()
+                        .req()
+                        .body({
+                            password: field("패스워드", "Password123!"),
+                        })
+                        .res()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body({
+                            error: field("에러 메시지", "username is required"),
+                        })
+                })
+            },
+        )
+        ```
+    </TabItem>
+    <TabItem value="ts" label="TypeScript">
+        ```ts
+        import app from "./expressApp"
+        import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"
+
+        describeAPI(
+            HttpMethod.POST,
+            "/signup",
+            {
+                summary: "회원가입 API",
+                tag: "Auth",
+                description: "사용자로부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+            },
+            app,
+            (apiDoc) => {
+                itDoc("회원가입 성공", () => {
+                    return apiDoc
+                        .test()
+                        .req()
+                        .body({
+                            username: field("아이디", "testuser"),
+                            password: field("패스워드", "Password123!"),
+                        })
+                        .res()
+                        .status(HttpStatus.CREATED)
+                        .body({
+                            message: field("성공 메시지", "User created successfully"),
+                        })
+                })
+
+                itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", () => {
+                    return apiDoc
+                        .test()
+                        .req()
+                        .body({
+                            password: field("패스워드", "Password123!"),
+                        })
+                        .res()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body({
+                            error: field("에러 메시지", "username is required"),
+                        })
+                })
+            },
+        )
+        ```
+    </TabItem>
+
+</Tabs>
+
+### 3. 테스트 실행
+
+테스트 러너를 구성하세요. 그런 다음 실행하세요:
+
+<Tabs>
+    {/* prettier-ignore */}
+    <TabItem value="pnpm" label="pnpm" default>
+        ```bash
+        pnpm test
+        ```
+    </TabItem>
+    {/* prettier-ignore */}
+    <TabItem value="yarn" label="yarn">
+        ```bash
+        yarn test
+        ```
+    </TabItem>
+    {/* prettier-ignore */}
+    <TabItem value="npm" label="npm">
+        ```bash
+        npm test
+        ```
+    </TabItem>
+</Tabs>
+
+### 4. OpenAPI 문서 생성
+
+테스트를 실행하면 프로젝트 루트 폴더의 `output/oas.json` 파일에 OpenAPI 문서가 자동으로 생성됩니다.
+이 파일은 테스트 코드에서 작성한 API 문서화 정보를 기반으로 생성됩니다.
+
+## 다음 단계
+
+이 빠른 시작 가이드를 완료한 후에는 다음과 같은 작업을 할 수 있습니다:
+
+1. [전체 API 참조](../api/reference) 확인하기
+
+더 자세한 예제는 [GitHub 저장소](https://github.com/do-pa/itdoc/tree/main/examples)의 예제를
+확인하세요.
