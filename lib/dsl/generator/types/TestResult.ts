@@ -21,19 +21,19 @@ import { ApiDocOptions } from "../../interface"
  * 테스트 결과 인터페이스
  *
  * 이 인터페이스는 API 테스트 결과를 캡처하기 위한 정보를 담습니다.
- * @param {HttpMethod} method - HTTP 메소드 (예: GET, POST 등).
- * @param {string} url - 요청 URL.
- * @param {ApiDocOptions} options - API 문서 생성 옵션.
- * @param {object} request - 요청 관련 정보.
- * @param {unknown} [request.body] - 요청 바디 (선택 사항).
- * @param {Record<string, string | unknown>} [request.headers] - 요청 헤더 (선택 사항).
- * @param {Record<string, string | unknown>} [request.queryParams] - URL 쿼리 파라미터 (선택 사항).
- * @param {Record<string, string | unknown>} [request.pathParams] - URL 경로 파라미터 (선택 사항).
- * @param {object} response - 응답 관련 정보.
- * @param {number} response.status - HTTP 응답 상태 코드.
- * @param {unknown} [response.body] - 응답 바디 (선택 사항).
- * @param {Record<string, string | unknown>} [response.headers] - 응답 헤더 (선택 사항).
- * @param {string} [testSuiteDescription] - 테스트 컨텍스트 설명. 예를 들어,
+ * @property {HttpMethod} method - HTTP 메소드 (예: GET, POST 등).
+ * @property {string} url - 요청 URL.
+ * @property {ApiDocOptions} options - API 문서 생성 옵션.
+ * @property {object} request - 요청 관련 정보.
+ * @property {unknown} [request.body] - 요청 바디 (선택 사항).
+ * @property {Record<string, string | unknown>} [request.headers] - 요청 헤더 (선택 사항).
+ * @property {Record<string, string | unknown>} [request.queryParams] - URL 쿼리 파라미터 (선택 사항).
+ * @property {Record<string, string | unknown>} [request.pathParams] - URL 경로 파라미터 (선택 사항).
+ * @property {object} response - 응답 관련 정보.
+ * @property {number} response.status - HTTP 응답 상태 코드.
+ * @property {unknown} [response.body] - 응답 바디 (선택 사항).
+ * @property {Record<string, string | unknown>} [response.headers] - 응답 헤더 (선택 사항).
+ * @property {string} [testSuiteDescription] - 테스트 컨텍스트 설명. 예를 들어,
  *                                             itDoc("테스트 컨텍스트", () => { ... })에서 "테스트 컨텍스트"에 해당하는 부분.
  */
 export interface TestResult {
