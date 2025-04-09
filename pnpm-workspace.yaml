@@ -3,6 +3,7 @@ packages:
     - "scripts/*"
     - "lib/**"
     - "examples/**"
+    - "itdoc-doc/**"
     # test 디렉토리 제외
     - "!**/test/**"
     # 빌드 출력 디렉토리 제외
