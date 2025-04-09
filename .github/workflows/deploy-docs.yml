@@ -1,0 +1,65 @@
+name: Deploy ITDOC Documentation
+
+on:
+    push:
+        branches:
+            - main # main 브랜치에 푸시될 때 실행
+        paths:
+            - "itdoc-doc/**" # itdoc-doc 디렉토리 하위 파일 변경 시에만 실행
+    workflow_dispatch: # 수동 실행도 가능하도록 설정
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+concurrency:
+    group: "pages"
+    cancel-in-progress: false
+
+jobs:
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20 # package.json에 명시된 Node.js 버전 또는 원하는 버전 사용
+                  cache: "pnpm"
+                  cache-dependency-path: itdoc-doc/pnpm-lock.yaml # 캐시 경로 지정
+            - name: Install pnpm
+              uses: pnpm/action-setup@v2 # pnpm 설치 액션 사용
+              with:
+                  version: 10 # pnpm 버전 지정 (프로젝트에 맞는 버전 사용)
+                  run_install: false
+            - name: Get pnpm store directory
+              shell: bash
+              run: |
+                  echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+            - uses: actions/cache@v3
+              name: Setup pnpm cache
+              with:
+                  path: ${{ env.STORE_PATH }}
+                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-pnpm-store-
+            - name: Install dependencies
+              working-directory: ./itdoc-doc # 작업 디렉토리 설정
+              run: pnpm install --frozen-lockfile
+            - name: Build
+              working-directory: ./itdoc-doc # 작업 디렉토리 설정
+              run: pnpm build
+            - name: Setup Pages
+              uses: actions/configure-pages@v4
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: ./itdoc-doc/build # 빌드 결과물 경로 지정
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
