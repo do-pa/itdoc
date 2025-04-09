@@ -1,0 +1,101 @@
+---
+sidebar_position: 1
+---
+
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
+# itdoc 시작하기
+
+**itdoc**은 자체 인터페이스를 기반으로 jest, mocha.js 기반의 테스트코드, oas, markdown, redocli-html
+문서를 자동으로 생성할 수 있게 도와주는 경량 라이브러리입니다. 테스트 기반 개발(TDD)을 하면서
+자연스럽게 API 문서도 함께 작성하고 싶은 개발자에게 이상적입니다.
+
+## 설치
+
+1. [Node.js](https://nodejs.org/en/download/) 20이 설치되어 있어야 합니다.
+
+<Tabs>
+    {/* prettier-ignore */}
+    <TabItem value="pnpm" label="pnpm" default>
+        ```zsh
+        pnpm install itdoc --save-dev
+        ```
+    </TabItem>
+    {/* prettier-ignore */}
+    <TabItem value="yarn" label="yarn">
+        ```zsh
+        yarn add -D itdoc
+        ```
+    </TabItem>
+    {/* prettier-ignore */}
+    <TabItem value="npm" label="npm">
+        ```zsh
+        npm install itdoc --save-dev
+        ```
+    </TabItem>
+</Tabs>
+
+---
+
+### 테스트 작성 예제
+
+<Tabs>
+    <TabItem value="js" label="JavaScript" default>
+    ```js
+    describeAPI(
+        HttpMethod.POST,
+        "/signup",
+        {
+            summary: "회원가입 API",
+            tag: "Auth",
+            description: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+        },
+        targetApp,
+        (apiDoc) => {
+            itdoc("회원가입 성공", () => {
+                return apiDoc
+                    .test()
+                    .req()
+                    .body({
+                        username: field("아이디", "penekhun"),
+                        password: field("패스워드", "P@ssw0rd123!@#"),
+                    })
+                    .res()
+                    .status(HttpStatus.CREATED)
+            })
+        },
+    )
+    ```
+    </TabItem>
+    <TabItem value="ts" label="TypeScript">
+    ```ts
+    import { describeAPI, itdoc, field, HttpMethod, HttpStatus } from 'itdoc';
+
+    describeAPI(
+        HttpMethod.POST,
+        "/signup",
+        {
+            summary: "회원가입 API",
+            tag: "Auth",
+            description: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+        },
+        targetApp as Express,
+        (apiDoc) => {
+            itdoc("회원가입 성공", () => {
+                return apiDoc
+                    .test()
+                    .req()
+                    .body({
+                        username: field("아이디", "penekhun"),
+                        password: field("패스워드", "P@ssw0rd123!@#"),
+                    })
+                    .res()
+                    .status(HttpStatus.CREATED)
+            })
+        },
+    );
+    ```
+
+</TabItem>
+</Tabs>

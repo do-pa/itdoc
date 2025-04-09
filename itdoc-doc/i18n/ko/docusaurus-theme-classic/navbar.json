@@ -1,0 +1,22 @@
+{
+    "title": {
+        "message": "itdoc",
+        "description": "The title in the navbar"
+    },
+    "logo.alt": {
+        "message": "itdoc 로고",
+        "description": "The alt text of navbar logo"
+    },
+    "item.label.Docs": {
+        "message": "문서",
+        "description": "Navbar item with label Docs"
+    },
+    "item.label.Blog": {
+        "message": "블로그",
+        "description": "Navbar item with label Blog"
+    },
+    "item.label.GitHub": {
+        "message": "깃허브",
+        "description": "Navbar item with label GitHub"
+    }
+}
