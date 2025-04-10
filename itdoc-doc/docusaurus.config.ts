@@ -93,7 +93,7 @@ const config: Config = {
                     items: [
                         {
                             label: "Discord",
-                            href: "https://discord.gg/xYnAXKjG",
+                            href: "https://discord.gg/ZhXk7VSu5Z",
                         },
                     ],
                 },
