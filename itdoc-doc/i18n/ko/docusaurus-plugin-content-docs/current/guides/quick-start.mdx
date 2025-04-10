@@ -232,6 +232,26 @@ itdoc을 사용하여 API를 문서화하는 테스트 파일을 작성하세요
 테스트를 실행하면 프로젝트 루트 폴더의 `output/oas.json` 파일에 OpenAPI 문서가 자동으로 생성됩니다.
 이 파일은 테스트 코드에서 작성한 API 문서화 정보를 기반으로 생성됩니다.
 
+### 5. 추가 설정 (package.json)
+
+`package.json` 파일에 `itdoc` 필드를 추가하여 출력 디렉토리 및 문서 메타데이터와 같은 추가 설정을
+구성할 수 있습니다.
+
+```json title="package.json"
+{
+    // ... other package.json configurations
+    "itdoc": {
+        "output": "output", // OpenAPI 문서가 생성될 디렉토리 (기본값: output)
+        "document": {
+            "title": "My API Documentation", // 문서 제목
+            "description": "Detailed description of my API." // 문서 설명
+        }
+    }
+}
+```
+
+이 설정을 통해 생성되는 OpenAPI 문서의 기본 정보를 제어하고, 출력 파일의 위치를 변경할 수 있습니다.
+
 ## 다음 단계
 
 이 빠른 시작 가이드를 완료한 후에는 다음과 같은 작업을 할 수 있습니다:

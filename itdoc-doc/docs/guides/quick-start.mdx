@@ -234,6 +234,27 @@ When you run the tests, an OpenAPI document will be automatically generated in t
 file in your project root directory. This file is generated based on the API documentation
 information written in your test code.
 
+### 5. Additional Configuration (package.json)
+
+You can configure additional settings, such as the output directory and document metadata, by adding
+an `itdoc` field to your `package.json` file.
+
+```json title="package.json"
+{
+    // ... other package.json configurations
+    "itdoc": {
+        "output": "output", // Directory where the OpenAPI document will be generated (default: output)
+        "document": {
+            "title": "My API Documentation", // Document title
+            "description": "Detailed description of my API." // Document description
+        }
+    }
+}
+```
+
+This configuration allows you to control the basic information of the generated OpenAPI document and
+change the output file location.
+
 ## What's Next?
 
 After completing this quick start guide, you can:

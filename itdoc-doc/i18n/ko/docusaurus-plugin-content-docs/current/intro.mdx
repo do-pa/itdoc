@@ -99,3 +99,26 @@ import TabItem from "@theme/TabItem"
 
 </TabItem>
 </Tabs>
+
+## 개요
+
+**itdoc**은 테스트 자동화 및 API 문서 생성을 위해 설계된 라이브러리입니다. 주요 기능은 다음과
+같습니다:
+
+- **도메인 특화 언어 (DSL):** 테스트 케이스와 API 동작을 선언적으로 설명하기 위한 인터페이스를
+  제공합니다.
+- **빌더 패턴:** `RootBuilder`, `RequestBuilder`, `ResponseBuilder`와 같은 다양한 빌더 클래스를
+  제공하여 테스트 케이스를 구성합니다.
+- **다중 테스트 프레임워크 지원:** Mocha 및 Jest와 같은 다양한 테스트 프레임워크를 수용하기 위한
+  어댑터 (`MochaAdapter`, `JestAdapter`)를 포함합니다.
+- **HTTP 관련 상수:** HTTP 메서드 및 상태 코드를 관리하기 위한 열거형 (`HttpMethod`, `HttpStatus`)을
+  제공합니다.
+
+## 다음 단계
+
+이 빠른 시작 가이드를 완료한 후 다음을 수행할 수 있습니다:
+
+1. [full API reference](../api/reference) 확인
+
+더 자세한 예제는 [GitHub repository](https://github.com/do-pa/itdoc/tree/main/examples)에서 확인할
+수 있습니다.
