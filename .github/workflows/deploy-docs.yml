@@ -3,10 +3,10 @@ name: Deploy ITDOC Documentation
 on:
     push:
         branches:
-            - main # main 브랜치에 푸시될 때 실행
+            - main
         paths:
-            - "itdoc-doc/**" # itdoc-doc 디렉토리 하위 파일 변경 시에만 실행
-    workflow_dispatch: # 수동 실행도 가능하도록 설정
+            - "itdoc-doc/**"
+    workflow_dispatch:
 
 permissions:
     contents: read
@@ -29,13 +29,13 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 20 # package.json에 명시된 Node.js 버전 또는 원하는 버전 사용
+                  node-version: 20
                   cache: "pnpm"
-                  cache-dependency-path: itdoc-doc/pnpm-lock.yaml # 캐시 경로 지정
+                  cache-dependency-path: itdoc-doc/pnpm-lock.yaml
             - name: Install pnpm
-              uses: pnpm/action-setup@v2 # pnpm 설치 액션 사용
+              uses: pnpm/action-setup@v2
               with:
-                  version: 10 # pnpm 버전 지정 (프로젝트에 맞는 버전 사용)
+                  version: 10
                   run_install: false
             - name: Get pnpm store directory
               shell: bash
@@ -49,17 +49,17 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-pnpm-store-
             - name: Install dependencies
-              working-directory: ./itdoc-doc # 작업 디렉토리 설정
+              working-directory: ./itdoc-doc
               run: pnpm install --frozen-lockfile
             - name: Build
-              working-directory: ./itdoc-doc # 작업 디렉토리 설정
+              working-directory: ./itdoc-doc
               run: pnpm build
             - name: Setup Pages
               uses: actions/configure-pages@v4
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: ./itdoc-doc/build # 빌드 결과물 경로 지정
+                  path: ./itdoc-doc/build
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4
