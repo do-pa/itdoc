@@ -4,7 +4,8 @@
     "private": true,
     "scripts": {
         "build": "docusaurus build",
-        "start": "docusaurus start"
+        "start": "docusaurus start",
+        "serve": "docusaurus serve"
     },
     "browserslist": {
         "production": [
