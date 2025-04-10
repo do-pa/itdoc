@@ -1,4 +1,4 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from "tsup"
 
 export default defineConfig({
     // 진입점 설정
@@ -18,8 +18,7 @@ export default defineConfig({
     clean: true,
 
     // 번들에서 제외할 외부 의존성
-    // express와 supertest는 런타임 의존성으로 처리
-    external: ["express", "supertest", "mocha", "jest"],
+    external: ["express", "mocha", "jest"],
 
     // 번들 출력 디렉토리
     outDir: "build",
@@ -46,6 +45,5 @@ export default defineConfig({
     metafile: false,
 
     // 항상 번들에 포함할 패키지
-    // supports-color: 터미널 색상 지원을 위해 포함
-    noExternal: ["supports-color"]
-});
+    noExternal: ["supertest", "consola"],
+})
