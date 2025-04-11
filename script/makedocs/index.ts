@@ -15,11 +15,17 @@
  */
 
 import { exec } from "child_process"
-import { join } from "path"
+import { join, dirname } from "path"
+import { fileURLToPath } from "url"
 import logger from "../../lib/config/logger"
+import chalk from "chalk"
+
+// ESM 환경에서 __filename와 __dirname 계산
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 /**
- * OpenAPI 파일을 Markdown과 HTML 문서로 변환하는 동기 함수.
+ * OpenAPI 파일을 Markdown과 HTML 문서로 변환하는 함수.
  * @param oasOutputPath OpenAPI YAML 파일 경로
  * @param outputDir 생성된 문서 파일의 출력 디렉터리 경로
  */
@@ -29,16 +35,19 @@ export function generateDocs(oasOutputPath: string, outputDir: string): void {
     }
 
     try {
-        logger.box(`ITDOC MAKEDOCS SCRIPT START`)
+        logger.box("ITDOC MAKEDOCS SCRIPT START")
         logger.info(`OAS 파일 경로: ${oasOutputPath}`)
-        logger.info(`Step 1: OpenAPI YAML 파일을 Markdown으로 변환시작`)
+
+        // Step 1: Markdown 변환 작업
         const markdownPath = join(outputDir, "output.md")
-        exec(
+        logger.info("Step 1: OpenAPI YAML 파일을 Markdown으로 변환시작")
+
+        const child1 = exec(
             `npx widdershins "${oasOutputPath}" -o "${markdownPath}"`,
-            { stdio: "inherit", cwd: __dirname },
+            { cwd: __dirname },
             (error) => {
                 if (error) {
-                    logger.error(`Step 1: OpenAPI YAML 파일을 Markdown으로 변환중 오류 발생`, error)
+                    logger.error("Step 1: OpenAPI YAML 파일을 Markdown으로 변환중 오류 발생", error)
                 } else {
                     logger.info(
                         `Step 1: OpenAPI YAML 파일을 Markdown으로 변환완료: ${markdownPath}`,
@@ -46,24 +55,29 @@ export function generateDocs(oasOutputPath: string, outputDir: string): void {
                 }
             },
         )
-        logger.info(`Step 1: OpenAPI YAML 파일을 Markdown으로 변환완료: ${markdownPath}`)
-        logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성시작`)
+        child1.unref()
+
+        // Step 2: HTML 문서 생성 작업
         const htmlPath = join(outputDir, "redoc.html")
-        exec(
+        logger.info("Step 2: Redocly CLI를 사용하여 HTML 문서 생성시작")
+
+        const child2 = exec(
             `npx @redocly/cli build-docs "${oasOutputPath}" --output "${htmlPath}"`,
-            { stdio: "inherit", cwd: __dirname },
+            { cwd: __dirname },
             (error) => {
                 if (error) {
-                    logger.error(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성중 오류 발생`, error)
+                    logger.error("Step 2: Redocly CLI를 사용하여 HTML 문서 생성중 오류 발생", error)
                 } else {
                     logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성완료: ${htmlPath}`)
                 }
             },
         )
-        logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성완료: ${htmlPath}`)
-        logger.info(`모든 작업이 성공적으로 완료되었습니다.`)
+        child2.unref()
+
+        // 최종 로그는 각 작업이 실행되었음을 알리기 위한 용도로 남깁니다.
+        logger.info("모든 작업이 실행되었습니다. (명령은 비동기적으로 수행됩니다)")
     } catch (error: unknown) {
-        logger.error(`오류 발생`, error)
+        logger.error(chalk.red("오류 발생:"), error)
         process.exit(1)
     }
 }
