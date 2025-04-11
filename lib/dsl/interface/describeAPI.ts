@@ -17,11 +17,6 @@
 import { HttpMethod } from "../enums"
 import { getTestAdapterExports } from "../adapters"
 import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
-import { configureOASExport } from "../generator"
-import { getOutputPath } from "../../config/getOutputPath"
-import * as path from "path"
-const outputPath = path.resolve(getOutputPath(), "oas.json")
-
 /**
  * API 명세를 위한 describe 함수
  * @param method {HttpMethod} HTTP 메서드
@@ -52,7 +47,7 @@ export const describeAPI = (
     if (!callback) {
         throw new Error("API test function is required.")
     }
-    configureOASExport(outputPath)
+
     const { describeCommon } = getTestAdapterExports()
     describeCommon(`${options.summary} | [${method}] ${url}`, () => {
         const apiDoc = new ItdocBuilderEntry(method, url, options, app)

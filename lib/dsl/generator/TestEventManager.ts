@@ -17,7 +17,10 @@
 import logger from "../../config/logger"
 import { exportOASToJSON } from "./commands"
 import { OpenAPIGenerator } from "./OpenAPIGenerator"
-
+import { getOutputPath } from "../../config/getOutputPath"
+import { spawn } from "child_process"
+import * as path from "path"
+import { generateDocs } from "../../../script/makedocs"
 /**
  * 테스트 이벤트를 관리하고 테스트 상태를 추적하는 클래스입니다.
  * 모든 테스트가 완료되면 자동으로 OAS를 생성합니다.
@@ -27,7 +30,6 @@ export class TestEventManager {
     private testCount = 0
     private completedTests = 0
     private failedTests = 0
-    private oasOutputPath: string | null = null
     private oasAlreadyGenerated = false
     private oasGenerationScheduled = false
 
@@ -36,15 +38,6 @@ export class TestEventManager {
             TestEventManager.instance = new TestEventManager()
         }
         return TestEventManager.instance
-    }
-
-    /**
-     * OAS 출력 경로를 설정합니다.
-     * @param path OAS JSON 파일 출력 경로
-     */
-    public setOASOutputPath(path: string): void {
-        this.oasOutputPath = path
-        logger.debug(`OAS 출력 경로 설정: ${path}`)
     }
 
     public registerTest(): void {
@@ -93,11 +86,10 @@ export class TestEventManager {
             return
         }
 
-        if (!this.oasOutputPath) {
-            logger.debug("OAS 출력 경로가 설정되지 않아 OAS 생성을 건너뜁니다.")
-            return
-        }
-
+        // if (!this.oasOutputPath || !this.outputPath) {
+        //     logger.debug("OAS 출력 경로가 설정되지 않아 OAS 생성을 건너뜁니다.")
+        //     return
+        // }
         try {
             this.generateOAS()
         } catch (error) {
@@ -109,13 +101,23 @@ export class TestEventManager {
      * OAS를 생성합니다.
      */
     private generateOAS(): void {
-        if (this.oasAlreadyGenerated || !this.oasOutputPath) {
+        if (this.oasAlreadyGenerated) {
             return
         }
+        const outputPath = getOutputPath()
+        const oasPath = path.resolve(outputPath, "oas.json")
 
         const oasGenerator = OpenAPIGenerator.getInstance()
-        exportOASToJSON(oasGenerator, this.oasOutputPath)
+        exportOASToJSON(oasGenerator, oasPath)
         this.oasAlreadyGenerated = true
-        logger.debug(`OAS 생성 완료: ${this.oasOutputPath}`)
+        logger.debug(`OAS 생성 완료: ${oasPath}`)
+
+        generateDocs(oasPath, outputPath)
+        const mkdocsScript = path.join(__dirname, "../../../script/makedocs/index.ts")
+        const child = spawn("node", [mkdocsScript, oasPath, outputPath], {
+            detached: true,
+            stdio: "ignore",
+        })
+        child.unref()
     }
 }

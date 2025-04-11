@@ -14,66 +14,70 @@
  * limitations under the License.
  */
 
-/* TODO: no-console 해제 후, console.log() 제거. logger를 사용하도록 변경 해야함. */
-/* eslint-disable no-console */
-
-import { execSync } from "child_process"
-import { existsSync, mkdirSync } from "fs"
+import { exec } from "child_process"
+import { join, dirname } from "path"
 import { fileURLToPath } from "url"
-import { dirname, join } from "path"
-import chalk from "chalk"
 import logger from "../../lib/config/logger"
+import chalk from "chalk"
+
+// ESM 환경에서 __filename와 __dirname 계산
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 /**
- * 현재 파일의 절대 경로를 가져옵니다.
- * @constant {string}
+ * OpenAPI 파일을 Markdown과 HTML 문서로 변환하는 함수.
+ * @param oasOutputPath OpenAPI YAML 파일 경로
+ * @param outputDir 생성된 문서 파일의 출력 디렉터리 경로
  */
-const __filename: string = fileURLToPath(import.meta.url)
+export function generateDocs(oasOutputPath: string, outputDir: string): void {
+    if (!outputDir) {
+        throw new Error("유효한 출력 경로가 제공되지 않았습니다.")
+    }
 
-/**
- * 현재 파일이 위치한 디렉토리의 경로를 가져옵니다.
- * @constant {string}
- */
-const __dirname: string = dirname(__filename)
+    try {
+        logger.box("ITDOC MAKEDOCS SCRIPT START")
+        logger.info(`OAS 파일 경로: ${oasOutputPath}`)
 
-/**
- * 출력 디렉토리의 경로를 설정합니다.
- * @constant {string}
- */
-const outputDir: string = join(__dirname, "../../", "output")
-if (!existsSync(outputDir)) {
-    mkdirSync(outputDir, { recursive: true })
-}
+        // Step 1: Markdown 변환 작업
+        const markdownPath = join(outputDir, "output.md")
+        logger.info("Step 1: OpenAPI YAML 파일을 Markdown으로 변환시작")
 
-/**
- * OpenAPI YAML 파일의 경로를 설정합니다.
- * @constant {string}
- */
-const openapiPath: string = join(__dirname, "../oas/openapi.yaml")
-if (!existsSync(openapiPath)) {
-    logger.error(`OAS 파일을 찾을 수 없습니다. 경로: ${openapiPath}`)
-    process.exit(1)
-}
+        const child1 = exec(
+            `npx widdershins "${oasOutputPath}" -o "${markdownPath}"`,
+            { cwd: __dirname },
+            (error) => {
+                if (error) {
+                    logger.error("Step 1: OpenAPI YAML 파일을 Markdown으로 변환중 오류 발생", error)
+                } else {
+                    logger.info(
+                        `Step 1: OpenAPI YAML 파일을 Markdown으로 변환완료: ${markdownPath}`,
+                    )
+                }
+            },
+        )
+        child1.unref()
 
-try {
-    logger.box(`ITDOC MAKEDOCS SCRIPT START`)
-    logger.info(`OAS 파일 경로: ${openapiPath}`)
-    logger.info(`Step 1: OpenAPI YAML 파일을 Markdown으로 변환시작`)
-    const markdownPath = join(outputDir, "output.md")
-    execSync(`npx widdershins "${openapiPath}" -o "${markdownPath}"`, {
-        stdio: "inherit",
-        cwd: __dirname,
-    })
-    logger.info(`Step 1: OpenAPI YAML 파일을 Markdown으로 변환완료: ${markdownPath}`)
-    logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성시작`)
-    const htmlPath = join(outputDir, "redoc.html")
-    execSync(`npx @redocly/cli build-docs "${openapiPath}" --output "${htmlPath}"`, {
-        stdio: "inherit",
-        cwd: __dirname,
-    })
-    logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성완료: ${htmlPath}`)
-    logger.info(`모든 작업이 성공적으로 완료되었습니다.`)
-} catch (error: unknown) {
-    console.error(chalk.red("오류 발생:"), error)
-    process.exit(1)
+        // Step 2: HTML 문서 생성 작업
+        const htmlPath = join(outputDir, "redoc.html")
+        logger.info("Step 2: Redocly CLI를 사용하여 HTML 문서 생성시작")
+
+        const child2 = exec(
+            `npx @redocly/cli build-docs "${oasOutputPath}" --output "${htmlPath}"`,
+            { cwd: __dirname },
+            (error) => {
+                if (error) {
+                    logger.error("Step 2: Redocly CLI를 사용하여 HTML 문서 생성중 오류 발생", error)
+                } else {
+                    logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성완료: ${htmlPath}`)
+                }
+            },
+        )
+        child2.unref()
+
+        // 최종 로그는 각 작업이 실행되었음을 알리기 위한 용도로 남깁니다.
+        logger.info("모든 작업이 실행되었습니다. (명령은 비동기적으로 수행됩니다)")
+    } catch (error: unknown) {
+        logger.error(chalk.red("오류 발생:"), error)
+        process.exit(1)
+    }
 }

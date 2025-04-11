@@ -26,13 +26,8 @@ import logger from "../../config/logger"
 
 import { TestResultCollector } from "./TestResultCollector"
 import { TestEventManager } from "./TestEventManager"
-
 export const resultCollector = TestResultCollector.getInstance()
 export const testEventManager = TestEventManager.getInstance()
-
-export const configureOASExport = (outputPath: string): void => {
-    testEventManager.setOASOutputPath(outputPath)
-}
 
 /**
  * 테스트 실패를 기록합니다.
