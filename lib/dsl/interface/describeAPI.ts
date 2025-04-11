@@ -20,7 +20,6 @@ import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
 import { configureOASExport } from "../generator"
 import { getOutputPath } from "../../config/getOutputPath"
 import { generateDocs } from "../../../script/makedocs"
-import { spawn } from "child_process"
 import * as path from "path"
 const outputPath = getOutputPath()
 const oasPath = path.resolve(outputPath, "oas.json")
@@ -55,19 +54,13 @@ export const describeAPI = (
     if (!callback) {
         throw new Error("API test function is required.")
     }
-    configureOASExport(oasPath, outputPath)
     const { describeCommon, afterAllCommon } = getTestAdapterExports()
     describeCommon(`${options.summary} | [${method}] ${url}`, () => {
         const apiDoc = new ItdocBuilderEntry(method, url, options, app)
         callback(apiDoc)
     })
     afterAllCommon(() => {
+        configureOASExport(oasPath, outputPath)
         generateDocs(oasPath, outputPath)
-        const mkdocsScript = path.join(__dirname, "../../../script/makedocs/index.ts")
-        const child = spawn("node", [mkdocsScript, oasPath, outputPath], {
-            detached: true,
-            stdio: "ignore",
-        })
-        child.unref()
     })
 }
