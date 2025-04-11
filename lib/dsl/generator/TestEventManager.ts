@@ -28,6 +28,7 @@ export class TestEventManager {
     private completedTests = 0
     private failedTests = 0
     private oasOutputPath: string | null = null
+    private outputPath: string | null = null
     private oasAlreadyGenerated = false
     private oasGenerationScheduled = false
 
@@ -41,10 +42,13 @@ export class TestEventManager {
     /**
      * OAS 출력 경로를 설정합니다.
      * @param path OAS JSON 파일 출력 경로
+     * @param outputPath
      */
-    public setOASOutputPath(path: string): void {
+    public setOASOutputPath(path: string, outputPath: string): void {
         this.oasOutputPath = path
-        logger.debug(`OAS 출력 경로 설정: ${path}`)
+        this.outputPath = outputPath
+        logger.debug(`OAS JSON 파일 출력 경로 설정: ${path}`)
+        logger.debug(`output 경로 설정: ${outputPath}`)
     }
 
     public registerTest(): void {
@@ -93,11 +97,10 @@ export class TestEventManager {
             return
         }
 
-        if (!this.oasOutputPath) {
+        if (!this.oasOutputPath || !this.outputPath) {
             logger.debug("OAS 출력 경로가 설정되지 않아 OAS 생성을 건너뜁니다.")
             return
         }
-
         try {
             this.generateOAS()
         } catch (error) {
@@ -109,7 +112,7 @@ export class TestEventManager {
      * OAS를 생성합니다.
      */
     private generateOAS(): void {
-        if (this.oasAlreadyGenerated || !this.oasOutputPath) {
+        if (this.oasAlreadyGenerated || !this.oasOutputPath || !this.outputPath) {
             return
         }
 

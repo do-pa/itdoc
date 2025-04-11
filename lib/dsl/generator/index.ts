@@ -26,12 +26,11 @@ import logger from "../../config/logger"
 
 import { TestResultCollector } from "./TestResultCollector"
 import { TestEventManager } from "./TestEventManager"
-
 export const resultCollector = TestResultCollector.getInstance()
 export const testEventManager = TestEventManager.getInstance()
 
-export const configureOASExport = (outputPath: string): void => {
-    testEventManager.setOASOutputPath(outputPath)
+export const configureOASExport = (oasPath: string, outputPath: string): void => {
+    testEventManager.setOASOutputPath(oasPath, outputPath)
 }
 
 /**
