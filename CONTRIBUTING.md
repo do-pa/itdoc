@@ -14,12 +14,31 @@ If you discover a security vulnerability within ItdocJS, Please email [itdoc.js@
 
 [itdoc.js@gmail.com]: mailto:itdoc.js@gmail.com
 
-<!--
-
-## Code Conventions and Housekeeping
-
 ## For your first contribution
 
-TODO: 기여자 가이드라인 추가
+### Code Conventions and Housekeeping
 
--->
+Good news! Itdoc provides .vscode and .idea folders for contributors using VS Code and IntelliJ.
+Thanks to these folders, code formatting is automatically applied. Additionally, Husky is used to
+enforce code conventions before git commits.
+
+> **This means contributors don't need to worry about adhering to our project's coding
+> conventions!**
+
+### Issues
+
+1. Before creating a new issue, please check if a similar issue already exists. You can do this by
+   using the search bar on the issues page.
+
+2. Use the provided issue template and describe the issue as clearly as possible. Including code
+   that reproduces the problem is highly recommended.
+
+### Pull Requests
+
+1. Before pushing a commit  
+   Ensure that all tests pass by running pnpm test. If possible, please write tests.
+    - Unit tests should be placed in lib/**tests**/unit.
+    - More complex tests(such as integration tests) should be added under examples/.
+2. Before creating a PR  
+   Use the provided issue template and describe the changes in detail. If the PR is related to an
+   existing issue, mention the issue number in the description.
