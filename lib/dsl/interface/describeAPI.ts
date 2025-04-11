@@ -19,8 +19,11 @@ import { getTestAdapterExports } from "../adapters"
 import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
 import { configureOASExport } from "../generator"
 import { getOutputPath } from "../../config/getOutputPath"
+import { generateDocs } from "../../../script/makedocs"
+import { spawn } from "child_process"
 import * as path from "path"
-const outputPath = path.resolve(getOutputPath(), "oas.json")
+const outputPath = getOutputPath()
+const oasPath = path.resolve(outputPath, "oas.json")
 
 /**
  * API 명세를 위한 describe 함수
@@ -52,10 +55,19 @@ export const describeAPI = (
     if (!callback) {
         throw new Error("API test function is required.")
     }
-    configureOASExport(outputPath)
-    const { describeCommon } = getTestAdapterExports()
+    configureOASExport(oasPath, outputPath)
+    const { describeCommon, afterAllCommon } = getTestAdapterExports()
     describeCommon(`${options.summary} | [${method}] ${url}`, () => {
         const apiDoc = new ItdocBuilderEntry(method, url, options, app)
         callback(apiDoc)
+    })
+    afterAllCommon(() => {
+        generateDocs(oasPath, outputPath)
+        const mkdocsScript = path.join(__dirname, "../../../script/makedocs/index.ts")
+        const child = spawn("node", [mkdocsScript, oasPath, outputPath], {
+            detached: true,
+            stdio: "ignore",
+        })
+        child.unref()
     })
 }
