@@ -29,10 +29,6 @@ import { TestEventManager } from "./TestEventManager"
 export const resultCollector = TestResultCollector.getInstance()
 export const testEventManager = TestEventManager.getInstance()
 
-export const configureOASExport = (oasPath: string, outputPath: string): void => {
-    testEventManager.setOASOutputPath(oasPath, outputPath)
-}
-
 /**
  * 테스트 실패를 기록합니다.
  * 한 번이라도 호출되면 OAS 자동 생성을 건너뜁니다.
