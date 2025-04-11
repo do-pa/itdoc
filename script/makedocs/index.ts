@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { execSync } from "child_process"
+import { exec } from "child_process"
 import { join } from "path"
 import logger from "../../lib/config/logger"
 
@@ -31,25 +31,39 @@ export function generateDocs(oasOutputPath: string, outputDir: string): void {
     try {
         logger.box(`ITDOC MAKEDOCS SCRIPT START`)
         logger.info(`OAS 파일 경로: ${oasOutputPath}`)
-
-        // Step 1: OpenAPI YAML 파일을 Markdown으로 변환
         logger.info(`Step 1: OpenAPI YAML 파일을 Markdown으로 변환시작`)
         const markdownPath = join(outputDir, "output.md")
-        execSync(`npx widdershins "${oasOutputPath}" -o "${markdownPath}"`, {
-            stdio: "inherit",
-        })
+        exec(
+            `npx widdershins "${oasOutputPath}" -o "${markdownPath}"`,
+            { stdio: "inherit", cwd: __dirname },
+            (error) => {
+                if (error) {
+                    logger.error(`Step 1: OpenAPI YAML 파일을 Markdown으로 변환중 오류 발생`, error)
+                } else {
+                    logger.info(
+                        `Step 1: OpenAPI YAML 파일을 Markdown으로 변환완료: ${markdownPath}`,
+                    )
+                }
+            },
+        )
         logger.info(`Step 1: OpenAPI YAML 파일을 Markdown으로 변환완료: ${markdownPath}`)
-
-        // Step 2: Redocly CLI를 사용하여 HTML 문서 생성
         logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성시작`)
         const htmlPath = join(outputDir, "redoc.html")
-        execSync(`"npx @redocly/cli build-docs  ${oasOutputPath} --output "${htmlPath}"`, {
-            stdio: "inherit",
-            cwd: __dirname,
-        })
+        exec(
+            `npx @redocly/cli build-docs "${oasOutputPath}" --output "${htmlPath}"`,
+            { stdio: "inherit", cwd: __dirname },
+            (error) => {
+                if (error) {
+                    logger.error(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성중 오류 발생`, error)
+                } else {
+                    logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성완료: ${htmlPath}`)
+                }
+            },
+        )
         logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성완료: ${htmlPath}`)
         logger.info(`모든 작업이 성공적으로 완료되었습니다.`)
     } catch (error: unknown) {
-        logger.error(`문서 생성 중 오류가 발생했습니다:`, error)
+        logger.error(`오류 발생`, error)
+        process.exit(1)
     }
 }
