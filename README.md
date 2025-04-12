@@ -25,7 +25,7 @@ npm install itdoc --save-dev
 
 ## Overview
 
-The main goal of this project is to reliably document RESTful web services written in JavaScript..
+The main goal of this project is to reliably document RESTful web services written in JavaScript.
 Unlike typical JSON or JSDoc-based API documentation, itdoc extracts request/response examples
 directly from test code. Since the documentation is only generated when tests pass, you can always
 publish the most up-to-date, verified API information.
