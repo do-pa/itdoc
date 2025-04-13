@@ -24,10 +24,15 @@ import { ItdocConfiguration, PackageJson } from "./ItdocConfiguration"
  * 만약 해당 인자가 존재하지 않으면, 기본값을 반환합니다.
  * @param key 조회할 인자명 (.으로 depth 추가 가능)
  * @param defaultValue 기본값
+ * @param fsModule (테스트 등에서 의존성 주입을 위해) 읽기용 fs 모듈, 기본값은 Node의 fs
  * @returns {string} itdoc[key] 값 또는 defaultValue
  */
-export function readItdocConfig(key: string, defaultValue: string): string {
-    const packageJson = readPackageJson()
+export function readItdocConfig(
+    key: string,
+    defaultValue: string,
+    fsModule: typeof fs = fs,
+): string {
+    const packageJson = readPackageJson(fsModule)
     if (!packageJson?.itdoc) {
         return defaultValue
     }
@@ -53,12 +58,13 @@ export function readItdocConfig(key: string, defaultValue: string): string {
 
 /**
  * package.json 파일을 읽어옵니다.
+ * @param fsModule (테스트 등에서 의존성 주입을 위해) 읽기용 fs 모듈, 기본값은 Node의 fs
  * @returns {object} package.json 데이터
  */
-function readPackageJson(): PackageJson {
+function readPackageJson(fsModule: typeof fs = fs): PackageJson {
     const packageJsonPath = path.resolve(process.cwd(), "package.json")
     try {
-        const packageJsonData = fs.readFileSync(packageJsonPath, "utf8")
+        const packageJsonData = fsModule.readFileSync(packageJsonPath, "utf8")
         return JSON.parse(packageJsonData)
     } catch (error) {
         logger.error("package.json을 읽는 중 오류 발생.", error)
