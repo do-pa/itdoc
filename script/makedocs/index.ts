@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-/* TODO: no-console 해제 후, console.log() 제거. logger를 사용하도록 변경 해야함. */
-/* eslint-disable no-console */
-
 import { execSync } from "child_process"
 import { existsSync, mkdirSync } from "fs"
 import { fileURLToPath } from "url"
@@ -74,6 +71,6 @@ try {
     logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성완료: ${htmlPath}`)
     logger.info(`모든 작업이 성공적으로 완료되었습니다.`)
 } catch (error: unknown) {
-    console.error(chalk.red("오류 발생:"), error)
+    logger.error(chalk.red("오류 발생:"), error)
     process.exit(1)
 }
