@@ -21,7 +21,7 @@ import type { UserTestInterface } from "./UserTestInterface"
 /**
  * 테스트 프레임워크를 감지하는 동기 함수
  */
-function detectTestFramework(): TestFramework {
+export function detectTestFramework(): TestFramework {
     const isJest =
         process.env.JEST_WORKER_ID !== undefined ||
         typeof (global as any).jest !== "undefined" ||
