@@ -17,21 +17,22 @@
 import * as fs from "fs"
 import * as path from "path"
 import logger from "./logger"
+import { ItdocConfiguration, PackageJson } from "./ItdocConfiguration"
 
 /**
  * package.json의 "itdoc" 항목 내에서 특정 인자를 읽어옵니다.
  * 만약 해당 인자가 존재하지 않으면, 기본값을 반환합니다.
  * @param key 조회할 인자명 (.으로 depth 추가 가능)
  * @param defaultValue 기본값
- * @returns itdoc[key] 값 또는 defaultValue
+ * @returns {string} itdoc[key] 값 또는 defaultValue
  */
 export function readItdocConfig(key: string, defaultValue: string): string {
     const packageJson = readPackageJson()
-    if (!packageJson) {
+    if (!packageJson?.itdoc) {
         return defaultValue
     }
 
-    const itdocConfig = packageJson.itdoc
+    const itdocConfig: ItdocConfiguration = packageJson.itdoc
     if (!itdocConfig || typeof itdocConfig !== "object") {
         return defaultValue
     }
@@ -51,15 +52,16 @@ export function readItdocConfig(key: string, defaultValue: string): string {
 }
 
 /**
- *
+ * package.json 파일을 읽어옵니다.
+ * @returns {object} package.json 데이터
  */
-function readPackageJson(): any {
+function readPackageJson(): PackageJson {
     const packageJsonPath = path.resolve(process.cwd(), "package.json")
     try {
         const packageJsonData = fs.readFileSync(packageJsonPath, "utf8")
         return JSON.parse(packageJsonData)
     } catch (error) {
         logger.error("package.json을 읽는 중 오류 발생.", error)
-        return null
+        return {}
     }
 }

@@ -18,13 +18,15 @@ import { readItdocConfig } from "./readPackageJson"
 
 /**
  * 생성될 OAS에 설정된 서버 주소를 가져옴.
+ * @returns {string} - OAS에 지정될 BaseUrl
  */
 export function getOpenAPIBaseUrl(): string {
     return readItdocConfig("document.baseUrl", "http://localhost:8080")
 }
 
 /**
- * 생성될 OAS에 설정될 TITLE을 가져옴.,
+ * 생성될 OAS에 설정될 TITLE을 가져옴.
+ * @returns {string} - OAS에 지정될 Title
  */
 export function getOpenAPITitle(): string {
     return readItdocConfig("document.title", "API Document")
@@ -32,6 +34,7 @@ export function getOpenAPITitle(): string {
 
 /**
  * 생성될 OAS에 설정될 Top-Level 문서 설명을 가져옴.
+ * @returns {string} - OAS에 지정될 Description
  */
 export function getOpenAPIDocumentDescription(): string {
     return readItdocConfig(
