@@ -112,6 +112,9 @@ pass, you can export the documentation to formats such as [OpenAPI Specification
 .env를 설정해서 GPT API기반으로 테스트를 생성할 수 있습니다. .env.example를 기반으로 설정해주세요.
 -->
 
+> For detailed usage and additional information, please visit
+> [https://itdoc.kr/](https://itdoc.kr/).
+
 ## Contributing
 
 We welcome contributions! Please open an issue or submit a pull request. See
