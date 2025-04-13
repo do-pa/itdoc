@@ -5,8 +5,10 @@ process of making contributions and help you understand how you can best partici
 
 ## License
 
-Itdoc is released under the Apache 2.0 license. Please ensure your contributions comply with this
+Itdoc is released under the [Apache 2.0 license]. Please ensure your contributions comply with this
 license.
+
+[Apache 2.0 license]: https://www.apache.org/licenses/LICENSE-2.0
 
 ## Code of Conduct
 
@@ -34,7 +36,7 @@ commits.
 
 1. **Check existing issues**: Before creating a new issue, please ensure a similar issue does not
    already exist by using the search functionality on our
-   [issues page](https://github.com/your-repo/issues).
+   [issues page](https://github.com/do-pa/itdoc/issues).
 2. **Create clear and concise issues**: When creating an issue, always use the provided issue
    template. Clearly describe the issue, and if applicable, include:
     - Steps to reproduce the problem
