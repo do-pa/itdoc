@@ -33,12 +33,9 @@ export function generateDocs(oasOutputPath: string, outputDir: string): void {
     if (!outputDir) {
         throw new Error("유효한 출력 경로가 제공되지 않았습니다.")
     }
-
     try {
         logger.box("ITDOC MAKEDOCS SCRIPT START")
         logger.info(`OAS 파일 경로: ${oasOutputPath}`)
-
-        // Step 1: Markdown 변환 작업
         const markdownPath = join(outputDir, "output.md")
         logger.info("Step 1: OpenAPI YAML 파일을 Markdown으로 변환시작")
 
@@ -56,8 +53,6 @@ export function generateDocs(oasOutputPath: string, outputDir: string): void {
             },
         )
         child1.unref()
-
-        // Step 2: HTML 문서 생성 작업
         const htmlPath = join(outputDir, "redoc.html")
         logger.info("Step 2: Redocly CLI를 사용하여 HTML 문서 생성시작")
 
@@ -73,8 +68,6 @@ export function generateDocs(oasOutputPath: string, outputDir: string): void {
             },
         )
         child2.unref()
-
-        // 최종 로그는 각 작업이 실행되었음을 알리기 위한 용도로 남깁니다.
         logger.info("모든 작업이 실행되었습니다. (명령은 비동기적으로 수행됩니다)")
     } catch (error: unknown) {
         logger.error(chalk.red("오류 발생:"), error)

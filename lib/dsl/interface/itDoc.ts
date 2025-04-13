@@ -38,7 +38,6 @@ export const itDoc = (description: string, testFn: () => Promise<void>): void =>
                 testEventManager.completeTestSuccess()
             })
         } catch (error) {
-            // 테스트 실패 기록
             recordTestFailure()
             throw error
         }
