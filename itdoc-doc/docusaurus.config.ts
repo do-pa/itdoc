@@ -6,7 +6,7 @@ const config: Config = {
     title: "itdoc",
     tagline: "API Documentation Automation Made Easy",
     favicon: "img/favicon.ico",
-    url: "https://itdoc.com",
+    url: "https://itdoc.kr",
     baseUrl: "/",
     organizationName: "do-pa",
     projectName: "itdoc",
