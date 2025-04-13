@@ -96,6 +96,10 @@ describeAPI(
 )
 ```
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8251bb8e-3829-4488-8992-8450d12403b8" alt="itdoc docs workflow" style="width:30%;">
+</p>
+
 Test-based documentation will always reflect the actual behavior of your API. As long as your tests
 pass, you can export the documentation to formats such as [OpenAPI Specification], Markdown, or HTML
 — and deploy it however you like.
