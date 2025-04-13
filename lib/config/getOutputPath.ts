@@ -19,7 +19,9 @@ import { readItdocConfig } from "./readPackageJson"
 import logger from "./logger"
 
 /**
- *
+ * itdoc에서 사용자 output 경로를 가져오는 함수입니다.
+ * itdoc cli에서 테스트 코드를 자동 생성할 때 사용됩니다.
+ * @returns {string} outputPath - 사용자 설정 output 경로
  */
 export function getOutputPath(): string {
     let outputPath = readItdocConfig("output", "output")
