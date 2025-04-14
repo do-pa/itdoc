@@ -24,6 +24,14 @@ const OUTPUT_DIR = path.join(__dirname, "../output")
 const EXPECT_OAS_DIR = path.join(__dirname, "../expected")
 const OUTPUT_FILENAME = "oas.json"
 
+/**
+ * <b>NOTE</b>
+ *
+ * This script is used to run the tests and validate the OpenAPI Specification (OAS) output.
+ * 생성되는 OpenAPI.JSON과 예상되는 OpenAPI.JSON을 비교합니다.
+ * 만약 두 파일이 다르면 에러가 발생하니, OpenAPI 생성 로직이 변경되면 expected 파일도 변경해야 합니다.
+ */
+
 const cleanOutputDir = () => {
     if (fs.existsSync(OUTPUT_DIR)) {
         console.log("🧹 Removing old output folder...")
