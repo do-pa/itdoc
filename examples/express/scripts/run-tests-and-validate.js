@@ -18,6 +18,7 @@ const { execSync } = require("child_process")
 const fs = require("fs")
 const path = require("path")
 const deepEqual = require("fast-deep-equal")
+const { diff } = require("jest-diff")
 
 const OUTPUT_DIR = path.join(__dirname, "../output")
 const EXPECT_OAS_DIR = path.join(__dirname, "../expected")
@@ -46,8 +47,8 @@ const verifyOasOutput = () => {
     const expected = JSON.parse(fs.readFileSync(expectedOasPath, "utf8"))
 
     if (!deepEqual(actual, expected)) {
-        console.error(`❌ ${OUTPUT_FILENAME} does not match the expected output!`)
-        process.exit(1)
+        console.error(diff(expected, actual, { expand: false }))
+        throw new Error(`❌ ${OUTPUT_FILENAME} does not match the expected output!`)
     }
 
     console.log("✅ OAS output matches the expected output!")
