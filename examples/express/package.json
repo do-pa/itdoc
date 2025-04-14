@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "test": "ITDOC_DEBUG=true pnpm test:jest && pnpm test:mocha",
+        "test": "node ./scripts/run-tests-and-validate.js",
         "test:jest": "echo \"run test as jest\" && NODE_OPTIONS='--experimental-vm-modules' jest",
         "test:mocha": "echo \"run test as mocha\" && mocha ./__tests__/expressApp.test.js"
     },
@@ -16,7 +16,8 @@
         "babel-jest": "^29.7.0",
         "itdoc": "workspace:*",
         "jest": "^29.7.0",
-        "mocha": "^10.3.0"
+        "mocha": "^10.3.0",
+        "fast-deep-equal": "^3.1.3"
     },
     "itdoc": {
         "output": "output",
