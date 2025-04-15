@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "test": "node ./scripts/run-tests-and-validate.js",
-        "test:jest": "echo \"run test as jest\" && NODE_OPTIONS='--experimental-vm-modules' jest",
+        "test:jest": "echo \"run test as jest\" && cross-env NODE_OPTIONS='--experimental-vm-modules' jest",
         "test:mocha": "echo \"run test as mocha\" && mocha ./__tests__/expressApp.test.js"
     },
     "dependencies": {
@@ -18,7 +18,8 @@
         "itdoc": "workspace:*",
         "jest": "^29.7.0",
         "mocha": "^10.3.0",
-        "jest-diff": "^29.7.0"
+        "jest-diff": "^29.7.0",
+        "cross-env": "^7.0.3"
     },
     "itdoc": {
         "output": "output",
