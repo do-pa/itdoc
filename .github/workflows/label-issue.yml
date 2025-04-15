@@ -1,0 +1,26 @@
+name: Set Issue Priority Label
+
+on:
+    issues:
+        types: [opened, edited]
+
+jobs:
+    set-priority-label:
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+        steps:
+            - name: Set Priority Label
+              uses: actions/github-script@v6
+              with:
+                  script: |
+                      const priority = context.payload.issue.body.match(/priority:\s*(High|Medium|Low)/i)?.[1];
+                      if (priority) {
+                        const label = `Priority: ${priority}`;
+                        await github.rest.issues.addLabels({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.issue.number,
+                          labels: [label]
+                        });
+                      }
