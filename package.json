@@ -48,7 +48,6 @@
         "build": "pnpm run clean && tsup",
         "ci": "pnpm run prettier:check && pnpm run lint && pnpm run test && pnpm run build",
         "clean": "rimraf build",
-        "postinstall": "husky",
         "lint": "eslint .",
         "lint-staged": "lint-staged",
         "prepare": "husky && husky install",
