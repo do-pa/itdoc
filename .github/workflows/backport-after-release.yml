@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  backport_release_to_develop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Cherry-pick release commit to develop
+        run: |
+          git checkout develop
+          git pull origin develop
+          git cherry-pick main --grep="^chore(main):"
+          git push origin develop
