@@ -1,0 +1,67 @@
+name: Backport Release Commit to Develop
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  backport_release_to_develop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Check if latest commit is a release
+        id: check_release
+        run: |
+          COMMIT_MSG=$(git log origin/main -1 --pretty=%s)
+          echo "Latest commit message: $COMMIT_MSG"
+
+          if [[ "$COMMIT_MSG" =~ ^chore\(main\): ]]; then
+            echo "✅ Release commit detected."
+            echo "release_commit=$(git rev-parse origin/main)" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️ No release commit at HEAD."
+            echo "release_commit=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Cherry-pick and push
+        id: cherry_pick
+        if: steps.check_release.outputs.release_commit != ''
+        run: |
+          RELEASE_COMMIT=${{ steps.check_release.outputs.release_commit }}
+          BRANCH_NAME=backport/$RELEASE_COMMIT
+
+          git checkout -b $BRANCH_NAME origin/develop
+
+          if git cherry-pick $RELEASE_COMMIT; then
+            echo "✅ Cherry-pick succeeded."
+            git push origin HEAD
+            echo "cherry_picked=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Cherry-pick failed or already applied. Skipping."
+            git cherry-pick --abort || true
+            echo "cherry_picked=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR to develop
+        if: steps.cherry_pick.outputs.cherry_picked == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          base: develop
+          branch: backport/${{ steps.check_release.outputs.release_commit }}
+          title: "chore: backport release commit to develop"
+          body: |
+            This PR backports the release commit `${{ steps.check_release.outputs.release_commit }}` to `develop`.
+
+            Please review and resolve any conflicts if present.
+          draft: false
