@@ -1,0 +1,53 @@
+name: Sync Release Commit to Develop
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync_release_commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Check for release commit
+        id: check_release
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%s)
+          echo "Latest commit: $COMMIT_MSG"
+          if [[ "$COMMIT_MSG" =~ ^chore\(main\): ]]; then
+            echo "release_commit=true" >> $GITHUB_OUTPUT
+          else
+            echo "release_commit=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create sync branch
+        if: steps.check_release.outputs.release_commit == 'true'
+        id: create_sync_branch
+        run: |
+          BRANCH_NAME=sync-release-$(date +%s)
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create PR main → develop
+        if: steps.check_release.outputs.release_commit == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          base: develop
+          branch: ${{ steps.create_sync_branch.outputs.branch_name }}
+          title: "chore: sync release commit from main to develop"
+          body: |
+            This PR syncs the latest release commit from `main` to `develop` to keep versioning and changelog consistent.
+          draft: false
