@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.2.1](https://github.com/do-pa/itdoc/compare/v0.2.0...v0.2.1) (2025-04-16)
+
+
+### 🩹 Fixes
+
+* itdoc install 오류 해결 ([9f41e96](https://github.com/do-pa/itdoc/commit/9f41e9699c136c0a7089105d796769a6b2a30759))
+
+
+### 📚 Documentation
+
+* run-tests-and-validate 주석 추가 ([1abdb10](https://github.com/do-pa/itdoc/commit/1abdb10cd2477fe7b7873492df7a24b398794886))
+* 문서 페이지 링크 구성 수정 ([e51f4fd](https://github.com/do-pa/itdoc/commit/e51f4fd46995a49d5ea06f1545c37c0980b4210a))
+
+
+### 🧹 Chores
+
+* add workflow to sync release commits from main to develop ([aaef1f8](https://github.com/do-pa/itdoc/commit/aaef1f8ea32d70e8747268073d1365fb59cbe75e))
+* examples 하위에 cross-env 적용 ([f86ea78](https://github.com/do-pa/itdoc/commit/f86ea781bcf6846bfbb7ba431efa94c97985fe65))
+* release_please 스크립트 수정 ([814adcc](https://github.com/do-pa/itdoc/commit/814adccb164a79b62e9987c969ec7d7cf47c434f))
+* update npm homepage URL to point to itdoc.kr ([2af6805](https://github.com/do-pa/itdoc/commit/2af68057ce2f8dea49bbb6ec121325fe9f2703db))
+* update release-please.yml to check head_branch for main ([b8ca6b9](https://github.com/do-pa/itdoc/commit/b8ca6b9e4462bb145088af8525b581d13971cb55))
+* 사용되지 않는 패키지 정리 ([cfbcce5](https://github.com/do-pa/itdoc/commit/cfbcce5b4e2f0ae9062c7aeb975843afc4617417))
+* 생성되는 oas 테스트에서 편리한 디버깅을 위해 diff 보여주는 코드 추가 ([394ca61](https://github.com/do-pa/itdoc/commit/394ca61cd92dc0c22aa63928a0ba080cdb6a4ff9))
+* 생성되는 openapi.json 검증 테스트 추가 ([4c171f3](https://github.com/do-pa/itdoc/commit/4c171f31fafef3512f2d91cab6a1529a53461b4e))
+
 ## [0.2.0](https://github.com/do-pa/itdoc/compare/v0.1.0...v0.2.0) (2025-04-13)
 
 
