@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  backport_release_to_develop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Find last release commit hash
+        id: release_commit
+        run: |
+          RELEASE_COMMIT=$(git log main --grep="^chore(main):" --format="%H" -n 1)
+          echo "release_commit=$RELEASE_COMMIT" >> $GITHUB_OUTPUT
+
+      - name: Cherry-pick release commit to develop
+        if: steps.release_commit.outputs.release_commit != ''
+        run: |
+          git checkout develop
+          git pull origin develop
+          git cherry-pick ${{ steps.release_commit.outputs.release_commit }}
+          git push origin develop
