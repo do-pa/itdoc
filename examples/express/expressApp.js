@@ -257,7 +257,7 @@ app.get("/products", (req, res) => {
 // 캐시된 데이터 조회 API
 app.get("/cached-data", (req, res) => {
     const ifNoneMatch = req.headers["if-none-match"]
-
+    
     if (ifNoneMatch === '"abc123"') {
         res.setHeader("ETag", '"abc123"')
         res.setHeader("Cache-Control", "max-age=3600")
