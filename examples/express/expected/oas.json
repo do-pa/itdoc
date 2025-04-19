@@ -429,19 +429,7 @@
                 "security": [{}],
                 "responses": {
                     "204": {
-                        "description": "204 NO CONTENT",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "object"
-                                },
-                                "examples": {
-                                    "유효한 사용자 ID와 친구 ID가 주어지면 정상 삭제된다.": {
-                                        "value": {}
-                                    }
-                                }
-                            }
-                        }
+                        "description": "유효한 사용자 ID와 친구 ID가 주어지면 정상 삭제된다."
                     },
                     "400": {
                         "description": "400 BAD REQUEST",
