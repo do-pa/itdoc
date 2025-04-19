@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { PATH_PARAM_TYPES, QUERY_PARAM_TYPES } from "./TestCaseConfig"
+// import { PATH_PARAM_TYPES, QUERY_PARAM_TYPES } from "./TestCaseConfig"
 import { DSLField } from "../interface"
 import { ResponseBuilder } from "./ResponseBuilder"
 import { FIELD_TYPES } from "../interface/field"
@@ -46,14 +46,12 @@ export class RequestBuilder extends AbstractTestBuilder {
      * 요청시 사용할 쿼리 파라미터를 설정합니다.
      * @param params
      */
-    public queryParam(
-        params: Record<string, DSLField<QUERY_PARAM_TYPES> | QUERY_PARAM_TYPES>,
-    ): this {
+    public queryParam(params: Record<string, any>): this {
         this.config.queryParams = params
         return this
     }
 
-    public pathParam(params: Record<string, DSLField<PATH_PARAM_TYPES> | PATH_PARAM_TYPES>): this {
+    public pathParam(params: Record<string, any>): this {
         this.config.pathParams = params
         return this
     }
