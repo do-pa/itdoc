@@ -215,6 +215,12 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         responses: Record<string, unknown>,
     ): void {
         for (const [statusCode, results] of statusCodes) {
+            if (statusCode === "204") {
+                responses[statusCode] = {
+                    description: results[0].testSuiteDescription || this.getStatusText(statusCode),
+                }
+                continue
+            }
             const combinedContent: Record<string, any> = {}
 
             for (const result of results) {
