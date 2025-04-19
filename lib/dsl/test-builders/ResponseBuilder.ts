@@ -51,7 +51,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
         let finalUrl = this.url
         for (const [key, fieldObj] of Object.entries(this.config.pathParams || {})) {
             const paramValue = isDSLField(fieldObj) ? String(fieldObj.example) : String(fieldObj)
-            finalUrl = finalUrl.replace(`{${key}}`, encodeURIComponent(paramValue))
+            finalUrl = finalUrl.replace(`:${key}`, encodeURIComponent(paramValue))
         }
 
         const requestInstance = supertest(this.app)
