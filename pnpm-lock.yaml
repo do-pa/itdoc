@@ -15,10 +15,10 @@ importers:
         specifier: ^3.4.2
         version: 3.4.2
       jest:
-        specifier: ^29.7.0
+        specifier: ^29.0.0
         version: 29.7.0(@types/node@20.17.24)(supports-color@10.0.0)(ts-node@10.9.2(@types/node@20.17.24)(typescript@5.7.3))
       mocha:
-        specifier: ^11.1.0
+        specifier: ^11.0.0
         version: 11.1.0
       openai:
         specifier: ^4.90.0
