@@ -18,7 +18,7 @@ export default defineConfig({
     clean: true,
 
     // 번들에서 제외할 외부 의존성
-    external: ["express", "mocha", "jest"],
+    external: ["express", "mocha", "jest", "chalk"],
 
     // 번들 출력 디렉토리
     outDir: "build",
