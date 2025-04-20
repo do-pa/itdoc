@@ -49,6 +49,6 @@ jobs:
         run: pnpm install
       - name: Build
         run: pnpm build
-      - run: pnpm publish --provenance --access public --tag=next
+      - run: pnpm publish --provenance --access public --tag=latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
