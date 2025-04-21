@@ -2,121 +2,24 @@
 sidebar_position: 1
 ---
 
-# Getting Started with itdoc
+# What is itdoc?
 
-**itdoc** is a lightweight library that helps automatically generate test code based on Jest,
-Mocha.js, as well as OAS documentation, Markdown, and Redocli-HTML documents using its own
-interface. It's ideal for developers who want to naturally create API documentation while practicing
-Test-Driven Development (TDD).
+Create reliable, test-driven API documentation – straight from your Node.js test code!
 
-## Installation
+## Features
 
-1. You need [Node.js](https://nodejs.org/en/download/) 20 installed.
+- 🧪 Test-driven API documentation generation
+- 📄 Supports OpenAPI, Markdown, HTML output
+- 🚫 Fails to generate docs if tests fail – ensures accuracy
+- 🔧 Easy integration with your existing test suite
+- 🧩 Framework-agnostic (Express, Fastify, etc.)
+- 🤖 GPT-powered test case generation for faster documentation
 
-import Tabs from "@theme/Tabs"
-import TabItem from "@theme/TabItem"
+## Project Goal
 
-<Tabs>
-    {/* prettier-ignore */}
-    <TabItem value="pnpm" label="pnpm" default>
-        ```zsh
-        pnpm install itdoc --save-dev
-        ```
-    </TabItem>
-    {/* prettier-ignore */}
-    <TabItem value="yarn" label="yarn">
-        ```zsh
-        yarn add -D itdoc
-        ```
-    </TabItem>
-    {/* prettier-ignore */}
-    <TabItem value="npm" label="npm">
-        ```zsh
-        npm install itdoc --save-dev
-        ```
-    </TabItem>
-</Tabs>
+The main goal of this project is to reliably document `RESTful web services` written in `JavaScript`. Unlike typical JSON or JSDoc-based API documentation, `itdoc` extracts request/response examples directly from test code. Since the documentation is only generated when tests pass, you can always publish the most up-to-date, verified API information.
 
----
+`itdoc` combines your written descriptions with test results to generate documentation.
 
-### Test Writing Example
+Test-based documentation will always reflect the actual behavior of your API. As long as your tests pass, you can export the documentation to formats such as OpenAPI Specification, Markdown, or HTML — and deploy it however you like.
 
-<Tabs>
-    <TabItem value="js" label="JavaScript" default>
-    ```js
-    describeAPI(
-        HttpMethod.POST,
-        "/signup",
-        {
-            summary: "User Registration API",
-            tag: "Auth",
-            description: "Registers a new user with username and password.",
-        },
-        targetApp,
-        (apiDoc) => {
-            itDoc("Successful registration", () => {
-                return apiDoc
-                    .test()
-                    .req()
-                    .body({
-                        username: field("username", "penekhun"),
-                        password: field("password", "P@ssw0rd123!@#"),
-                    })
-                    .res()
-                    .status(HttpStatus.CREATED)
-            })
-        },
-    )
-    ```
-    </TabItem>
-    <TabItem value="ts" label="TypeScript">
-    ```ts
-    import { describeAPI, itdoc, field, HttpMethod, HttpStatus } from 'itdoc';
-
-    describeAPI(
-        HttpMethod.POST,
-        "/signup",
-        {
-            summary: "User Registration API",
-            tag: "Auth",
-            description: "Registers a new user with username and password.",
-        },
-        targetApp as Express, // Assuming targetApp is of type Express
-        (apiDoc) => {
-            itdoc("Successful registration", () => {
-                return apiDoc
-                    .test()
-                    .req()
-                    .body({
-                        username: field("Username", "penekhun"),
-                        password: field("Password", "P@ssw0rd123!@#"),
-                    })
-                    .res()
-                    .status(HttpStatus.CREATED)
-            })
-        },
-    );
-    ```
-
-    </TabItem>
-
-</Tabs>
-
-## Overview
-
-**itdoc** is a library designed for test automation and API documentation generation. Key features
-include:
-
-- **Domain-Specific Language (DSL):** Provides an interface for declaratively describing test cases
-  and API behavior.
-- **Builder Pattern:** Offers various builder classes like `RootBuilder`, `RequestBuilder`, and
-  `ResponseBuilder` for test case composition.
-- **Multiple Test Framework Support:** Includes adapters (`MochaAdapter`, `JestAdapter`) to
-  accommodate different test frameworks such as Mocha and Jest.
-- **HTTP-Related Constants:** Provides enumerations (`HttpMethod`, `HttpStatus`) for managing HTTP
-  methods and status codes.
-
-For more detailed examples, check out the examples in the
-[GitHub repository](https://github.com/do-pa/itdoc/tree/main/examples).
-
-## What's Next?
