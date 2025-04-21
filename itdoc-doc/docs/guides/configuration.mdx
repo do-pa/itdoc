@@ -1,0 +1,43 @@
+---
+sidebar_position: 2
+toc_max_heading_level: 4
+---
+
+# Configuration Guide
+
+This page describes how to configure `itdoc`.
+
+You can specify the `itdoc` configuration in your project's `package.json` file. Here's an example configuration:
+
+```json
+{
+  "itdoc": {
+    "output": "./output",
+    "document": {
+      "baseUrl": "https://petstore-api.com",
+      "title": "Petstore API",
+      "description": "API documentation for the Petstore application"
+    }
+  }
+}
+```
+
+## Configuration Options
+
+This section provides detailed explanations of each `itdoc` configuration option.
+
+### itdoc
+
+| Option   | Description                                              | Default    |
+|----------|----------------------------------------------------------|------------|
+| `output` | Path to the directory where documents will be generated. | `./output` |
+
+#### itdoc.document
+
+| Option        | Description                                         | Default                                                              |
+|---------------|-----------------------------------------------------|----------------------------------------------------------------------|
+| `baseUrl`     | The base URL used for generating links in API docs. | `"http://localhost:8080"`                                            |
+| `title`       | The title displayed in the API documentation.       | `"API Document"`                                                     |
+| `description` | The description displayed in the API documentation. | `"You can change the description by specifying it in package.json."` |
+
+## Next Steps
