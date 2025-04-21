@@ -14,63 +14,67 @@
  * limitations under the License.
  */
 
-import { exec } from "child_process"
-import { join, dirname } from "path"
-import { fileURLToPath } from "url"
+import { loadConfig, bundle } from "@redocly/openapi-core"
+import widdershins from "widdershins"
+import { promises as fs } from "fs"
+import { join } from "path"
 import logger from "../../lib/config/logger"
 import chalk from "chalk"
 
-// ESM 환경에서 __filename와 __dirname 계산
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
 /**
- * OpenAPI 파일을 Markdown과 HTML 문서로 변환하는 함수.
- * @param oasOutputPath OpenAPI YAML 파일 경로
- * @param outputDir 생성된 문서 파일의 출력 디렉터리 경로
+ * OpenAPI 파일을 Markdown 및 HTML 문서로 변환합니다.
+ * @param {string} oasOutputPath 변환할 OpenAPI 파일 경로 (YAML 또는 JSON)
+ * @param {string} outputDir 생성된 문서를 저장할 출력 디렉터리 경로
+ * @returns {Promise<void>} 변환 작업이 완료되면 해결되는 Promise
  */
-export function generateDocs(oasOutputPath: string, outputDir: string): void {
+export async function generateDocs(oasOutputPath: string, outputDir: string): Promise<void> {
     if (!outputDir) {
         throw new Error("유효한 출력 경로가 제공되지 않았습니다.")
     }
+
     try {
         logger.box("ITDOC MAKEDOCS SCRIPT START")
-        logger.info(`OAS 파일 경로: ${oasOutputPath}`)
-        const markdownPath = join(outputDir, "output.md")
-        logger.info("Step 1: OpenAPI YAML 파일을 Markdown으로 변환시작")
 
-        const child1 = exec(
-            `npx widdershins "${oasOutputPath}" -o "${markdownPath}"`,
-            { cwd: __dirname },
-            (error) => {
-                if (error) {
-                    logger.error("Step 1: OpenAPI YAML 파일을 Markdown으로 변환중 오류 발생", error)
-                } else {
-                    logger.info(
-                        `Step 1: OpenAPI YAML 파일을 Markdown으로 변환완료: ${markdownPath}`,
-                    )
-                }
-            },
-        )
-        child1.unref()
+        const markdownPath = join(outputDir, "api.md")
         const htmlPath = join(outputDir, "redoc.html")
-        logger.info("Step 2: Redocly CLI를 사용하여 HTML 문서 생성시작")
 
-        const child2 = exec(
-            `npx @redocly/cli build-docs "${oasOutputPath}" --output "${htmlPath}"`,
-            { cwd: __dirname },
-            (error) => {
-                if (error) {
-                    logger.error("Step 2: Redocly CLI를 사용하여 HTML 문서 생성중 오류 발생", error)
-                } else {
-                    logger.info(`Step 2: Redocly CLI를 사용하여 HTML 문서 생성완료: ${htmlPath}`)
-                }
-            },
-        )
-        child2.unref()
-        logger.info("모든 작업이 실행되었습니다. (명령은 비동기적으로 수행됩니다)")
+        logger.info(`OAS 파일 경로: ${oasOutputPath}`)
+        logger.info(`Markdown 경로: ${markdownPath}`)
+        logger.info(`HTML 경로: ${htmlPath}`)
+
+        const config = await loadConfig({})
+        logger.info("Step 1: Redocly 구성 로드 완료")
+
+        const bundleResult = await bundle({ ref: oasOutputPath, config })
+        const api = bundleResult.bundle.parsed
+        logger.info("Step 2: OpenAPI 번들링 완료")
+        const widdershinsOpts = { headings: 2, summary: true }
+        console.log = () => {}
+        const markdown = await widdershins.convert(api, widdershinsOpts)
+        await fs.writeFile(markdownPath, markdown, "utf-8")
+        logger.info("Step 3: Markdown 생성 완료")
+
+        const safeSpec = JSON.stringify(api).replace(/</g, "\\u003c")
+        const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>${api.info.title ?? "API Docs"}</title>
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+</head>
+<body>
+  <redoc></redoc>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      Redoc.init(${safeSpec}, {}, document.querySelector('redoc'));
+    });
+  </script>
+</body>
+</html>`
+        await fs.writeFile(htmlPath, htmlContent, "utf-8")
+        logger.info("Step 4: HTML 생성 완료")
     } catch (error: unknown) {
-        logger.error(chalk.red("오류 발생:"), error)
+        logger.error(chalk.red("문서 생성 중 오류 발생:"), error)
         process.exit(1)
     }
 }
