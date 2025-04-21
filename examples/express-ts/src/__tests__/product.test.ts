@@ -13,7 +13,7 @@ describe("Product API Tests", () => {
         app,
         (apiDoc) => {
             itDoc("should return a specific product", async () => {
-                return apiDoc
+                apiDoc
                     .test()
                     .req()
                     .pathParam({ id: field("Product ID", 1) })
@@ -40,7 +40,7 @@ describe("Product API Tests", () => {
         app,
         (apiDoc) => {
             itDoc("should create a new product", async () => {
-                return apiDoc
+                apiDoc
                     .test()
                     .req()
                     .body({
@@ -71,7 +71,7 @@ describe("Product API Tests", () => {
         app,
         (apiDoc) => {
             itDoc("should update a product", async () => {
-                return apiDoc
+                apiDoc
                     .test()
                     .req()
                     .pathParam({ id: field("Product ID", 1) })
@@ -103,7 +103,7 @@ describe("Product API Tests", () => {
         app,
         (apiDoc) => {
             itDoc("should delete a product", async () => {
-                return apiDoc
+                apiDoc
                     .test()
                     .req()
                     .pathParam({ id: field("Product ID", 1) })
