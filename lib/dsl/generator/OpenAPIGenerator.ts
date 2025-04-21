@@ -72,8 +72,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      * @param {TestResult} result 테스트 결과 객체
      */
     public collectTestResult(result: TestResult): void {
-        logger.debug(`Collecting test result for ${result.method} ${result.url}`)
-        logger.debug(`API options: ${JSON.stringify(result.options)}`)
         this.testResults.push(result)
     }
 
@@ -177,9 +175,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
 
         // description 설정 추가
         if (representativeResult.options?.description) {
-            logger.debug(
-                `Adding description for ${method} ${path}: ${representativeResult.options.description}`,
-            )
             operationObj.description = representativeResult.options.description
         }
 
@@ -215,12 +210,24 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         responses: Record<string, unknown>,
     ): void {
         for (const [statusCode, results] of statusCodes) {
-            if (statusCode === "204") {
+            const firstResult = results[0]
+            const hasNoBody =
+                firstResult.response.body === undefined ||
+                firstResult.response.body === null ||
+                (typeof firstResult.response.body === "object" &&
+                    firstResult.response.body !== null &&
+                    Object.keys(firstResult.response.body).length === 0) ||
+                statusCode === "204" ||
+                statusCode === "304" ||
+                statusCode === "100"
+
+            if (hasNoBody) {
                 responses[statusCode] = {
-                    description: results[0].testSuiteDescription || this.getStatusText(statusCode),
+                    description: firstResult.testSuiteDescription || this.getStatusText(statusCode),
                 }
                 continue
             }
+
             const combinedContent: Record<string, any> = {}
 
             for (const result of results) {
