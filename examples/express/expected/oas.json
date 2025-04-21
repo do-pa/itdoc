@@ -1294,19 +1294,7 @@
                         }
                     },
                     "304": {
-                        "description": "304 NOT MODIFIED",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "object"
-                                },
-                                "examples": {
-                                    "If-None-Match 헤더로 캐시 활용": {
-                                        "value": {}
-                                    }
-                                }
-                            }
-                        }
+                        "description": "If-None-Match 헤더로 캐시 활용"
                     }
                 }
             }
