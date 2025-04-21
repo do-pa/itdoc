@@ -31,8 +31,9 @@ export class UtilityBuilder implements UtilityBuilderInterface {
         const method = result.method.toLowerCase()
         const pathSegments = result.url.split("/").filter(Boolean)
         const processedSegments = pathSegments.map((segment) => {
-            if (segment.startsWith("{") && segment.endsWith("}")) {
-                return "By" + segment.slice(1, -1).charAt(0).toUpperCase() + segment.slice(2, -1)
+            if (segment.startsWith(":")) {
+                const paramName = segment.slice(1) // ":" 이후의 문자열
+                return "By" + paramName.charAt(0).toUpperCase() + paramName.slice(1)
             }
             return segment
         })

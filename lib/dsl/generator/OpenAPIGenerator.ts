@@ -550,8 +550,8 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      */
     private validatePathParameters(paths: Record<string, Record<string, unknown>>): void {
         for (const [path, pathItem] of Object.entries(paths)) {
-            const pathParamMatches = path.match(/\{([^}]+)\}/g) || []
-            const pathParams = pathParamMatches.map((param) => param.slice(1, -1))
+            const pathParamMatches = path.match(/:([^/]+)/g) || []
+            const pathParams = pathParamMatches.map((param) => param.slice(1))
 
             if (pathParams.length === 0) continue
 
