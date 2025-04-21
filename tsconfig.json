@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "typeRoots": ["./node_modules/@types", "./lib/types"],
         // 컴파일 결과물의 JavaScript 버전 설정
         "target": "ES2022",
 
