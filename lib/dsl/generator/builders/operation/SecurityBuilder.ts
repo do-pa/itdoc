@@ -17,7 +17,6 @@
 import { TestResult } from "../../types/TestResult"
 import { SecurityBuilderInterface } from "./interfaces"
 import { isDSLField } from "../../../interface/field"
-import logger from "../../../../config/logger"
 
 /**
  * OpenAPI Security 요구사항 생성을 담당하는 빌더 클래스
@@ -33,10 +32,6 @@ export class SecurityBuilder implements SecurityBuilderInterface {
     public extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>> {
         const security: Array<Record<string, string[]>> = []
 
-        logger.debug(
-            `Checking headers for security requirements: ${JSON.stringify(result.request.headers || {})}`,
-        )
-
         if (result.request.headers && "Authorization" in result.request.headers) {
             const authHeaderValue = result.request.headers["Authorization"]
             let authHeader = ""
@@ -47,8 +42,6 @@ export class SecurityBuilder implements SecurityBuilderInterface {
                 const example = authHeaderValue.example
                 authHeader = typeof example === "string" ? example : String(example)
             }
-
-            logger.debug(`Authorization header found: ${authHeader}`)
 
             if (authHeader) {
                 if (authHeader.startsWith("Bearer ")) {
@@ -61,7 +54,6 @@ export class SecurityBuilder implements SecurityBuilderInterface {
                         }
                     }
                     security.push({ [bearerKey]: [] })
-                    logger.debug(`Added Bearer security requirement: ${JSON.stringify(security)}`)
                 } else if (authHeader.startsWith("Basic ")) {
                     const basicKey = "BasicAuth"
                     if (!this.securitySchemes[basicKey]) {
@@ -89,7 +81,6 @@ export class SecurityBuilder implements SecurityBuilderInterface {
             security.push({})
         }
 
-        logger.debug(`Final security requirements: ${JSON.stringify(security)}`)
         return security
     }
 
