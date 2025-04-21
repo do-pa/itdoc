@@ -59,7 +59,7 @@ describeAPI(
 
 describeAPI(
     HttpMethod.GET,
-    "/users/{userId}",
+    "/users/:userId",
     {
         summary: "사용자 조회 API",
         tag: "User",
@@ -67,8 +67,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("유효한 사용자 ID가 주어지면 200 응답을 반환한다.", () => {
-            return apiDoc
+        itDoc("유효한 사용자 ID가 주어지면 200 응답을 반환한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .pathParam({
@@ -84,8 +84,8 @@ describeAPI(
                 })
         })
 
-        itDoc("존재하지 않는 사용자 ID가 주어지면 404 응답을 반환한다.", () => {
-            return apiDoc
+        itDoc("존재하지 않는 사용자 ID가 주어지면 404 응답을 반환한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .pathParam({
@@ -99,7 +99,7 @@ describeAPI(
 
 describeAPI(
     HttpMethod.DELETE,
-    "/users/{userId}/friends/{friendId}",
+    "/users/:userId/friends/:friendId",
     {
         summary: "특정 사용자의 친구를 삭제합니다.",
         tag: "User",
@@ -107,8 +107,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("존재 하지 않는 사용자 ID가 주어지면 400 응답을 반환한다.", () => {
-            return apiDoc
+        itDoc("존재 하지 않는 사용자 ID가 주어지면 400 응답을 반환한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .pathParam({
@@ -118,8 +118,8 @@ describeAPI(
                 .status(HttpStatus.BAD_REQUEST)
         })
 
-        itDoc("존재하지 않는 친구 ID가 주어지면 404 응답을 반환한다.", () => {
-            return apiDoc
+        itDoc("존재하지 않는 친구 ID가 주어지면 404 응답을 반환한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .pathParam({
@@ -130,8 +130,8 @@ describeAPI(
                 .status(HttpStatus.NOT_FOUND)
         })
 
-        itDoc("유효한 사용자 ID와 친구 ID가 주어지면 정상 삭제된다.", () => {
-            return apiDoc
+        itDoc("유효한 사용자 ID와 친구 ID가 주어지면 정상 삭제된다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .pathParam({
@@ -154,8 +154,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("회원 목록을 조회한다.", () => {
-            return apiDoc
+        itDoc("회원 목록을 조회한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .queryParam({
@@ -179,8 +179,8 @@ describeAPI(
                 })
         })
 
-        itDoc("페이지 번호가 누락 되면 400 응답을 반환한다.", () => {
-            return apiDoc
+        itDoc("페이지 번호가 누락 되면 400 응답을 반환한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .queryParam({
@@ -193,8 +193,8 @@ describeAPI(
                 })
         })
 
-        itDoc("페이지 사이즈가 누락 되면 400 응답을 반환한다.", () => {
-            return apiDoc
+        itDoc("페이지 사이즈가 누락 되면 400 응답을 반환한다.", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .queryParam({
@@ -219,14 +219,14 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("인증 토큰이 없으면 접근할 수 없다.", () => {
-            return apiDoc.test().req().res().status(HttpStatus.UNAUTHORIZED)
+        itDoc("인증 토큰이 없으면 접근할 수 없다.", async () => {
+            await apiDoc.test().req().res().status(HttpStatus.UNAUTHORIZED)
         })
 
-        itDoc("인증 토큰이 있으면 접근할 수 있다.", () => {
+        itDoc("인증 토큰이 있으면 접근할 수 있다.", async () => {
             const token =
                 "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMDI1MDQwNiIsIm5hbWUiOiJpdGRvYyIsImFkbWluIjp0cnVlLCJpYXQiOjE3NDM5MjQzNDEsImV4cCI6MTc0MzkyNzk0MX0.LXswgSAv_hjAH3KntMqnr-aLxO4ZytGeXk5q8lzzUM8"
-            return apiDoc
+            await apiDoc
                 .test()
                 .req()
                 .header({
@@ -248,7 +248,7 @@ describeAPI(
 
 describeAPI(
     HttpMethod.PUT,
-    "/users/{userId}",
+    "/users/:userId",
     {
         summary: "사용자 정보 수정 API",
         tag: "User",
@@ -256,8 +256,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("유효한 사용자 정보로 수정 성공", () => {
-            return apiDoc
+        itDoc("유효한 사용자 정보로 수정 성공", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .pathParam({
@@ -281,8 +281,8 @@ describeAPI(
                 })
         })
 
-        itDoc("존재하지 않는 사용자 수정 시도", () => {
-            return apiDoc
+        itDoc("존재하지 않는 사용자 수정 시도", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .pathParam({
@@ -304,7 +304,7 @@ describeAPI(
 
 describeAPI(
     HttpMethod.PATCH,
-    "/users/{userId}",
+    "/users/:userId",
     {
         summary: "사용자 부분 정보 수정 API",
         tag: "User",
@@ -312,8 +312,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("이메일만 수정 성공", () => {
-            return apiDoc
+        itDoc("이메일만 수정 성공", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .pathParam({
@@ -343,8 +343,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("복잡한 주문 생성 성공", () => {
-            return apiDoc
+        itDoc("복잡한 주문 생성 성공", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .header({
@@ -416,8 +416,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("다양한 검색 조건으로 상품 검색", () => {
-            return apiDoc
+        itDoc("다양한 검색 조건으로 상품 검색", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .queryParam({
@@ -468,8 +468,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("If-None-Match 헤더로 캐시 활용", () => {
-            return apiDoc
+        itDoc("If-None-Match 헤더로 캐시 활용", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .header({
@@ -481,8 +481,8 @@ describeAPI(
                 .status(HttpStatus.NOT_MODIFIED)
         })
 
-        itDoc("신선한 데이터 조회", () => {
-            return apiDoc
+        itDoc("신선한 데이터 조회", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .res()
@@ -505,8 +505,8 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        itDoc("다양한 필드 유효성 오류", () => {
-            return apiDoc
+        itDoc("다양한 필드 유효성 오류", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .body({
