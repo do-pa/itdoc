@@ -1,0 +1,291 @@
+---
+sidebar_position: 1
+toc_max_heading_level: 4
+---
+
+# itdoc Interface
+
+This page comprehensively describes the `itdoc` interface.
+
+## describeAPI()
+
+The primary function for defining and documenting API endpoints.
+
+**Signature:**
+
+```typescript
+function describeAPI(
+    method: HttpMethod,
+    path: string,
+    options: ApiDocOptions,
+    app: Express.Application | any,
+    testCallback: (apiDoc: RootBuilder) => void,
+): void
+```
+
+**Example:**
+
+```javascript
+describeAPI(
+    HttpMethod.GET,
+    "/users",
+    {
+        summary: "Retrieve All Users",
+        tag: "User",
+        description: "Returns a list of all users in the system.",
+    },
+    app,
+    (apiDoc) => {
+        // Define your test cases here.
+    },
+);
+```
+
+### Parameters
+
+#### method
+
+The HTTP method of the API.
+
+See examples [here](#httpmethod).
+
+#### path
+
+The URL path for the API endpoint.
+
+Example: `/users`
+
+:::tip
+If the path contains a `PathVariable`, define it as shown below and set values with `pathParam()` in [req()](#req).
+
+Example: `/users/{id}`
+:::
+
+#### options
+
+Configuration options for API documentation including summary, tag, and description.
+
+| Option        | Description                           | Example                                     | Required |
+|---------------|---------------------------------------|---------------------------------------------|----------|
+| `summary`     | A brief summary of the API            | "User Registration API"                     | x        |
+| `tag`         | Tag for grouping the API              | "User"                                     | x        |
+| `description` | Detailed description of the API       | "Returns a list of all users in the system." | x        |
+
+#### app
+
+Express application instance used for testing.
+
+:::info
+`itdoc` uses [supertest] to simulate HTTP requests. Thus, the `app` parameter must be an Express instance compatible with [supertest].
+
+- Example:
+
+**app.js**
+```js
+import express from "express";
+
+const app = express();
+app.use("/api/v1/", authRoutes);
+app.use("/api/v1/", billingRoutes);
+
+export default app;
+```
+
+**Test Code**
+```js
+import app from "./app.js";
+
+describeAPI(
+    HttpMethod.GET,
+    "/users",
+    {
+        summary: "Retrieve All Users",
+        description: "Returns a list of all users in the system.",
+    },
+    app,
+    (apiDoc) => {},
+);
+```
+
+[supertest]: https://github.com/ladjs/supertest
+:::
+
+#### testCallback
+
+Callback function for defining tests for the API endpoint.
+
+Inside this callback, you use [`itDoc()`](#itdoc) to create test cases.
+
+## itDoc()
+
+Defines individual test cases within a `describeAPI` block.
+
+**Signature:**
+
+```typescript
+function itDoc(description: string, testFn: () => RootBuilder | Promise<RootBuilder>): void
+```
+
+**Parameters:**
+
+- `description`: Description of the test case.
+- `testFn`: The actual test case function.
+
+:::warning
+`testFn` must return or execute the `apiDoc` object received from [describeAPI](#describeapi).
+:::
+
+**Example:**
+
+```javascript
+itDoc("Successfully retrieves all users", () => {
+    return apiDoc
+        .test()
+        .req()
+            .queryParam({ page: 1, limit: 10 })
+        .res()
+            .status(HttpStatus.OK)
+            .body({
+                users: field("List of users", [{ id: 1, name: "John" }]),
+                total: field("Total user count", 1),
+            });
+});
+```
+
+## apiDoc
+
+An object for setting up test requests and expected responses.
+
+:::info
+Chain methods in the following mandatory order: `test()` -> `req()` -> `res()`.
+
+```js
+apiDoc
+    .test()
+    .req()
+        .body({...}) // Request body
+        .header({...}) // Request headers
+        .pathParam({...}) // Path parameters
+        .queryParam({...}) // Query parameters
+    .res()
+        .status(...) // Expected response status
+        .header({...}) // Expected response headers
+        .body({...}); // Expected response body
+```
+:::
+
+### test()
+
+    Must be called in every test case.
+
+  - `prettyPrint()`: Enable pretty printing of test results.
+
+### req()
+
+    Defines values used in API requests.
+  - `body(body: object)`: Set request body
+  - `header(headers: object)`: Set request headers
+  - `pathParam(params: object)`: Set path parameters
+  - `queryParam(params: object)`: Set query parameters
+  - `expectStatus(status: HttpStatus)`: Set expected response status (**Mandatory**)
+
+### res()
+
+    Defines API response attributes. If the actual API response differs, the test will fail.
+  - `status(status: HttpStatus)`: Set expected response status
+- See all `HttpStatus` values [here](#httpstatus).
+  - `body(body: object)`: Set expected response body
+  - `header(headers: object)`: Set expected response headers
+
+## field()
+
+Used for documenting fields in request and response bodies.
+
+**Signature:**
+
+```typescript
+function field<T>(description: string, value: T | ((val: any) => T)): T
+```
+
+**Parameters:**
+
+- `description`: Field description
+- `value`: Actual value or validation callback
+
+### Example
+
+**Using fixed values**
+```javascript
+.res()
+.body({
+    token: field("JWT token", "eyJhbGciOi...")
+})
+```
+
+**Using callbacks (validation)**
+```javascript
+.res()
+.body({
+    token: field("JWT token", val => {
+        const jwtPattern = /^([A-Za-z0-9\-_]+)\.([A-Za-z0-9\-_]+)\.([A-Za-z0-9\-_]+)$/;
+        if (!jwtPattern.test(val)) throw new Error(`Invalid JWT token format: ${val}`);
+        return val;
+    }),
+})
+```
+
+:::tip
+You can omit `field()` and directly use values.
+
+However, omitting `field()` means the field description won't be documented, so using `field()` is recommended.
+
+```javascript
+.req()
+.body({ username: "john_doe" });
+```
+:::
+
+## Enumerations
+
+### HttpMethod
+
+Enumeration representing HTTP methods.
+
+```typescript
+enum HttpMethod {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+    DELETE = "DELETE",
+    PATCH = "PATCH",
+    HEAD = "HEAD",
+    OPTIONS = "OPTIONS",
+    TRACE = "TRACE",
+    CONNECT = "CONNECT",
+}
+```
+
+### HttpStatus
+
+Enumeration representing HTTP status codes.
+
+```typescript
+enum HttpStatus {
+    OK = 200,
+    CREATED = 201,
+    ACCEPTED = 202,
+    NO_CONTENT = 204,
+    MOVED_PERMANENTLY = 301,
+    FOUND = 302,
+    BAD_REQUEST = 400,
+    UNAUTHORIZED = 401,
+    FORBIDDEN = 403,
+    NOT_FOUND = 404,
+    // ... abbreviated
+}
+```
+
+:::info
+All `HttpStatus` values are available [here](https://github.com/do-pa/itdoc/blob/develop/lib/dsl/enums/HttpStatus.ts).
+:::
+
