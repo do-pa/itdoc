@@ -19,7 +19,6 @@ import widdershins from "widdershins"
 import { promises as fs } from "fs"
 import { join } from "path"
 import logger from "../../lib/config/logger"
-import chalk from "chalk"
 
 /**
  * OpenAPI 파일을 Markdown 및 HTML 문서로 변환합니다.
@@ -74,7 +73,7 @@ export async function generateDocs(oasOutputPath: string, outputDir: string): Pr
         await fs.writeFile(htmlPath, htmlContent, "utf-8")
         logger.info("Step 4: HTML 생성 완료")
     } catch (error: unknown) {
-        logger.error(chalk.red("문서 생성 중 오류 발생:"), error)
+        logger.error("문서 생성 중 오류 발생:", error)
         process.exit(1)
     }
 }
