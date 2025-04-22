@@ -14,5 +14,4 @@
  * limitations under the License.
  */
 
-// src/types/widdershins.d.ts
 declare module "widdershins"
