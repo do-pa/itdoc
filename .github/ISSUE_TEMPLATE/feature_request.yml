@@ -75,12 +75,9 @@ body:
           label: 우선순위
           description: 이 기능의 우선순위를 선택해주세요
           options:
-              - label: "🔴 High (즉시 필요)"
-                value: "Priority: High"
-              - label: "🟠 Medium (향후 필요)"
-                value: "Priority: Medium"
-              - label: "🟢 Low (선택적)"
-                value: "Priority: Low"
+              - "Priority: High"
+              - "Priority: Medium"
+              - "Priority: Low" 
       validations:
           required: true
 
