@@ -70,10 +70,10 @@ body:
     attributes:
       label: "우선순위"
       description: "이 기능의 우선순위를 선택해주세요"
-      options:
+      options: 
         - "Priority: High"
         - "Priority: Medium"
-        - "Priority: Low" 
+        - "Priority: Low"  
     validations:
       required: true
   - type: textarea
