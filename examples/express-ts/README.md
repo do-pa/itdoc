@@ -15,7 +15,7 @@ A boilerplate for Express.js applications using TypeScript.
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v20 or higher)
 - npm or yarn
 
 ### Installation
@@ -74,7 +74,3 @@ Create a `.env` file in the root directory with the following variables:
 PORT=3000
 NODE_ENV=development
 ```
-
-## License
-
-MIT
