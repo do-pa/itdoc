@@ -1,7 +1,7 @@
 name: 💡 Feature Request
 description: itdoc 라이브러리에 대한 새로운 기능을 제안해주세요
 title: "[Feature]: "
-labels: ["Priority: High", "Priority: Medium", "Priority: Low"]
+labels: []
 assignees:
     - octocat
 body:
@@ -75,9 +75,12 @@ body:
           label: 우선순위
           description: 이 기능의 우선순위를 선택해주세요
           options:
-              - High (즉시 필요)
-              - Medium (향후 필요)
-              - Low (선택적)
+              - label: "🔴 High (즉시 필요)"
+                value: "Priority: High"
+              - label: "🟠 Medium (향후 필요)"
+                value: "Priority: Medium"
+              - label: "🟢 Low (선택적)"
+                value: "Priority: Low"
       validations:
           required: true
 

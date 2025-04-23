@@ -38,3 +38,4 @@ output
 itdoc-doc/.docusaurus
 itdoc-doc/build
 itdoc-doc/node_modules
+examples/express-ts/docs
