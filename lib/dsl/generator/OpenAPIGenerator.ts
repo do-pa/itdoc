@@ -205,88 +205,237 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         return operationObj
     }
 
+    /**
+     * 각 상태 코드별 응답 처리
+     * @param statusCodes 상태 코드별 테스트 결과 맵
+     * @param responses 응답 객체
+     */
     private processStatusCodes(
         statusCodes: Map<string, TestResult[]>,
         responses: Record<string, unknown>,
     ): void {
         for (const [statusCode, results] of statusCodes) {
             const firstResult = results[0]
-            const hasNoBody =
-                firstResult.response.body === undefined ||
-                firstResult.response.body === null ||
-                (typeof firstResult.response.body === "object" &&
-                    firstResult.response.body !== null &&
-                    Object.keys(firstResult.response.body).length === 0) ||
-                statusCode === "204" ||
-                statusCode === "304" ||
-                statusCode === "100"
+            const numericStatusCode = parseInt(statusCode, 10)
 
-            if (hasNoBody) {
-                responses[statusCode] = {
-                    description: firstResult.testSuiteDescription || this.getStatusText(statusCode),
-                }
+            const isErrorStatus = numericStatusCode >= 400
+            const isNoContentStatus = this.isNoContentStatusCode(numericStatusCode)
+
+            if (isNoContentStatus || this.hasEmptyResponseBody(firstResult)) {
+                this.addResponseWithoutContent(responses, statusCode, firstResult)
                 continue
             }
 
-            const combinedContent: Record<string, any> = {}
-
-            for (const result of results) {
-                const opObj = this.operationBuilder.generateOperation(result)
-                const res = (opObj.responses as Record<string, any>)[statusCode]
-                if (!res?.content) {
-                    // body가 없는 경우도 example 잘 되도록.
-                    const defaultContentType = "application/json"
-                    if (!combinedContent[defaultContentType]) {
-                        combinedContent[defaultContentType] = {
-                            schema: {
-                                type:
-                                    typeof result.testSuiteDescription === "object"
-                                        ? "object"
-                                        : "string",
-                            },
-                            examples: {},
-                        }
-                    }
-                    const exampleKey = result.testSuiteDescription
-                        ? result.testSuiteDescription
-                        : `example${Object.keys(combinedContent[defaultContentType].examples).length}`
-                    combinedContent[defaultContentType].examples[exampleKey] = {
-                        value: null,
-                    }
-                    continue
-                }
-
-                for (const [contentType, rawContentObj] of Object.entries(res.content)) {
-                    const contentObj = rawContentObj as Record<string, any>
-
-                    if (!combinedContent[contentType]) {
-                        combinedContent[contentType] = {
-                            schema: contentObj.schema,
-                            examples: {},
-                        }
-                    }
-
-                    const exampleKey =
-                        result.testSuiteDescription ||
-                        `example${Object.keys(combinedContent[contentType].examples).length}`
-                    const exampleValue = this.normalizeExample(
-                        contentObj.example,
-                        contentObj.schema,
-                    )
-
-                    combinedContent[contentType].examples[exampleKey] = {
-                        value: exampleValue,
-                    }
-                }
+            const hasAnyResponseBodyDefined = results.some(
+                this.hasResponseBodyExplicitlyDefined.bind(this),
+            )
+            if (!hasAnyResponseBodyDefined) {
+                this.addResponseWithoutContent(responses, statusCode, firstResult)
+                continue
             }
 
-            const statusDescription = this.getStatusText(statusCode)
+            this.processResponsesWithContent(responses, statusCode, results, isErrorStatus)
+        }
+    }
 
+    /**
+     * 응답 본문이 없는 응답을 추가합니다.
+     * @param responses 응답 객체
+     * @param statusCode 상태 코드
+     * @param result 테스트 결과
+     */
+    private addResponseWithoutContent(
+        responses: Record<string, unknown>,
+        statusCode: string,
+        result: TestResult,
+    ): void {
+        responses[statusCode] = {
+            description: result.testSuiteDescription || this.getStatusText(statusCode),
+        }
+    }
+
+    /**
+     * 응답 본문이 있는 경우 처리합니다.
+     * @param responses 응답 객체
+     * @param statusCode 상태 코드
+     * @param results 테스트 결과 배열
+     * @param isErrorStatus 에러 상태 여부
+     */
+    private processResponsesWithContent(
+        responses: Record<string, unknown>,
+        statusCode: string,
+        results: TestResult[],
+        isErrorStatus: boolean,
+    ): void {
+        const firstResult = results[0]
+        const combinedContent = this.createCombinedContent(results, statusCode, isErrorStatus)
+
+        if (Object.keys(combinedContent).length === 0) {
+            this.addResponseWithoutContent(responses, statusCode, firstResult)
+        } else {
             responses[statusCode] = {
-                description: statusDescription,
+                description: firstResult.testSuiteDescription || this.getStatusText(statusCode),
                 content: combinedContent,
             }
         }
+    }
+
+    /**
+     * 통합된 응답 컨텐츠를 생성합니다.
+     * @param results 테스트 결과 배열
+     * @param statusCode 상태 코드
+     * @param isErrorStatus 에러 상태 여부
+     * @returns 통합된 응답 컨텐츠
+     */
+    private createCombinedContent(
+        results: TestResult[],
+        statusCode: string,
+        isErrorStatus: boolean,
+    ): Record<string, any> {
+        const combinedContent: Record<string, any> = {}
+        const baseSchema = this.createBaseSchema(isErrorStatus)
+
+        for (const result of results) {
+            if (!this.hasResponseBodyExplicitlyDefined(result)) {
+                continue
+            }
+
+            const opObj = this.operationBuilder.generateOperation(result)
+            const res = (opObj.responses as Record<string, any>)[statusCode]
+
+            if (!res?.content) {
+                continue
+            }
+
+            this.processContentTypes(
+                combinedContent,
+                res.content,
+                result,
+                statusCode,
+                baseSchema,
+                isErrorStatus,
+            )
+        }
+
+        return combinedContent
+    }
+
+    /**
+     * 기본 스키마를 생성합니다.
+     * @param isErrorStatus 에러 상태 여부
+     * @returns 기본 스키마 객체
+     */
+    private createBaseSchema(isErrorStatus: boolean): Record<string, any> {
+        return isErrorStatus
+            ? {
+                  type: "object",
+                  properties: {
+                      error: {
+                          type: "object",
+                          properties: {
+                              message: { type: "string" },
+                              code: { type: "string" },
+                          },
+                      },
+                  },
+              }
+            : {
+                  type: "object",
+              }
+    }
+
+    /**
+     * 각 컨텐츠 타입을 처리합니다.
+     * @param combinedContent 통합된 컨텐츠 객체
+     * @param resContent 응답 컨텐츠
+     * @param result 테스트 결과
+     * @param statusCode 상태 코드
+     * @param baseSchema 기본 스키마
+     * @param isErrorStatus 에러 상태 여부
+     */
+    private processContentTypes(
+        combinedContent: Record<string, any>,
+        resContent: Record<string, any>,
+        result: TestResult,
+        statusCode: string,
+        baseSchema: Record<string, any>,
+        isErrorStatus: boolean,
+    ): void {
+        for (const [contentType, rawContentObj] of Object.entries(resContent)) {
+            const contentObj = rawContentObj as Record<string, any>
+
+            if (!combinedContent[contentType]) {
+                combinedContent[contentType] = {
+                    schema: contentObj.schema || baseSchema,
+                    examples: {},
+                }
+            }
+
+            const exampleKey =
+                result.testSuiteDescription || (isErrorStatus ? "에러 응답" : "성공 응답")
+            const exampleValue = contentObj.example || result.response.body || null
+
+            if (isErrorStatus && exampleValue) {
+                combinedContent[contentType].examples[exampleKey] = {
+                    value: {
+                        error: {
+                            message: result.testSuiteDescription || `Status ${statusCode} error`,
+                            code: `ERROR_${statusCode}`,
+                        },
+                    },
+                }
+            } else {
+                combinedContent[contentType].examples[exampleKey] = {
+                    value: exampleValue,
+                }
+            }
+        }
+    }
+
+    /**
+     * 상태 코드가 No Content 응답인지 확인합니다.
+     * @param numericStatusCode 숫자 상태 코드
+     * @returns No Content 응답이면 true, 그렇지 않으면 false
+     */
+    private isNoContentStatusCode(numericStatusCode: number): boolean {
+        return numericStatusCode === 204 || numericStatusCode === 304 || numericStatusCode === 100
+    }
+
+    /**
+     * 응답 본문이 비어있는지 확인합니다.
+     * @param result 테스트 결과 객체
+     * @returns {boolean} 응답 본문이 비어있으면 true, 그렇지 않으면 false
+     */
+    private hasEmptyResponseBody(result: TestResult): boolean {
+        if (!result.response) {
+            return true
+        }
+
+        const { body } = result.response
+
+        if (body === undefined || body === null) {
+            return true
+        }
+
+        if (typeof body === "object" && Object.keys(body).length === 0) {
+            return true
+        }
+
+        return false
+    }
+
+    /**
+     * 테스트 케이스에서 응답 본문이 명시적으로 정의되었는지 확인합니다.
+     * @param result 테스트 결과 객체
+     * @returns {boolean} 응답 본문이 명시적으로 정의되었으면 true, 그렇지 않으면 false
+     */
+    private hasResponseBodyExplicitlyDefined(result: TestResult): boolean {
+        return (
+            result.response &&
+            typeof result.response === "object" &&
+            "body" in result.response &&
+            result.response.body !== undefined
+        )
     }
 
     private getStatusText(code: string): string {
