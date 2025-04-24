@@ -180,7 +180,15 @@ apiDoc
 
     Must be called in every test case.
 
-  - `prettyPrint()`: Enable pretty printing of test results.
+  - `prettyPrint()`: Pretty prints the request/response for the test.
+
+    ```js
+    apiDoc
+        .test()
+           .prettyPrint()
+        .req()
+            ...
+    ```
 
 ### req()
 

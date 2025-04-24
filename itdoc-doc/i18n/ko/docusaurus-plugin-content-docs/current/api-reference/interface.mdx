@@ -180,7 +180,15 @@ apiDoc
 
     모든 테스트 케이스에서 반드시 호출해야 합니다.
 
-  - `prettyPrint()`: 테스트 결과의 예쁜 출력 활성화
+  - `prettyPrint()`: 테스트의 request/response를 예쁘게 출력합니다.
+
+    ```js
+    apiDoc
+        .test()
+            .prettyPrint()
+        .req()
+            ...
+    ```
 
 ### req()
 
