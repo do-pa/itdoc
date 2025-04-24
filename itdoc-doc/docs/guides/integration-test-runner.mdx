@@ -1,0 +1,43 @@
+---
+sidebar_position: 2
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Integration with Test Runner
+
+In your project, you are likely using a test runner like `Jest` or `Mocha`. After writing tests as described in the [quick-start](quick-start) guide, when you **run your test framework**, it will automatically detect and execute the `itdoc` test code (`describeAPI()`, `itdoc()`, etc.).
+
+During this process, `itdoc` extracts the API requests and responses from the test code you wrote to generate documentation.
+
+## ✅ Important Things
+
+When running tests, the test runner must execute against the path that includes the `itdoc` test code. If that path is not included, the test runner will not detect the `itdoc` test code.
+
+Therefore, the `test` script in `package.json` should specify the path that includes the `itdoc` test code.
+
+<Tabs>
+    <TabItem value="jest" label="Jest" default>
+
+        ```json
+        {
+            "scripts": {
+                "test": "jest ."
+            }
+        }
+        ```
+    </TabItem>
+    <TabItem value="mocha" label="Mocha">
+
+        ```json
+        {
+            "scripts": {
+                "test": "mocha ."
+            }
+        }
+        ```
+    </TabItem>
+</Tabs>
+
+For detailed configuration methods, please refer to the official documentation of each test runner.
