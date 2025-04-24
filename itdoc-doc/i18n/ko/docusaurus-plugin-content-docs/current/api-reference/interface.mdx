@@ -78,34 +78,36 @@ API 문서화에 필요한 요약, 태그, 설명을 포함한 구성 옵션입�
 :::info
 `itdoc`는 [supertest]를 사용하여 HTTP 요청을 시뮬레이션합니다. 따라서 `app` 매개변수는 [supertest]와 호환되는 Express 인스턴스여야 합니다.
 
-- 예시:
+예시:
 
-**app.js**
-```js
-import express from "express";
+- **app.js**
 
-const app = express();
-app.use("/api/v1/", authRoutes);
-app.use("/api/v1/", billingRoutes);
+    ```js
+    import express from "express";
 
-export default app;
-```
+    const app = express();
+    app.use("/api/v1/", authRoutes);
+    app.use("/api/v1/", billingRoutes);
 
-**테스트 코드**
-```js
-import app from "./app.js";
+    export default app;
+    ```
 
-describeAPI(
-    HttpMethod.GET,
-    "/users",
-    {
-        summary: "모든 사용자 조회",
-        description: "시스템의 모든 사용자 목록을 반환합니다.",
-    },
-    app,
-    (apiDoc) => {},
-);
-```
+- **테스트 코드**
+
+    ```js
+    import app from "./app.js";
+
+    describeAPI(
+        HttpMethod.GET,
+        "/users",
+        {
+            summary: "모든 사용자 조회",
+            description: "시스템의 모든 사용자 목록을 반환합니다.",
+        },
+        app,
+        (apiDoc) => {},
+    );
+    ```
 
 [supertest]: https://github.com/ladjs/supertest
 :::
