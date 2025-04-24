@@ -41,3 +41,46 @@ Therefore, the `test` script in `package.json` should specify the path that incl
 </Tabs>
 
 For detailed configuration methods, please refer to the official documentation of each test runner.
+
+## Test Setup and Teardown
+
+If you want to perform pre/post-processing tasks for tests, you can use the hooks provided by each test runner as they are.
+
+For example, in `Jest`, you can use hooks like `beforeAll` and `afterAll` to perform tasks before and after tests.
+
+```js
+describeAPI(
+    HttpMethod.POST,
+    "/signup",
+    {
+        summary: "User Registration API",
+        tag: "Auth",
+        description: "Registers a new user with username and password.",
+    },
+    app,
+    (apiDoc) => {
+
+        beforeEach(() => { // Jest Provided Hook
+            console.log("before each")
+        })
+
+        itDoc("Successful registration", () => {
+            return apiDoc
+                .test()
+                .req()
+                .body({
+                    username: field("Username", "testuser"),
+                    password: field("Password", "Password123!"),
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+                .body({
+                    message: field("Success message", "User created successfully"),
+                })
+        })
+})
+
+afterAll(() => { // Jest Provided Hook
+    console.log("afterAll")
+})
+```
