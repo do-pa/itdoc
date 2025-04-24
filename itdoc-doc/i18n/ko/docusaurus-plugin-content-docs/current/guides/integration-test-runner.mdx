@@ -44,3 +44,46 @@ import TabItem from '@theme/TabItem';
 </Tabs>
 
 상세한 설정 방법은 각 테스트 러너의 공식 문서를 참조하세요.
+
+## 테스트 사전 설정 및 후처리
+
+테스트 전/후 처리 작업을 수행하고 싶다면, 각 테스트 러너에서 제공하는 훅을 그대로 사용하시면 됩니다.
+
+예를 들어, `Jest`에서는 `beforeAll`, `afterAll` 같은 훅을 사용하여 테스트 전후에 작업을 수행할 수 있습니다.
+
+```js
+describeAPI(
+    HttpMethod.POST,
+    "/signup",
+    {
+        summary: "User Registration API",
+        tag: "Auth",
+        description: "Registers a new user with username and password.",
+    },
+    app,
+    (apiDoc) => {
+
+        beforeEach(() => { // Jest에서 제공하는 훅
+            console.log("before each")
+        })
+
+        itDoc("Successful registration", () => {
+            return apiDoc
+                .test()
+                .req()
+                .body({
+                    username: field("Username", "testuser"),
+                    password: field("Password", "Password123!"),
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+                .body({
+                    message: field("Success message", "User created successfully"),
+                })
+        })
+})
+
+afterAll(() => { // Jest에서 제공하는 훅
+    console.log("afterAll")
+})
+```
