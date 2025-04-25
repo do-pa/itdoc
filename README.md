@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/do-pa/itdoc/actions/workflows/ci.yml/badge.svg)](https://github.com/do-pa/itdoc/actions/workflows/ci.yml)
 [![NPM](https://img.shields.io/npm/v/itdoc.svg)](https://www.npmjs.com/package/itdoc)
-![Node.js](https://img.shields.io/badge/node.js-%3E%3D18.0.0-brightgreen?logo=node.js&logoColor=white&style=flat-square)
+![Node.js](https://img.shields.io/badge/node.js-%3E%3D20.0.0-brightgreen?logo=node.js&logoColor=white&style=flat-square)
 [![License](https://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 [![Discord](https://img.shields.io/badge/Chat-Discord-5765F2.svg)](https://discord.gg/ZhXk7VSu5Z)
 
