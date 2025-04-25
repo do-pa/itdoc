@@ -85,28 +85,48 @@ Example:
     ```js
     import express from "express";
 
-    const app = express();
-    app.use("/api/v1/", authRoutes);
-    app.use("/api/v1/", billingRoutes);
+    const app = express()
 
-    export default app;
+    app.use(express.json())
+
+    app.post("/signup", function (req, res) {
+        const { username, password } = req.body
+
+        if (!username || !password) {
+            return res.status(400).json({
+                error: "username and password are required",
+            })
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                error: "password must be at least 8 characters",
+            })
+        }
+
+        // Skip user creation logic for brevity
+
+        return res.status(201).json()
+    })
+
+    export default app
     ```
 
 - **Test Code**
 
     ```js
-    import app from "./app.js";
+    import app from "./app.js"
 
     describeAPI(
         HttpMethod.GET,
-        "/users",
+        "/signup",
         {
-            summary: "Retrieve All Users",
-            description: "Returns a list of all users in the system.",
+            summary: "Sign Up API",
+            description: "Registers a new user with username and password.",
         },
         app,
         (apiDoc) => {},
-    );
+    )
     ```
 
 [supertest]: https://github.com/ladjs/supertest

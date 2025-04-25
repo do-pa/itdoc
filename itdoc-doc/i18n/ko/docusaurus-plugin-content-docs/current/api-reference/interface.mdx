@@ -85,28 +85,48 @@ API 문서화에 필요한 요약, 태그, 설명을 포함한 구성 옵션입�
     ```js
     import express from "express";
 
-    const app = express();
-    app.use("/api/v1/", authRoutes);
-    app.use("/api/v1/", billingRoutes);
+    const app = express()
 
-    export default app;
+    app.use(express.json())
+
+    app.post("/signup", function (req, res) {
+        const { username, password } = req.body
+
+        if (!username || !password) {
+            return res.status(400).json({
+                error: "username and password are required",
+            })
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                error: "password must be at least 8 characters",
+            })
+        }
+
+        // (회원 가입 코드는 생략)
+
+        return res.status(201).json()
+    })
+
+    export default app
     ```
 
 - **테스트 코드**
 
     ```js
-    import app from "./app.js";
+    import app from "./app.js"
 
     describeAPI(
         HttpMethod.GET,
-        "/users",
+        "/signup",
         {
-            summary: "모든 사용자 조회",
-            description: "시스템의 모든 사용자 목록을 반환합니다.",
+            summary: "회원가입 API",
+            description: "아이디와 패스워드를 받아 회원가입을 수행합니다.",
         },
         app,
         (apiDoc) => {},
-    );
+    )
     ```
 
 [supertest]: https://github.com/ladjs/supertest
