@@ -87,3 +87,54 @@ afterAll(() => { // Jest에서 제공하는 훅
     console.log("afterAll")
 })
 ```
+
+### 모킹 사용 예시
+
+`itdoc`는 `Jest`와 `Mocha`에서 사용할 수 있는 다양한 모킹 라이브러리와 함께 사용할 수 있습니다. 하지만 `itdoc`은 신뢰성있는 API 문서를 생성하기 위해 최소한의 모킹만을 권장합니다.
+아래는 API 응답에서 시간 정보를 모킹하는 예시입니다.
+
+```js
+import * as MockDate from "mockdate"
+
+describeAPI(
+  HttpMethod.POST,
+  "/api/v1/users/login",
+  {
+    summary: "User Login API",
+    tag: "Auth",
+    description: "사용자 로그인 API",
+  },
+  app,
+  (apiDoc) => {
+    let mockedDate = new Date("2023-10-01T00:00:00Z")
+
+    beforeEach(() => {
+      MockDate.set(mockedDate) // 실제 모킹
+    })
+
+    afterEach(() => {
+      MockDate.reset() // 모킹 해제
+    });
+
+    itDoc("존재하는 아이디와 패스워드를 입력하면 로그인에 성공한다.", () => {
+      return apiDoc
+        .test()
+        .prettyPrint()
+        .req()
+        .body({
+          username: field("username", "penek"),
+          password: field("password", "penek"),
+        })
+        .res()
+        .status(HttpStatus.OK)
+        .body({
+          "detail" : {
+            "token" : field("생성된 JWT 토큰", (val) => {
+              assertJWT(val, "penek");
+            }),
+            "expire" : field("토큰 만료일", mockedDate.toISOString()) // 모킹된 시간 정보로 검증
+          }
+        })
+    })
+})
+```
