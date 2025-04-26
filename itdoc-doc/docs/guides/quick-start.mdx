@@ -121,8 +121,8 @@ Create a test file that uses itdoc to document your API:
             },
             app,
             (apiDoc) => {
-                itDoc("Successful registration", async () => {
-                    await apiDoc
+                itDoc("Successful registration", () => {
+                    return apiDoc
                         .test()
                         .req()
                         .body({
@@ -136,8 +136,8 @@ Create a test file that uses itdoc to document your API:
                         })
                 })
 
-                itDoc("Missing username returns error", async () => {
-                    await apiDoc
+                itDoc("Missing username returns error", () => {
+                    return apiDoc
                         .test()
                         .req()
                         .body({
@@ -168,8 +168,8 @@ Create a test file that uses itdoc to document your API:
             },
             app,
             (apiDoc) => {
-                itDoc("Successful registration", async () => {
-                    await apiDoc
+                itDoc("Successful registration", () => {
+                    return apiDoc
                         .test()
                         .req()
                         .body({
@@ -183,8 +183,8 @@ Create a test file that uses itdoc to document your API:
                         })
                 })
 
-                itDoc("Missing username returns error", async () => {
-                    await apiDoc
+                itDoc("Missing username returns error", () => {
+                    return apiDoc
                         .test()
                         .req()
                         .body({
@@ -228,8 +228,7 @@ Configure your test runner. Then run:
     </TabItem>
 </Tabs>
 
-If the documentation is not generated correctly, check the
-[Integration with Test Runner](integration-test-runner) guide.
+If the documentation is not generated correctly, check the [Integration with Test Runner](integration-test-runner) guide.
 
 ### 4. Generate OpenAPI Documentation
 

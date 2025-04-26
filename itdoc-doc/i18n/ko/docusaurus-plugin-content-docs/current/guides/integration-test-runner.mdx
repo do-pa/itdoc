@@ -2,23 +2,21 @@
 sidebar_position: 2
 ---
 
-import Tabs from "@theme/Tabs"
-import TabItem from "@theme/TabItem"
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # 테스트 러너와 통합
 
 여러분의 프로젝트에서는 일반적으로 `Jest`나 `Mocha` 같은 테스트 러너를 사용하고 있을 것입니다.
-[quick-start](quick-start) 가이드에서 설명한 것처럼 테스트를 작성한 후, **사용 중인 테스트
-프레임워크를 실행하면**, 그 테스트 러너가 `itdoc` 테스트 코드(`describeAPI()`, `itdoc()` 등)를
-자동으로 감지하고 실행하게 됩니다.
+[quick-start](quick-start) 가이드에서 설명한 것처럼 테스트를 작성한 후,
+**사용 중인 테스트 프레임워크를 실행하면**, 그 테스트 러너가 `itdoc` 테스트 코드(`describeAPI()`, `itdoc()` 등)를 자동으로 감지하고 실행하게 됩니다.
 
 이 과정에서 `itdoc`은 여러분이 작성한 테스트 코드 내의 API 요청과 응답을 추출하여 문서를 생성합니다.
 
 ## ✅ 중요한 점
 
-테스트를 실행할 때, 테스트 러너가 `itdoc` 테스트 코드가 위치한 파일을 포함하는 경로를 대상으로
-실행되어야 합니다. 해당 경로가 포함되지 않으면, 테스트 러너는 `itdoc` 테스트 코드를 감지하지
-못합니다.
+테스트를 실행할 때, 테스트 러너가 `itdoc` 테스트 코드가 위치한 파일을 포함하는 경로를 대상으로 실행되어야 합니다.
+해당 경로가 포함되지 않으면, 테스트 러너는 `itdoc` 테스트 코드를 감지하지 못합니다.
 
 따라서 `package.json`의 `test` 스크립트에는 `itdoc` 테스트 코드가 포함된 경로를 명시해야 합니다.
 
@@ -43,7 +41,6 @@ import TabItem from "@theme/TabItem"
         }
         ```
     </TabItem>
-
 </Tabs>
 
 상세한 설정 방법은 각 테스트 러너의 공식 문서를 참조하세요.
@@ -52,8 +49,7 @@ import TabItem from "@theme/TabItem"
 
 테스트 전/후 처리 작업을 수행하고 싶다면, 각 테스트 러너에서 제공하는 훅을 그대로 사용하시면 됩니다.
 
-예를 들어, `Jest`에서는 `beforeAll`, `afterAll` 같은 훅을 사용하여 테스트 전후에 작업을 수행할 수
-있습니다.
+예를 들어, `Jest`에서는 `beforeAll`, `afterAll` 같은 훅을 사용하여 테스트 전후에 작업을 수행할 수 있습니다.
 
 ```js
 describeAPI(
@@ -66,13 +62,13 @@ describeAPI(
     },
     app,
     (apiDoc) => {
-        beforeEach(() => {
-            // Jest에서 제공하는 훅
+
+        beforeEach(() => { // Jest에서 제공하는 훅
             console.log("before each")
         })
 
-        itDoc("Successful registration", async () => {
-            await apiDoc
+        itDoc("Successful registration", () => {
+            return apiDoc
                 .test()
                 .req()
                 .body({
@@ -85,11 +81,9 @@ describeAPI(
                     message: field("Success message", "User created successfully"),
                 })
         })
-    },
-)
+})
 
-afterAll(() => {
-    // Jest에서 제공하는 훅
+afterAll(() => { // Jest에서 제공하는 훅
     console.log("afterAll")
 })
 ```
