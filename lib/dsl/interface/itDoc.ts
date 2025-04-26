@@ -20,7 +20,7 @@ import { recordTestFailure, testEventManager, TestResult } from "../generator"
 
 export const itDoc = (
     description: string,
-    testFn: () => Promise<void> | Promise<TestResult>,
+    testFn: () => Promise<void> | Promise<TestResult> | void | TestResult,
 ): void => {
     if (!description) {
         throw new Error("테스트 설명이 itDoc에 필요합니다.")
