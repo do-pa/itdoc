@@ -1,5 +1,59 @@
 # Changelog
 
+## [0.3.0](https://github.com/do-pa/itdoc/compare/v0.2.1...v0.3.0) (2025-04-26)
+
+
+### 🌟 Features
+
+* support Node.js &gt;=20 ([9b0da0c](https://github.com/do-pa/itdoc/commit/9b0da0c9db7a66510fa3ea4e497e33e21a7d0bb9))
+
+
+### 🩹 Fixes
+
+* 304 응답건 Oas 결과물 수정 ([db4a756](https://github.com/do-pa/itdoc/commit/db4a75609621021e883a86b40a935223c97de917))
+* debug용 Log 활용도가 낮아져 제거 ([521fd77](https://github.com/do-pa/itdoc/commit/521fd777538c7edadc95b4073f0efda6078a73a9))
+* field.ts 반환 타입 수정 ([c875a45](https://github.com/do-pa/itdoc/commit/c875a459a7330e7f664b4ea4e28a3ff70dcaf15b))
+* itdoc 반환 타입 void에 맞춰 변경 ([db5ff27](https://github.com/do-pa/itdoc/commit/db5ff27f8ab94cbfb3a5cbc513a313941d9a19a7))
+* itdoc 반환타입 수정 ([cae675c](https://github.com/do-pa/itdoc/commit/cae675cae9818c0813926512a3a6c58722f2f284))
+* itdoc 번들러에서 supertest 제외 ([6951276](https://github.com/do-pa/itdoc/commit/6951276f3ad15808e131e604ab3d661742796334))
+* jest warning ([a6c7167](https://github.com/do-pa/itdoc/commit/a6c7167c8795fecadd709895f982878ba6907aa5)), closes [#81](https://github.com/do-pa/itdoc/issues/81)
+* node 지원 버전 수정 ([4d95577](https://github.com/do-pa/itdoc/commit/4d955778f7e8a90908aa76177e703609e9588b5f))
+* oas 204응답 유형 수정 ([294c5cd](https://github.com/do-pa/itdoc/commit/294c5cd8b2347dc44006fdc8161b7f5ab7342243))
+* oas.json 204 응답 테스트 결과 수정 ([6b09726](https://github.com/do-pa/itdoc/commit/6b09726958bb8ae6b460d9e4636a98ee955698c5))
+* path param 탐색 수정 ([b9c57b3](https://github.com/do-pa/itdoc/commit/b9c57b354e05c3f16df02555cd196e72436995d2))
+* 경로 처리 "/{}" -&gt; "/:" 로변경 ([a1d69af](https://github.com/do-pa/itdoc/commit/a1d69afc5fac5afe5c7d576b27ee3290a8b954b6))
+* 응답값을 정의하지 않으면 문서 내용도 비움 처리하게 수정 ([387d689](https://github.com/do-pa/itdoc/commit/387d68987bbdc53f2322ed4083888de7b202230a))
+* 입렵 리터럴 타입-&gt;any 수정 ([b8dd083](https://github.com/do-pa/itdoc/commit/b8dd083150f66155253a368d88acaf616dd4d09c))
+* 필요하지 않은 의존성 제거 ([ccc2f30](https://github.com/do-pa/itdoc/commit/ccc2f306a2d7e27f085b30598f2c96747f822d8d))
+* 활용도가 낮아진 debug log 제거 및 응답 body가 없는경우 Oas 출력 방식 변경 ([b50b82c](https://github.com/do-pa/itdoc/commit/b50b82c5a85af2ca5a2e04f304dd386a037dffba))
+
+
+### 📚 Documentation
+
+* add configuration guide for itdoc ([0c2dc17](https://github.com/do-pa/itdoc/commit/0c2dc17f40be084d49f996baf6d395fcb048a8aa))
+* describeAPI에 넘길 app 인스턴스 예시를 상세하게 수정 ([460b552](https://github.com/do-pa/itdoc/commit/460b55287d480eaf0e3c30a0d30cb1f02e4fe016))
+* HttpStatus 문서화 수정 ([41ec3ef](https://github.com/do-pa/itdoc/commit/41ec3efca0da4ae39420b7386521fcb3c1825062))
+* prettyPrint 예제 추가 ([06f23ac](https://github.com/do-pa/itdoc/commit/06f23ac637806589ebe30c850092ceb702decde9))
+* update expectStatus description from "Mandatory" to "Required" ([e79d117](https://github.com/do-pa/itdoc/commit/e79d117d9fd0850586505c95504abbfa6bd47a6a))
+* update intro.mdx ([bdbf116](https://github.com/do-pa/itdoc/commit/bdbf116d9efd5ab7f35a153caca95d767cfde0b2))
+* update Node.js version requirement to 20.0.0 ([dd05741](https://github.com/do-pa/itdoc/commit/dd05741bc57efe6af091638bcd51729436dffa2e))
+* write itdoc interface documentation ([96247f8](https://github.com/do-pa/itdoc/commit/96247f8d045db93663bad2f655bce3de2cf00af6))
+* 목록형 스타일 수정 ([b81ff0a](https://github.com/do-pa/itdoc/commit/b81ff0a489aa2e9c85c4254f9a733718b56d94f0))
+* 테스트 훅 관련 문서화 ([39276bd](https://github.com/do-pa/itdoc/commit/39276bda9ac9ec18e1538cf83e5a7e59eea93427))
+* 테스트러너 관련 문서화 ([d405857](https://github.com/do-pa/itdoc/commit/d40585797e8e44b1d9f4f63f36690b77e36e5e41))
+
+
+### 🧹 Chores
+
+* dependencies mocha, jest 삭제 ([6a8ec68](https://github.com/do-pa/itdoc/commit/6a8ec68f9ef33941a396ccacabd99b0cc59f65b4))
+* itdoc 설치시 chalk가 외부 의존성으로 같이 설정되도록 변경 ([44a2a1c](https://github.com/do-pa/itdoc/commit/44a2a1c9695d134213e9730dc1ddf69542ed9710))
+* ts 예제 추가 ([0b571bf](https://github.com/do-pa/itdoc/commit/0b571bfd633f2c12e545433f0de0d10c5712d533))
+* update author information for MoonSeonghun ([d396461](https://github.com/do-pa/itdoc/commit/d396461807569d47424d0a95bc78b75989e3e053))
+* update release-please.yml to publish with latest tag ([06df0ce](https://github.com/do-pa/itdoc/commit/06df0ce7bb1ee1ece0c31b2c22c046c61a71ab5a))
+* 변경사항에 맞게 oas.json 결과물 변경 ([b2405aa](https://github.com/do-pa/itdoc/commit/b2405aa8e6792f87bbcfa0d26e46bd3f02dae7d1))
+* 불필요한 주석 제거 및 chalk 의존성 완전 삭제 ([013d647](https://github.com/do-pa/itdoc/commit/013d6478e4693adca9bbb77f21d4700c86dcf3f8))
+* 응답 body가 없는경우 Oas 출력 방식 변경건에 대한 테스트 추가 ([a976157](https://github.com/do-pa/itdoc/commit/a976157dbfcbf38ef769b819fd495e2cc98bfd28))
+
 ## [0.2.1](https://github.com/do-pa/itdoc/compare/v0.2.0...v0.2.1) (2025-04-16)
 
 
