@@ -2,20 +2,25 @@
 sidebar_position: 2
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
 
 # Integration with Test Runner
 
-In your project, you are likely using a test runner like `Jest` or `Mocha`. After writing tests as described in the [quick-start](quick-start) guide, when you **run your test framework**, it will automatically detect and execute the `itdoc` test code (`describeAPI()`, `itdoc()`, etc.).
+In your project, you are likely using a test runner like `Jest` or `Mocha`. After writing tests as
+described in the [quick-start](quick-start) guide, when you **run your test framework**, it will
+automatically detect and execute the `itdoc` test code (`describeAPI()`, `itdoc()`, etc.).
 
-During this process, `itdoc` extracts the API requests and responses from the test code you wrote to generate documentation.
+During this process, `itdoc` extracts the API requests and responses from the test code you wrote to
+generate documentation.
 
 ## ✅ Important Things
 
-When running tests, the test runner must execute against the path that includes the `itdoc` test code. If that path is not included, the test runner will not detect the `itdoc` test code.
+When running tests, the test runner must execute against the path that includes the `itdoc` test
+code. If that path is not included, the test runner will not detect the `itdoc` test code.
 
-Therefore, the `test` script in `package.json` should specify the path that includes the `itdoc` test code.
+Therefore, the `test` script in `package.json` should specify the path that includes the `itdoc`
+test code.
 
 <Tabs>
     <TabItem value="jest" label="Jest" default>
@@ -38,15 +43,18 @@ Therefore, the `test` script in `package.json` should specify the path that incl
         }
         ```
     </TabItem>
+
 </Tabs>
 
 For detailed configuration methods, please refer to the official documentation of each test runner.
 
 ## Test Setup and Teardown
 
-If you want to perform pre/post-processing tasks for tests, you can use the hooks provided by each test runner as they are.
+If you want to perform pre/post-processing tasks for tests, you can use the hooks provided by each
+test runner as they are.
 
-For example, in `Jest`, you can use hooks like `beforeAll` and `afterAll` to perform tasks before and after tests.
+For example, in `Jest`, you can use hooks like `beforeAll` and `afterAll` to perform tasks before
+and after tests.
 
 ```js
 describeAPI(
@@ -59,13 +67,13 @@ describeAPI(
     },
     app,
     (apiDoc) => {
-
-        beforeEach(() => { // Jest Provided Hook
+        beforeEach(() => {
+            // Jest Provided Hook
             console.log("before each")
         })
 
-        itDoc("Successful registration", () => {
-            return apiDoc
+        itDoc("Successful registration", async () => {
+            await apiDoc
                 .test()
                 .req()
                 .body({
@@ -78,9 +86,11 @@ describeAPI(
                     message: field("Success message", "User created successfully"),
                 })
         })
-})
+    },
+)
 
-afterAll(() => { // Jest Provided Hook
+afterAll(() => {
+    // Jest Provided Hook
     console.log("afterAll")
 })
 ```
