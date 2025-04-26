@@ -4,8 +4,8 @@
     "description": "Express TypeScript Boilerplate",
     "main": "dist/index.js",
     "scripts": {
-        "start": "node dist/index.js",
         "build": "tsc",
+        "start": "node dist/index.js",
         "test": "jest",
         "test:watch": "jest --watch"
     },
@@ -20,11 +20,11 @@
         "@types/jest": "^29.5.11",
         "@types/node": "^20.10.5",
         "@types/supertest": "^6.0.2",
+        "itdoc": "workspace:*",
         "jest": "^29.7.0",
         "supertest": "^6.3.3",
         "ts-jest": "^29.1.1",
-        "typescript": "^5.3.3",
-        "itdoc": "workspace:*"
+        "typescript": "^5.3.3"
     },
     "itdoc": {
         "output": "docs",
