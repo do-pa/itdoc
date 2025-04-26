@@ -84,3 +84,54 @@ afterAll(() => { // Jest Provided Hook
     console.log("afterAll")
 })
 ```
+
+### Example of Using Mocking
+
+`itdoc` can be used alongside various mocking libraries supported by `Jest` and `Mocha`. However, to ensure reliable API documentation, `itdoc` recommends using minimal mocking wherever possible.
+Below is an example of mocking time information in an API response:
+
+```js
+import * as MockDate from "mockdate"
+
+describeAPI(
+  HttpMethod.POST,
+  "/api/v1/users/login",
+  {
+    summary: "User Login API",
+    tag: "Auth",
+    description: "User login API",
+  },
+  app,
+  (apiDoc) => {
+    let mockedDate = new Date("2023-10-01T00:00:00Z")
+
+    beforeEach(() => {
+      MockDate.set(mockedDate) // Apply mocking
+    })
+
+    afterEach(() => {
+      MockDate.reset() // Reset mocking
+    });
+
+    itDoc("Successfully logs in with a valid username and password.", () => {
+      return apiDoc
+        .test()
+        .prettyPrint()
+        .req()
+        .body({
+          username: field("username", "penek"),
+          password: field("password", "penek"),
+        })
+        .res()
+        .status(HttpStatus.OK)
+        .body({
+          "detail" : {
+            "token" : field("Generated JWT token", (val) => {
+              assertJWT(val, "penek");
+            }),
+            "expire" : field("Token expiration time", mockedDate.toISOString()) // Validate using the mocked time
+          }
+        })
+    })
+})
+```
