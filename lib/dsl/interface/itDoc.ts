@@ -16,9 +16,12 @@
 
 import { getTestAdapterExports } from "../adapters"
 import { testContext } from "./testContext"
-import { recordTestFailure, testEventManager } from "../generator"
+import { recordTestFailure, testEventManager, TestResult } from "../generator"
 
-export const itDoc = (description: string, testFn: () => Promise<void>): void => {
+export const itDoc = (
+    description: string,
+    testFn: () => Promise<void> | Promise<TestResult>,
+): void => {
     if (!description) {
         throw new Error("테스트 설명이 itDoc에 필요합니다.")
     }
