@@ -38,7 +38,7 @@ describeAPI(
     (apiDoc) => {
         // Define your test cases here.
     },
-)
+);
 ```
 
 ### Parameters
@@ -55,34 +55,35 @@ The URL path for the API endpoint.
 
 Example: `/users`
 
-:::tip If the path contains a `PathVariable`, define it as shown below and set values with
-`pathParam()` in [req()](#req).
+:::tip
+If the path contains a `PathVariable`, define it as shown below and set values with `pathParam()` in [req()](#req).
 
-Example: `/users/{id}` :::
+Example: `/users/{id}`
+:::
 
 #### options
 
 Configuration options for API documentation including summary, tag, and description.
 
-| Option        | Description                     | Example                                      | Required |
-| ------------- | ------------------------------- | -------------------------------------------- | -------- |
-| `summary`     | A brief summary of the API      | "User Registration API"                      | x        |
-| `tag`         | Tag for grouping the API        | "User"                                       | x        |
-| `description` | Detailed description of the API | "Returns a list of all users in the system." | x        |
+| Option        | Description                           | Example                                     | Required |
+|---------------|---------------------------------------|---------------------------------------------|----------|
+| `summary`     | A brief summary of the API            | "User Registration API"                     | x        |
+| `tag`         | Tag for grouping the API              | "User"                                     | x        |
+| `description` | Detailed description of the API       | "Returns a list of all users in the system." | x        |
 
 #### app
 
 Express application instance used for testing.
 
-:::info `itdoc` uses [supertest] to simulate HTTP requests. Thus, the `app` parameter must be an
-Express instance compatible with [supertest].
+:::info
+`itdoc` uses [supertest] to simulate HTTP requests. Thus, the `app` parameter must be an Express instance compatible with [supertest].
 
 Example:
 
 - **app.js**
 
     ```js
-    import express from "express"
+    import express from "express";
 
     const app = express()
 
@@ -129,7 +130,6 @@ Example:
     ```
 
 [supertest]: https://github.com/ladjs/supertest
-
 :::
 
 #### testCallback
@@ -153,31 +153,33 @@ function itDoc(description: string, testFn: () => RootBuilder | Promise<RootBuil
 - `description`: Description of the test case.
 - `testFn`: The actual test case function.
 
-:::warning `testFn` must return or execute the `apiDoc` object received from
-[describeAPI](#describeapi). :::
+:::warning
+`testFn` must return or execute the `apiDoc` object received from [describeAPI](#describeapi).
+:::
 
 **Example:**
 
 ```javascript
-itDoc("Successfully retrieves all users", async () => {
-    await apiDoc
+itDoc("Successfully retrieves all users", () => {
+    return apiDoc
         .test()
         .req()
-        .queryParam({ page: 1, limit: 10 })
+            .queryParam({ page: 1, limit: 10 })
         .res()
-        .status(HttpStatus.OK)
-        .body({
-            users: field("List of users", [{ id: 1, name: "John" }]),
-            total: field("Total user count", 1),
-        })
-})
+            .status(HttpStatus.OK)
+            .body({
+                users: field("List of users", [{ id: 1, name: "John" }]),
+                total: field("Total user count", 1),
+            });
+});
 ```
 
 ## apiDoc
 
 An object for setting up test requests and expected responses.
 
-:::info Chain methods in the following mandatory order: `test()` -> `req()` -> `res()`.
+:::info
+Chain methods in the following mandatory order: `test()` -> `req()` -> `res()`.
 
 ```js
 apiDoc
@@ -192,14 +194,13 @@ apiDoc
         .header({...}) // Expected response headers
         .body({...}); // Expected response body
 ```
-
 :::
 
 ### test()
 
     Must be called in every test case.
 
-- `prettyPrint()`: Pretty prints the request/response for the test.
+  - `prettyPrint()`: Pretty prints the request/response for the test.
 
     ```js
     apiDoc
@@ -212,21 +213,19 @@ apiDoc
 ### req()
 
     Defines values used in API requests.
-
-- `body(body: object)`: Set request body
-- `header(headers: object)`: Set request headers
-- `pathParam(params: object)`: Set path parameters
-- `queryParam(params: object)`: Set query parameters
-- `expectStatus(status: HttpStatus)`: Set expected response status (**Required**)
+  - `body(body: object)`: Set request body
+  - `header(headers: object)`: Set request headers
+  - `pathParam(params: object)`: Set path parameters
+  - `queryParam(params: object)`: Set query parameters
+  - `expectStatus(status: HttpStatus)`: Set expected response status (**Required**)
 
 ### res()
 
     Defines API response attributes. If the actual API response differs, the test will fail.
-
-- `status(status: HttpStatus)`: Set expected response status
+  - `status(status: HttpStatus)`: Set expected response status
     - See all `HttpStatus` values [here](#httpstatus).
-- `body(body: object)`: Set expected response body
-- `header(headers: object)`: Set expected response headers
+  - `body(body: object)`: Set expected response body
+  - `header(headers: object)`: Set expected response headers
 
 ## field()
 
@@ -246,7 +245,6 @@ function field<T>(description: string, value: T | ((val: any) => T)): T
 ### Example
 
 **Using fixed values**
-
 ```javascript
 .res()
 .body({
@@ -255,7 +253,6 @@ function field<T>(description: string, value: T | ((val: any) => T)): T
 ```
 
 **Using callbacks (validation)**
-
 ```javascript
 .res()
 .body({
@@ -267,16 +264,15 @@ function field<T>(description: string, value: T | ((val: any) => T)): T
 })
 ```
 
-:::tip You can omit `field()` and directly use values.
+:::tip
+You can omit `field()` and directly use values.
 
-However, omitting `field()` means the field description won't be documented, so using `field()` is
-recommended.
+However, omitting `field()` means the field description won't be documented, so using `field()` is recommended.
 
 ```javascript
 .req()
 .body({ username: "john_doe" });
 ```
-
 :::
 
 ## Enumerations
