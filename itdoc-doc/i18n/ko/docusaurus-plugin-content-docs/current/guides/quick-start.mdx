@@ -120,8 +120,8 @@ itdoc을 사용하여 API를 문서화하는 테스트 파일을 작성하세요
             },
             app,
             (apiDoc) => {
-                itDoc("회원가입 성공", async () => {
-                    await apiDoc
+                itDoc("회원가입 성공", () => {
+                    return apiDoc
                         .test()
                         .req()
                         .body({
@@ -135,8 +135,8 @@ itdoc을 사용하여 API를 문서화하는 테스트 파일을 작성하세요
                         })
                 })
 
-                itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", async () => {
-                    await apiDoc
+                itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", () => {
+                    return apiDoc
                         .test()
                         .req()
                         .body({
@@ -167,8 +167,8 @@ itdoc을 사용하여 API를 문서화하는 테스트 파일을 작성하세요
             },
             app,
             (apiDoc) => {
-                itDoc("회원가입 성공", async () => {
-                    await apiDoc
+                itDoc("회원가입 성공", () => {
+                    return apiDoc
                         .test()
                         .req()
                         .body({
@@ -182,8 +182,8 @@ itdoc을 사용하여 API를 문서화하는 테스트 파일을 작성하세요
                         })
                 })
 
-                itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", async () => {
-                    await apiDoc
+                itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", () => {
+                    return apiDoc
                         .test()
                         .req()
                         .body({
@@ -227,8 +227,7 @@ itdoc을 사용하여 API를 문서화하는 테스트 파일을 작성하세요
     </TabItem>
 </Tabs>
 
-만약 이 과정에서 문서가 제대로 생성되지 않는 것 같다면,
-[테스트 러너와 통합](integration-test-runner)을 확인해주세요.
+만약 이 과정에서 문서가 제대로 생성되지 않는 것 같다면, [테스트 러너와 통합](integration-test-runner)을 확인해주세요.
 
 ### 4. OpenAPI 문서 생성
 
