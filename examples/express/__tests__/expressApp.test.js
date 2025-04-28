@@ -1,6 +1,5 @@
 const app = require("../expressApp.js")
 const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
-
 const targetApp = app
 
 describeAPI(

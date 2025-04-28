@@ -11,7 +11,7 @@ describe("Product API Tests", () => {
             description: "Retrieves a specific product by its ID.",
         },
         app,
-        (apiDoc) => {
+        (apiDoc: any) => {
             itDoc("should return a specific product", async () => {
                 apiDoc
                     .test()
@@ -38,7 +38,7 @@ describe("Product API Tests", () => {
             description: "Creates a new product with the provided information.",
         },
         app,
-        (apiDoc) => {
+        (apiDoc: any) => {
             itDoc("should create a new product", async () => {
                 apiDoc
                     .test()
@@ -69,7 +69,7 @@ describe("Product API Tests", () => {
             description: "Updates an existing product with the provided information.",
         },
         app,
-        (apiDoc) => {
+        (apiDoc: any) => {
             itDoc("should update a product", async () => {
                 apiDoc
                     .test()
@@ -101,7 +101,7 @@ describe("Product API Tests", () => {
             description: "Deletes a product by its ID.",
         },
         app,
-        (apiDoc) => {
+        (apiDoc: any) => {
             itDoc("should delete a product", async () => {
                 apiDoc
                     .test()
