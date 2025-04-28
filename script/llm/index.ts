@@ -18,72 +18,117 @@ import OpenAI from "openai"
 import fs from "fs"
 import path from "path"
 import dotenv from "dotenv"
-import { fileURLToPath } from "url"
-import getItdocPrompt from "./prompt/index.js"
+import getItdocPrompt from "./prompt/index"
 import logger from "../../lib/config/logger"
-const __filename: string = fileURLToPath(import.meta.url)
-const __dirname: string = path.dirname(__filename)
-dotenv.config({ path: path.join(__dirname, "../../.env") })
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-})
-
-const outputDir: string = path.join(__dirname, "../../", "output")
-if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true })
-}
-
-const filePath: string = path.join(outputDir, "output.js")
 /**
- * 주어진 테스트 스펙(content)과 언어 설정(isEn)에 기반하여,
- * GPT 모델을 호출하고, 생성된 테스트 코드 결과물을 반환합니다.
- * @param {string} content - 테스트 스펙 내용을 담은 문자열.
- * @param {boolean} isEn - 결과물을 영어로 출력할지 여부 (true: 영어, false: 한글).
- * @returns {Promise<string | null>} - 생성된 테스트 코드 문자열 또는 에러 발생 시 null.
+ * LLM을 호출해 itdoc 테스트스크립트를 작성합니다.
+ * @param {OpenAI} openai - 초기화된 OpenAI 클라이언트 인스턴스
+ * @param {string} content - 처리할 마크다운 콘텐츠
+ * @param {boolean} isEn - 영어 출력을 원할 경우 true
+ * @returns {Promise<string|null>} 생성된 문서 문자열, 오류 발생 시 null 반환
  */
-async function makedocLLM(content: string, isEn: boolean): Promise<string | null> {
+
+/**
+ *
+ * @param openai
+ * @param content
+ * @param isEn
+ */
+async function makedocLLM(openai: OpenAI, content: string, isEn: boolean): Promise<string | null> {
     try {
-        const msg: string = getItdocPrompt(content, isEn)
+        const msg = getItdocPrompt(content, isEn)
         const response: any = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [{ role: "user", content: msg }],
             temperature: 0,
         })
-        const ret: string = response.choices[0].message.content
+        return response.choices[0].message.content
             .replace(/```(?:json|javascript)?/g, "")
             .replace(/```/g, "")
             .trim()
-        return ret
     } catch (error: unknown) {
         logger.error(`makedocLLM() 에러 발생: ${error}`)
         return null
     }
 }
+
 /**
- * 전체 프로세스를 실행하는 메인 함수입니다.
- * 테스트 스펙 파일(testspec.md)을 읽어와 makedoc_llm 함수를 호출하고,
- * 생성된 결과물을 output.js 파일에 저장합니다.
- * @param testspecPath
- * @returns {Promise<void>} - 비동기 실행 결과.
+ * 테스트 코드 생성 메인 함수
+ * .env 파일, 테스트 스펙 마크다운 파일, package.json을 읽고 출력 디렉토리 결정 후 makedocLLM()를 호출합니다.
+ * @param {string} [testspecPath] - 테스트 스펙 마크다운 파일 경로(절대/상대)
+ * @param {string} [envPath] - 환경 변수 파일(.env) 경로(절대/상대)
+ * @returns {Promise<void>}
  */
-async function main(testspecPath?: string): Promise<void> {
-    const isEn: boolean = false
+export default async function generateByLLM(
+    testspecPath?: string,
+    envPath?: string,
+): Promise<void> {
+    const actualEnvPath = envPath
+        ? path.isAbsolute(envPath)
+            ? envPath
+            : path.resolve(process.cwd(), envPath)
+        : path.resolve(process.cwd(), ".env")
 
-    const actualTestspecPath: string =
-        testspecPath ?? path.join(__dirname, "../../", "md", "testspec.md")
+    if (!fs.existsSync(actualEnvPath)) {
+        logger.error(`.env 파일이 존재하지 않습니다: ${actualEnvPath}`)
+        process.exit(1)
+    } else {
+        logger.info(`GPT API키가 있는 env파일을 로드합니다. ${actualEnvPath}`)
+    }
 
-    if (!fs.existsSync(actualTestspecPath)) {
-        logger.error(`Error: File does not exist at ${actualTestspecPath}`)
+    dotenv.config({ path: actualEnvPath })
+    if (!process.env.OPENAI_API_KEY) {
+        logger.error("환경 변수 OPENAI_API_KEY가 설정되어 있지 않습니다.")
         process.exit(1)
     }
-    const msg: string = fs.readFileSync(actualTestspecPath, "utf8")
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-    const ret = await makedocLLM(msg, isEn)
-    if (ret !== null) {
-        fs.writeFileSync(filePath, ret, "utf8")
-        logger.info(`GPT를 기반으로 테스트생성이 다 완성되었습니다.`)
+    const defaultSpec = path.join(process.cwd(), "md", "testspec.md")
+    const actualSpec = testspecPath
+        ? path.isAbsolute(testspecPath)
+            ? testspecPath
+            : path.resolve(process.cwd(), testspecPath)
+        : defaultSpec
+    if (!fs.existsSync(actualSpec)) {
+        logger.error(`테스트스펙파일이 존재하지 않습니다: ${actualSpec}`)
+        logger.info(`다음의 경로에 테스트스펙파일을 생성해주셔야 합니다. ${actualSpec}`)
+        process.exit(1)
+    } else {
+        logger.info(`테스트스펙파일 경로: ${actualSpec}`)
+    }
+    const content = fs.readFileSync(actualSpec, "utf8")
+
+    const packageJsonPath = path.resolve(process.cwd(), "package.json")
+    let outputDir: string
+    try {
+        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"))
+        if (pkg.itdoc && typeof pkg.itdoc.output === "string") {
+            outputDir = path.resolve(process.cwd(), pkg.itdoc.output)
+            logger.info(`output 경로가 ${pkg.itdoc.output}로 설정됩니다. `)
+        } else {
+            logger.info(
+                `package.json - itdoc - output 경로가 설정되어있지 않습니다. 현재 경로를 기반으로 output 폴더가 설정됩니다.`,
+            )
+            outputDir = path.resolve(process.cwd(), "output")
+        }
+    } catch (err) {
+        logger.error(`package.json 파일을 읽는 중 오류 발생: ${err}`)
+        logger.info(
+            `package.json - itdoc - output 경로가 설정되어있지 않습니다. 현재 경로를 기반으로 output 폴더가 설정됩니다.`,
+        )
+        outputDir = path.resolve(process.cwd(), "output")
+    }
+    if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true })
+        logger.info(`output 디렉토리가 생성되어있지 않아 ${outputDir}를 생성합니다.`)
+    }
+    const filePath = path.resolve(outputDir, "output.js")
+
+    const isEn = false
+    const result = await makedocLLM(openai, content, isEn)
+    if (result) {
+        fs.writeFileSync(filePath, result, "utf8")
+        logger.info(`GPT 기반 테스트 코드 생성 완료: ${filePath}`)
     }
 }
-
-main()
