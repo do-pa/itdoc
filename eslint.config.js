@@ -16,6 +16,7 @@ export default tseslint.config(
             "itdoc-doc/**",
             "**/*.md",
             "**/*.mdx",
+            "output/**",
         ],
     },
     // ESLint 기본 추천 규칙

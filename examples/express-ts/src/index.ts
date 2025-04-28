@@ -13,11 +13,11 @@ app.use(express.json())
 
 app.use("/api/products", productRoutes)
 
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
     res.status(200).json({ status: "OK", message: "Server is running" })
 })
 
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, _req: express.Request, res: express.Response) => {
     console.error(err.stack)
     res.status(500).json({ error: "Something went wrong!" })
 })
