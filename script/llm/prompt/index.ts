@@ -34,7 +34,7 @@ const __dirname: string = dirname(__filename)
 function getItdocPrompt(content: string, isEn: boolean): string {
     const itdocExamplePath: string = join(
         __dirname,
-        "../../../examples/express/__tests__/expressApp.test.js",
+        "../../examples/express/__tests__/expressApp.test.js",
     )
     const itdocExample: string = fs.readFileSync(itdocExamplePath, "utf8")
 
