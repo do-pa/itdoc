@@ -32,11 +32,25 @@ const __dirname: string = dirname(__filename)
  * @returns {string} - 생성된 프롬프트 메시지 문자열.
  */
 function getItdocPrompt(content: string, isEn: boolean): string {
-    const itdocExamplePath: string = join(
-        __dirname,
-        "../../examples/express/__tests__/expressApp.test.js",
-    )
-    const itdocExample: string = fs.readFileSync(itdocExamplePath, "utf8")
+    const exampleParts = ["express", "__tests__", "expressApp.test.js"]
+    const baseDirs = [join(__dirname, "..", "examples"), join(__dirname, "..", "..", "examples")]
+    let examplePath: string | undefined
+    for (const base of baseDirs) {
+        const p = join(base, ...exampleParts)
+        if (fs.existsSync(p)) {
+            examplePath = p
+            break
+        }
+    }
+
+    if (!examplePath) {
+        throw new Error(
+            `테스트 예제 파일을 찾을 수 없습니다:\n` +
+                baseDirs.map((b) => join(b, ...exampleParts)).join("\n"),
+        )
+    }
+
+    const itdocExample: string = fs.readFileSync(examplePath, "utf8")
 
     const addmsg: string = isEn
         ? "그리고 반드시 영어로 출력해야 합니다."
