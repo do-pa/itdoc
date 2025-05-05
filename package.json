@@ -4,16 +4,12 @@
     "description": "Test-driven documentation for RESTful services",
     "license": "Apache-2.0",
     "bin": {
-        "itdoc": "./build/bin/index.js"
+        "itdoc": "build/bin/index.js"
     },
-    "author": {
-        "name": "Moon Seonghun",
-        "email": "penekhun@gamil.com",
-        "url": "https://www.github.com/penekhun"
-    },
+    "author": "Moon Seonghun <penekhun@gamil.com> (https://www.github.com/penekhun)",
     "repository": {
         "type": "git",
-        "url": "https://github.com/do-pa/itdoc.git"
+        "url": "git+https://github.com/do-pa/itdoc.git"
     },
     "bugs": {
         "url": "https://github.com/do-pa/itdoc/issues/"
@@ -86,9 +82,11 @@
         "chalk": "^4.1.2",
         "commander": "^13.1.0",
         "consola": "^3.4.2",
+        "dependency-tree": "^11.1.1",
         "dot": "^1.1.3",
         "dotenv": "^16.3.1",
         "fast-glob": "^3.3.3",
+        "itdoc": "link:../../../AppData/Local/pnpm/global/5/node_modules/itdoc",
         "openai": "^4.90.0",
         "supertest": "^7.0.0",
         "widdershins": "^4.0.1"
@@ -128,5 +126,14 @@
     "packageManager": "pnpm@10.5.2",
     "engines": {
         "node": ">=20"
+    },
+    "directories": {
+        "example": "examples",
+        "lib": "lib"
+    },
+    "pnpm": {
+        "overrides": {
+            "itdoc": "link:../../../AppData/Local/pnpm/global/5/node_modules/itdoc"
+        }
     }
 }

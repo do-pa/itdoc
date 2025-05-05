@@ -15,16 +15,9 @@
  */
 
 import { Command } from "commander"
-import { createRequire } from "module"
-import { fileURLToPath } from "url"
-import path, { dirname, join } from "path"
+import path from "path"
 import generateByLLM from "../script/llm/index"
 import logger from "../lib/config/logger"
-
-const require = createRequire(import.meta.url)
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-const { version, description } = require(join(__dirname, "..", "..", "package.json"))
 
 const args = process.argv.slice(2)
 const isRootHelp = args.length === 0 || args[0] === "--help" || args[0] === "-h"
@@ -32,17 +25,14 @@ if (isRootHelp) {
     logger.box("ITDOC CLI")
 }
 const program = new Command()
-program
-    .name("itdoc")
-    .description(description)
-    .version(`Version ${version}`, "-v, --version", "버전 정보 출력")
 
 program
     .command("generate")
     .description("LLM 기반 ITDOC 테스트 코드를 생성합니다.")
-    .option("-p, --path <testspect>", "테스트 스펙 마크다운 경로를 지정합니다", undefined)
+    .option("-p, --path <testspecPath>", "테스트 스펙 마크다운 경로가 설정됩니다.", undefined)
+    .option("-a, --app <appPath>", "express로 만들어진 root app 경로가 설정됩니다.", undefined)
     .option("-e, --env <envPath>", ".env 파일 경로를 지정합니다", undefined)
-    .action((options: { path?: string; env?: string }) => {
+    .action((options: { path?: string; env?: string; app?: string }) => {
         // .env 로드
         const envPath = options.env
             ? path.isAbsolute(options.env)
@@ -50,19 +40,29 @@ program
                 : path.resolve(process.cwd(), options.env)
             : path.resolve(process.cwd(), ".env")
 
-        // testspec 경로 처리
-        if (!options.path) {
-            logger.error("테스트 스펙이 담긴 경로를 지정해주세요. (-p 옵션 사용)")
+        if (!options.path && !options.app) {
+            logger.error("테스트 스펙(-p) 또는 express app 경로(-a) 중 적어도 하나는 필수입니다.")
             logger.info("ex) itdoc generate -p ../md/testspec.md")
             logger.info("ex) itdoc generate --path ../md/testspec.md")
+            logger.info("ex) itdoc generate -a ../app.js")
+            logger.info("ex) itdoc generate --app ../app.js")
             process.exit(1)
         }
-        const specPath = options.path
-        const resolvedPath = path.isAbsolute(specPath)
-            ? specPath
-            : path.resolve(process.cwd(), specPath)
+        if (options.app) {
+            const appPath = path.isAbsolute(options.app)
+                ? options.app
+                : path.resolve(process.cwd(), options.app)
 
-        generateByLLM(resolvedPath, envPath)
+            logger.info(`express app 경로 기반 분석 실행: ${appPath}`)
+            generateByLLM("", appPath, envPath)
+        } else if (options.path) {
+            const specPath = path.isAbsolute(options.path)
+                ? options.path
+                : path.resolve(process.cwd(), options.path)
+
+            logger.info(`테스트 스펙 경로 기반 실행: ${specPath}`)
+            generateByLLM(specPath, "", envPath)
+        }
     })
 
 program.parse(process.argv)

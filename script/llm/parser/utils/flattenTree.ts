@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-import fs from "fs"
-import path from "path"
-import logger from "../../lib/config/logger"
-
 /**
- *
- * @param specArg
+ * 주어진 의존성 트리 객체를 재귀적으로 플래트닝하여
+ * 모든 파일 경로를 문자열 배열로 반환합니다.
+ * @param {Record<string, any>} tree - dependency-tree 라이브러리로 생성된 트리 객체
+ * @returns {string[]} 모든 파일 경로를 담은 문자열 배열
  */
-export function loadSpec(specArg?: string): string {
-    const defaultPath = path.resolve(process.cwd(), "md/testspec.md")
-    const actual =
-        specArg && path.isAbsolute(specArg)
-            ? specArg
-            : path.resolve(process.cwd(), specArg || defaultPath)
-    if (!fs.existsSync(actual)) {
-        logger.error(`테스트 스펙이 없습니다: ${actual}`)
-        process.exit(1)
-    }
-    logger.info(`테스트 스펙 로드: ${actual}`)
-    return fs.readFileSync(actual, "utf8")
+export function flattenTree(tree: Record<string, any>): string[] {
+    return Object.keys(tree).reduce<string[]>(
+        (acc, file) => acc.concat(file, flattenTree(tree[file] || {})),
+        [],
+    )
 }

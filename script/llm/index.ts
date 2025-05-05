@@ -18,11 +18,11 @@ import OpenAI from "openai"
 import fs from "fs"
 import path from "path"
 import dotenv from "dotenv"
-import getItdocPrompt from "./prompt/index"
+import { getItdocPrompt, getMDPrompt } from "./prompt/index"
 import logger from "../../lib/config/logger"
-import { loadSpec } from "./specLoader"
-import { resolveEnv } from "./envLoader"
+import { loadFile } from "./loader/index"
 import { getOutputPath } from "../../lib/config/getOutputPath"
+import { analyzeRoutes } from "./parser/index"
 
 /**
  * LLM을 호출해 itdoc 테스트스크립트를 작성합니다.
@@ -31,7 +31,7 @@ import { getOutputPath } from "../../lib/config/getOutputPath"
  * @param {boolean} isEn - 영어 출력을 원할 경우 true
  * @returns {Promise<string|null>} 생성된 문서 문자열, 오류 발생 시 null 반환
  */
-async function makedocLLM(openai: OpenAI, content: string, isEn: boolean): Promise<string | null> {
+async function makedocByMD(openai: OpenAI, content: string, isEn: boolean): Promise<string | null> {
     try {
         const msg = getItdocPrompt(content, isEn)
         const response: any = await openai.chat.completions.create({
@@ -44,7 +44,29 @@ async function makedocLLM(openai: OpenAI, content: string, isEn: boolean): Promi
             .replace(/```/g, "")
             .trim()
     } catch (error: unknown) {
-        logger.error(`makedocLLM() 에러 발생: ${error}`)
+        logger.error(`makedocByMD() 에러 발생: ${error}`)
+        return null
+    }
+}
+/**
+ *
+ * @param openai
+ * @param content
+ */
+async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null> {
+    try {
+        const msg = getMDPrompt(content)
+        const response: any = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [{ role: "user", content: msg }],
+            temperature: 0,
+        })
+        return response.choices[0].message.content
+            .replace(/```(?:json|javascript)?/g, "")
+            .replace(/```/g, "")
+            .trim()
+    } catch (error: unknown) {
+        logger.error(`makeMDByApp() 에러 발생: ${error}`)
         return null
     }
 }
@@ -53,31 +75,51 @@ async function makedocLLM(openai: OpenAI, content: string, isEn: boolean): Promi
  * 테스트 코드 생성 메인 함수
  * .env 파일, 테스트 스펙 마크다운 파일, package.json을 읽고 출력 디렉토리 결정 후 makedocLLM()를 호출합니다.
  * @param {string} [testspecPath] - 테스트 스펙 마크다운 파일 경로(절대/상대)
+ * @param {string} [appPath] - 앱 루트파일 경로 (절대/상대)
  * @param {string} [envPath] - 환경 변수 파일(.env) 경로(절대/상대)
  * @returns {Promise<void>}
  */
-
-/**
- *
- * @param testspecPath
- * @param envPath
- */
 export default async function generateByLLM(
     testspecPath?: string,
+    appPath?: string,
     envPath?: string,
 ): Promise<void> {
-    const actualEnv = resolveEnv(envPath)
+    const actualEnv = loadFile("env", envPath, false)
     dotenv.config({ path: actualEnv })
     if (!process.env.OPENAI_API_KEY) {
         logger.error("환경 변수 OPENAI_API_KEY가 설정되어 있지 않습니다.")
         process.exit(1)
     }
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-    const specContent = loadSpec(testspecPath)
+    let result = ""
+    if (appPath) {
+        const resolvedAppContent = loadFile("app", appPath, false)
+        const analyzedRoutes = analyzeRoutes(resolvedAppContent)
+        const specFromApp = await makeMDByApp(openai, analyzedRoutes)
+        if (!specFromApp) {
+            logger.error("앱 분석 기반 스펙 생성 실패")
+            process.exit(1)
+        }
+        const doc = await makedocByMD(openai, specFromApp, false)
+        if (!doc) {
+            logger.error("스펙 기반 테스트 코드 생성 실패")
+            process.exit(1)
+        }
+        result = doc
+    } else if (testspecPath) {
+        const specContent = loadFile("spec", testspecPath, true)
+        const doc = await makedocByMD(openai, specContent, false)
+        if (!doc) {
+            logger.error("마크다운 스펙 기반 테스트 코드 생성 실패")
+            process.exit(1)
+        }
+        result = doc
+    }
 
-    const result = await makedocLLM(openai, specContent, false)
-    if (!result) return
-
+    if (!result) {
+        logger.error("generateByLLM()이 작동하지 않습니다.")
+        process.exit(1)
+    }
     const outputDir = getOutputPath()
     fs.mkdirSync(outputDir, { recursive: true })
     const outPath = path.join(outputDir, "output.js")

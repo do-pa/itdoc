@@ -51,7 +51,10 @@ export function readItdocConfig(key: string, defaultValue: string): string {
 }
 
 /**
+ * 현재 작업 디렉토리의 `package.json`을 읽어 파싱된 객체를 반환합니다.
  *
+ * 읽기 또는 파싱 중 오류가 발생하면 null을 반환하며, 에러 로그를 출력합니다.
+ * @returns {object | null} 파싱된 package.json 객체 또는 null
  */
 function readPackageJson(): any {
     const packageJsonPath = path.resolve(process.cwd(), "package.json")

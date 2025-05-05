@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-import fs from "fs"
-import path from "path"
-import logger from "../../lib/config/logger"
+export interface HeaderDetail {
+    key: string
+    value: any
+}
 
-/**
- *
- * @param envPath
- */
-export function resolveEnv(envPath?: string): string {
-    const actual =
-        envPath && path.isAbsolute(envPath)
-            ? envPath
-            : path.resolve(process.cwd(), envPath || ".env")
-    if (!fs.existsSync(actual)) {
-        logger.error(`.env 파일이 없습니다: ${actual}`)
-        process.exit(1)
+export interface BranchDetail {
+    status: number[]
+    json: any[]
+    send: any[]
+    headers: HeaderDetail[]
+}
+
+export interface RouteResult {
+    method: string
+    path: string
+    req: {
+        headers: string[]
+        params: string[]
+        query: string[]
+        body: string[]
     }
-    logger.info(`env 파일 로드: ${actual}`)
-    return actual
+    responses: {
+        default: BranchDetail
+        branches: Record<string, BranchDetail>
+    }
 }
