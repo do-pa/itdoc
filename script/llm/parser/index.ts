@@ -29,8 +29,7 @@ import { flattenTree } from "./utils/flattenTree"
 /**
  * 주어진 Express 앱 파일을 시작점으로
  * 전체 라우트를 분석해 JSON으로 반환합니다.
- * @param entry  진입점 파일 경로
- * @param appPath
+ * @param appPath  진입점 파일 경로
  */
 export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
     const appFile = path.resolve(appPath)

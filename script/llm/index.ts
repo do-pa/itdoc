@@ -36,8 +36,11 @@ async function makedocByMD(openai: OpenAI, content: string, isEn: boolean): Prom
         const maxRetry = 3
         let result = ""
 
+        logger.info(
+            `테스트명세서(md)를 기반으로 GPT API를 통해 itdoc 테스트 코드를 생성합니다. GPT API 호출은 최대 3회까지 이루어집니다.`,
+        )
         for (let i = 0; i < maxRetry; i++) {
-            logger.info(`itdoc 테스트 코드 생성 중... (${i + 1}/${maxRetry})`)
+            logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
             const msg = getItdocPrompt(content, isEn, i + 1)
 
             const response: any = await openai.chat.completions.create({
@@ -85,9 +88,11 @@ async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null>
     try {
         const maxRetry = 3
         let result = ""
-
+        logger.info(
+            `AST파서로 분석된 앱을 기반으로 GPT API를 통해 테스트명세서(md)를 생성합니다. GPT API 호출은 최대 3회까지 이루어집니다.`,
+        )
         for (let i = 0; i < maxRetry; i++) {
-            logger.info(`API 테스트 명세서 생성 중... (${i + 1}/${maxRetry})`)
+            logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
             const msg = getMDPrompt(content, i + 1)
             const response: any = await openai.chat.completions.create({
                 model: "gpt-4o",
@@ -149,10 +154,18 @@ export default async function generateByLLM(
     let result = ""
     if (appPath) {
         const resolvedAppContent = loadFile("app", appPath, false)
+        logger.info(`appPath: ${appPath}를 기반으로 AST분석을 통해 테스트명세서(md)를 생성합니다.`)
+        logger.info("참고: app 또는 router 이름으로 시작하는 코드를 찾아 분석을 실행합니다.")
+        logger.info("ex) app.get(...), router.post(...) 등")
+
         const analyzedRoutes = await analyzeRoutes(resolvedAppContent)
+        if (!analyzedRoutes) {
+            logger.error(
+                "앱에 대한 AST분석이 실패하였습니다. 사용자의 코드 중 라우터 부분을 app.get() 또는 router.post()와 같은 형식으로 작성해 주세요.",
+            )
+            process.exit(1)
+        }
         const specFromApp = await makeMDByApp(openai, analyzedRoutes)
-        logger.info("앱 분석 기반 스펙 MD문서 생성 중...")
-        logger.info(`appPath: ${appPath}`)
         if (!specFromApp) {
             logger.error("앱 분석 기반 스펙 MD문서 생성 실패")
             process.exit(1)
