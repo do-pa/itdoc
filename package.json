@@ -4,7 +4,7 @@
     "description": "Test-driven documentation for RESTful services",
     "license": "Apache-2.0",
     "bin": {
-        "itdoc": "build/bin/index.js"
+        "itdoc": "./build/bin/index.js"
     },
     "author": {
         "name": "Moon Seonghun",
@@ -13,7 +13,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/do-pa/itdoc.git"
+        "url": "https://github.com/do-pa/itdoc.git"
     },
     "bugs": {
         "url": "https://github.com/do-pa/itdoc/issues/"
