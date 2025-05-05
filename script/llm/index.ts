@@ -33,21 +33,49 @@ import { analyzeRoutes } from "./parser/index"
  */
 async function makedocByMD(openai: OpenAI, content: string, isEn: boolean): Promise<string | null> {
     try {
-        const msg = getItdocPrompt(content, isEn)
-        const response: any = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [{ role: "user", content: msg }],
-            temperature: 0,
-        })
-        return response.choices[0].message.content
-            .replace(/```(?:json|javascript)?/g, "")
-            .replace(/```/g, "")
-            .trim()
+        const maxRetry = 3
+        let result = ""
+
+        for (let i = 0; i < maxRetry; i++) {
+            logger.info(`itdoc 테스트 코드 생성 중... (${i + 1}/${maxRetry})`)
+            const msg = getItdocPrompt(content, isEn, i + 1)
+
+            const response: any = await openai.chat.completions.create({
+                model: "gpt-4o",
+                messages: [{ role: "user", content: msg }],
+                temperature: 0,
+                max_tokens: 4096,
+            })
+
+            const text = response.choices[0].message.content?.trim() ?? ""
+            const finishReason = response.choices[0].finish_reason
+
+            const cleaned = text
+                .replace(/```(?:json|javascript|typescript|markdown)?/g, "")
+                .replace(/```/g, "")
+                .replace(/\(.*?\/.*?\)/g, "") // (1/3) 제거
+                .trim()
+
+            result += cleaned + "\n"
+
+            if (
+                finishReason === "stop" &&
+                !cleaned.endsWith("...") &&
+                !/\(\d+\/\d+\)\s*$/.test(cleaned)
+            ) {
+                break
+            }
+
+            await new Promise((res) => setTimeout(res, 500))
+        }
+
+        return result.trim()
     } catch (error: unknown) {
         logger.error(`makedocByMD() 에러 발생: ${error}`)
         return null
     }
 }
+
 /**
  *
  * @param openai
@@ -55,16 +83,40 @@ async function makedocByMD(openai: OpenAI, content: string, isEn: boolean): Prom
  */
 async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null> {
     try {
-        const msg = getMDPrompt(content)
-        const response: any = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [{ role: "user", content: msg }],
-            temperature: 0,
-        })
-        return response.choices[0].message.content
-            .replace(/```(?:json|javascript)?/g, "")
-            .replace(/```/g, "")
-            .trim()
+        const maxRetry = 3
+        let result = ""
+
+        for (let i = 0; i < maxRetry; i++) {
+            logger.info(`API 테스트 명세서 생성 중... (${i + 1}/${maxRetry})`)
+            const msg = getMDPrompt(content, i + 1)
+            const response: any = await openai.chat.completions.create({
+                model: "gpt-4o",
+                messages: [{ role: "user", content: msg }],
+                temperature: 0,
+                max_tokens: 4096,
+            })
+
+            const text = response.choices[0].message.content?.trim() ?? ""
+            const finishReason = response.choices[0].finish_reason
+            const cleaned = text
+                .replace(/```(?:json|javascript|typescript|markdown)?/g, "")
+                .replace(/```/g, "")
+                .replace(/`markdown/g, "")
+                .replace(/\(.*?\/.*?\)/g, "")
+                .trim()
+
+            result += cleaned + "\n"
+            if (
+                finishReason === "stop" &&
+                !cleaned.endsWith("...") &&
+                !/\(\d+\/\d+\)\s*$/.test(cleaned)
+            ) {
+                break
+            }
+            await new Promise((res) => setTimeout(res, 500))
+        }
+
+        return result.trim()
     } catch (error: unknown) {
         logger.error(`makeMDByApp() 에러 발생: ${error}`)
         return null
@@ -91,18 +143,27 @@ export default async function generateByLLM(
         process.exit(1)
     }
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+
+    const outputDir = getOutputPath()
+    fs.mkdirSync(outputDir, { recursive: true })
     let result = ""
     if (appPath) {
         const resolvedAppContent = loadFile("app", appPath, false)
-        const analyzedRoutes = analyzeRoutes(resolvedAppContent)
+        const analyzedRoutes = await analyzeRoutes(resolvedAppContent)
         const specFromApp = await makeMDByApp(openai, analyzedRoutes)
+        logger.info("앱 분석 기반 스펙 MD문서 생성 중...")
+        logger.info(`appPath: ${appPath}`)
         if (!specFromApp) {
-            logger.error("앱 분석 기반 스펙 생성 실패")
+            logger.error("앱 분석 기반 스펙 MD문서 생성 실패")
             process.exit(1)
         }
+        const mdPath = path.join(outputDir, "output.md")
+        fs.writeFileSync(mdPath, specFromApp, "utf8")
+        logger.info(`앱 분석 기반 스펙 MD문서 생성 완료: ${mdPath}`)
+
         const doc = await makedocByMD(openai, specFromApp, false)
         if (!doc) {
-            logger.error("스펙 기반 테스트 코드 생성 실패")
+            logger.error("앱 분석 기반 스펙 MD문서 생성 실패")
             process.exit(1)
         }
         result = doc
@@ -120,9 +181,7 @@ export default async function generateByLLM(
         logger.error("generateByLLM()이 작동하지 않습니다.")
         process.exit(1)
     }
-    const outputDir = getOutputPath()
-    fs.mkdirSync(outputDir, { recursive: true })
     const outPath = path.join(outputDir, "output.js")
     fs.writeFileSync(outPath, result, "utf8")
-    logger.info(`문서 생성 완료: ${outPath}`)
+    logger.info(`itdoc 문서 생성 완료: ${outPath}`)
 }

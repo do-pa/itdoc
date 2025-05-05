@@ -17,7 +17,8 @@
 import * as fs from "fs"
 import * as path from "path"
 import { parse } from "@babel/parser"
-import traverse, { NodePath } from "@babel/traverse"
+import traversePkg, { NodePath } from "@babel/traverse"
+const traverse = traversePkg.default
 import dependencyTree from "dependency-tree"
 import * as t from "@babel/types"
 
