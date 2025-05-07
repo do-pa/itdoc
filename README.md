@@ -1,4 +1,4 @@
-# <img src="https://github.com/user-attachments/assets/e84820f5-194e-48c0-99d6-f43d8038a157" align="right" width="100">itdoc
+# <img src="https://github.com/do-pa/itdoc/blob/develop/itdoc-doc/static/img/logo.png?raw=true" align="right" width="100">itdoc
 
 [![Build Status](https://github.com/do-pa/itdoc/actions/workflows/ci.yml/badge.svg)](https://github.com/do-pa/itdoc/actions/workflows/ci.yml)
 [![NPM](https://img.shields.io/npm/v/itdoc.svg)](https://www.npmjs.com/package/itdoc)
