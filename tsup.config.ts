@@ -45,5 +45,13 @@ export default defineConfig([
         target: "node20",
         platform: "node",
         banner: { js: "#!/usr/bin/env node" },
+        external: [
+            "debug",
+            "supports-color",
+            "tty",
+            "@babel/parser",
+            "@babel/types",
+            "@babel/traverse",
+        ],
     },
 ])
