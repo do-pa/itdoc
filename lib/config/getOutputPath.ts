@@ -30,7 +30,7 @@ export function getOutputPath(): string {
 
     logger.info(`itdoc - output 경로는 다음과 같습니다. : ${outputPath}`)
     logger.info(
-        "경로는 다음과 같이 package.json내의 itdoc - output을 수정해서 바꿀 수 있습니다.:",
+        "output 경로는 package.json내의 itdoc - output을 수정해서 바꿀 수 있습니다.",
         "{itdoc:{output : 'output'}}",
     )
 
