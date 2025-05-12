@@ -29,10 +29,18 @@ const __dirname: string = dirname(__filename)
  * 입력된 테스트 내용(content)와 언어 설정(isEn)에 따라 추가 메시지를 덧붙입니다.
  * @param {string} content - 테스트 내용(테스트 케이스에 대한 설명)을 담은 문자열.
  * @param {boolean} isEn - true일 경우 결과물을 영어로, false일 경우 한글로 출력하도록 추가 메시지를 설정.
- * @param part
+ * @param {number} part - 여러 출력으로 나누어질 경우 현재 부분 번호
+ * @param {boolean} isTypeScript - true일 경우 TypeScript로, false일 경우 JavaScript로 출력
+ * @param {object} appInfo - 앱 정보 객체 (importPath, originalPath, isTypeScript 등)
  * @returns {string} - 생성된 프롬프트 메시지 문자열.
  */
-export function getItdocPrompt(content: string, isEn: boolean, part: number): string {
+export function getItdocPrompt(
+    content: string,
+    isEn: boolean,
+    part: number,
+    isTypeScript: boolean = false,
+    appInfo: any = null,
+): string {
     const exampleParts = ["express", "__tests__", "expressApp.test.js"]
     const baseDirs = [join(__dirname, "..", "examples"), join(__dirname, "..", "..", "examples")]
     let examplePath: string | undefined
@@ -62,11 +70,56 @@ export function getItdocPrompt(content: string, isEn: boolean, part: number): st
             ? `이전 출력의 이어지는 ${part}번째 부분만 출력하세요. 이전 내용을 반복하지 마세요.`
             : `출력이 길어질 경우 다음 요청에서 이어받을 수 있도록 적절한 단위로 분할하여 출력하세요. 응답 마지막에 '...' 같은 기호는 넣지 마세요.`
 
+    // 코드 언어 설정
+    const codeLanguage = isTypeScript ? "타입스크립트" : "자바스크립트"
+    const codeLanguageEn = isTypeScript ? "TypeScript" : "JavaScript"
+
+    // 앱 임포트 경로 확인
+    let appImportGuide = ""
+    let appTemplate = ""
+    if (appInfo) {
+        const relativePath = appInfo.importPath || "../src/index"
+        if (isTypeScript) {
+            appImportGuide = `
+- 코드의 첫 줄은 반드시 다음과 동일하게 작성하세요: import { app } from "${relativePath}"
+- TypeScript 모듈 임포트 시 확장자(.ts)를 포함하지 마세요.`
+            appTemplate = `import { app } from "${relativePath}"
+import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"
+
+const targetApp = app`
+        } else {
+            appImportGuide = `
+- 코드의 첫 줄은 반드시 다음과 동일하게 작성하세요: const app = require('${relativePath}')
+- 반드시 단일 따옴표를 사용하고 괄호와 따옴표 사이에 공백을 넣지 마세요.`
+            appTemplate = `const app = require('${relativePath}')
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+
+const targetApp = app`
+        }
+    }
+
+    // 언어별 추가 지침
+    const additionalGuide = isTypeScript
+        ? `
+- 타입스크립트로 작성할 때 다음 타입을 사용하세요:
+  - Request와 Response 타입은 Express에서 import 하세요. (import { Request, Response } from 'express')
+  - 필요한 경우 interface나 type을 만들어 사용하세요.
+  - supertest의 Response 타입을 사용하세요.
+- require() 대신 ES 모듈 import 구문을 사용하세요.${appImportGuide}`
+        : `${appImportGuide}
+- ES 모듈이 아닌 CommonJS require 구문을 사용하세요.`
+
+    const langMsg = isEn ? `${codeLanguageEn} code` : `${codeLanguage} 코드`
+
     return `
-다음 테스트 내용을 기반으로 itdoc 테스트 스크립트를 자바스크립트 코드로 생성해주세요.
+다음 테스트 내용을 기반으로 itdoc 테스트 스크립트를 ${langMsg}로 생성해주세요.
+- 코드는 정확히 다음 부분으로 시작해야 합니다:
+
+${appTemplate}
+
 - 모든 라우터에 대한 테스트를 포함해야 합니다.
 - 코드 설명 없이 코드만 출력해야 하며, \`(1/3)\` 같은 자동 분할 제목은 넣지 마세요.
-- 출력은 자바스크립트 코드로만 구성되어야 하며, 백틱 블록(\`\`\`)도 사용하지 않습니다.
+- 출력은 ${langMsg}로만 구성되어야 하며, 백틱 블록(\`\`\`)도 사용하지 않습니다.${additionalGuide}
 - ${partGuide}
 ${addLangMsg}
 
@@ -87,14 +140,14 @@ ${itdocExample}
 export function getMDPrompt(content: any, part?: number): string {
     const partNote = part ? ` (이 문서는 ${part}번째 요청입니다)` : ""
     return `
-        다음 JSON 기반으로 API 테스트 명세서 마크다운(Markdown)을 생성하세요.${partNote} 
-        - "API 테스트 명세서" 같은 제목은 포함하지 마세요.  
-        - 각 테스트 항목만 상세히 기술합니다. 파일 제목, 개요, 결론, 요약 등은 작성하지 마세요. 
+        다음 JSON 기반으로 API 테스트 명세서 마크다운(Markdown)을 생성하세요.${partNote}
+        - "API 테스트 명세서" 같은 제목은 포함하지 마세요.
+        - 각 테스트 항목만 상세히 기술합니다. 파일 제목, 개요, 결론, 요약 등은 작성하지 마세요.
         - 특히 "모든 테스트 케이스는 ~ 기반으로 작성되어야 합니다" 또는 "정상적인 흐름과 오류 상황을 모두 포함해야 합니다" 같은 일반적인 설명은 절대 포함하지 마세요.
         - 출력이 길 경우 반드시 (1/3), (2/3), (3/3)처럼 분할해주세요. 분할된 응답은 이어지도록 하며 중복 없이 구성합니다.
-        - 강조표시(**), 백틱(\`\`\`) 등 마크다운 스타일은 사용하지 마세요. 
+        - 강조표시(**), 백틱(\`\`\`) 등 마크다운 스타일은 사용하지 마세요.
         JSON 입력:
-        ${JSON.stringify(content, null, 2)}  
+        ${JSON.stringify(content, null, 2)}
 
         `
 }
