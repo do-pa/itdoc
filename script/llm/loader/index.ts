@@ -28,16 +28,37 @@ type FileType = "spec" | "app" | "env"
  * @returns string (파일 내용 또는 경로)
  */
 export function loadFile(type: FileType, filePath?: string, readContent: boolean = false): string {
-    const defaultPaths: Record<FileType, string> = {
-        spec: path.resolve(process.cwd(), "md/testspec.md"),
-        app: path.resolve(process.cwd(), "app.js"),
-        env: path.resolve(process.cwd(), ".env"),
+    const defaultPaths: Record<FileType, string[]> = {
+        spec: [path.resolve(process.cwd(), "md/testspec.md")],
+        app: [
+            path.resolve(process.cwd(), "app.js"),
+            path.resolve(process.cwd(), "app.ts"),
+            path.resolve(process.cwd(), "src/app.js"),
+            path.resolve(process.cwd(), "src/app.ts"),
+            path.resolve(process.cwd(), "index.js"),
+            path.resolve(process.cwd(), "index.ts"),
+        ],
+        env: [path.resolve(process.cwd(), ".env")],
     }
 
-    const resolvedPath =
-        filePath && path.isAbsolute(filePath)
-            ? filePath
-            : path.resolve(process.cwd(), filePath || defaultPaths[type])
+    let resolvedPath: string
+
+    if (filePath) {
+        // 사용자가 직접 경로를 지정한 경우
+        resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath)
+    } else {
+        // 기본 경로 중 존재하는 첫 번째 파일 사용
+        const foundPath = defaultPaths[type].find((p) => fs.existsSync(p))
+
+        if (!foundPath) {
+            logger.error(
+                `${type} 파일을 찾을 수 없습니다. 기본 경로: ${defaultPaths[type].join(", ")}`,
+            )
+            process.exit(1)
+        }
+
+        resolvedPath = foundPath
+    }
 
     if (!fs.existsSync(resolvedPath)) {
         logger.error(`${type} 파일이 존재하지 않습니다: ${resolvedPath}`)
