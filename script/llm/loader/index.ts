@@ -44,10 +44,8 @@ export function loadFile(type: FileType, filePath?: string, readContent: boolean
     let resolvedPath: string
 
     if (filePath) {
-        // 사용자가 직접 경로를 지정한 경우
         resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath)
     } else {
-        // 기본 경로 중 존재하는 첫 번째 파일 사용
         const foundPath = defaultPaths[type].find((p) => fs.existsSync(p))
 
         if (!foundPath) {
