@@ -90,7 +90,6 @@ export function getItdocPrompt(
             ? `이전 출력의 이어지는 ${part}번째 부분만 출력하세요. 이전 내용을 반복하지 마세요.`
             : `출력이 길어질 경우 다음 요청에서 이어받을 수 있도록 적절한 단위로 분할하여 출력하세요. 응답 마지막에 '...' 같은 기호는 넣지 마세요.`
 
-    // 코드 언어 설정
     const codeLanguage = isTypeScript ? "타입스크립트" : "자바스크립트"
     const codeLanguageEn = isTypeScript ? "TypeScript" : "JavaScript"
 
