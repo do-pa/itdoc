@@ -30,7 +30,6 @@ import { analyzeRoutes } from "./parser/index"
  * @param {string} content - 처리할 마크다운 콘텐츠
  * @param {boolean} isEn - 영어 출력을 원할 경우 true
  * @param {boolean} isTypeScript - TypeScript 형식으로 출력할 경우 true
- * @param {object} appInfo - 앱 정보
  * @returns {Promise<string|null>} 생성된 문서 문자열, 오류 발생 시 null 반환
  */
 async function makedocByMD(
@@ -38,7 +37,6 @@ async function makedocByMD(
     content: string,
     isEn: boolean,
     isTypeScript: boolean = false,
-    appInfo: any = null,
 ): Promise<string | null> {
     try {
         const maxRetry = 3
@@ -49,7 +47,7 @@ async function makedocByMD(
         )
         for (let i = 0; i < maxRetry; i++) {
             logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
-            const msg = getItdocPrompt(content, isEn, i + 1, isTypeScript, appInfo)
+            const msg = getItdocPrompt(content, isEn, i + 1, isTypeScript)
 
             const response: any = await openai.chat.completions.create({
                 model: "gpt-4o",
@@ -161,18 +159,32 @@ export default async function generateByLLM(
     fs.mkdirSync(outputDir, { recursive: true })
     let result = ""
     let isTypeScript = false
-    let appInfo: any = null
+    let appImportPath = ""
 
-    if (appPath) {
-        const resolvedAppContent = loadFile("app", appPath, false)
-        // 파일 확장자를 통해 TypeScript 여부 판단
-        isTypeScript = resolvedAppContent.endsWith(".ts")
+    // 앱 경로는 필수
+    if (!appPath) {
+        logger.error(
+            "앱 경로가 지정되지 않았습니다. -a 또는 --app 옵션으로 앱 경로를 지정해주세요.",
+        )
+        process.exit(1)
+    }
 
+    // 앱 경로 처리
+    const resolvedAppPath = loadFile("app", appPath, false)
+    // 파일 확장자를 통해 TypeScript 여부 판단
+    isTypeScript = resolvedAppPath.endsWith(".ts")
+
+    // 앱 경로 정보 계산 (나중에 사용)
+    const relativePath = path.relative(outputDir, resolvedAppPath).replace(/\\/g, "/")
+    appImportPath = relativePath.startsWith(".") ? relativePath : `./${relativePath}`
+
+    if (!testspecPath) {
+        // 앱 분석 기반 테스트 명세 생성
         logger.info(`appPath: ${appPath}를 기반으로 AST분석을 통해 테스트명세서(md)를 생성합니다.`)
         logger.info("참고: app 또는 router 이름으로 시작하는 코드를 찾아 분석을 실행합니다.")
         logger.info("ex) app.get(...), router.post(...) 등")
 
-        const analyzedRoutes = await analyzeRoutes(resolvedAppContent)
+        const analyzedRoutes = await analyzeRoutes(resolvedAppPath)
         if (!analyzedRoutes) {
             logger.error(
                 "앱에 대한 AST분석이 실패하였습니다. 사용자의 코드 중 라우터 부분을 app.get() 또는 router.post()와 같은 형식으로 작성해 주세요.",
@@ -188,36 +200,15 @@ export default async function generateByLLM(
         fs.writeFileSync(mdPath, specFromApp, "utf8")
         logger.info(`앱 분석 기반 스펙 MD문서 생성 완료: ${mdPath}`)
 
-        // 앱 경로 정보 추가
-        const relativePath = path.relative(outputDir, resolvedAppContent).replace(/\\/g, "/")
-        const importPath = relativePath.startsWith(".") ? relativePath : `./${relativePath}`
-        appInfo = {
-            importPath,
-            originalPath: resolvedAppContent,
-            isTypeScript,
-        }
-
-        const doc = await makedocByMD(openai, specFromApp, false, isTypeScript, appInfo)
+        const doc = await makedocByMD(openai, specFromApp, false, isTypeScript)
         if (!doc) {
             logger.error("앱 분석 기반 스펙 MD문서 생성 실패")
             process.exit(1)
         }
         result = doc
-    } else if (testspecPath) {
+    } else {
+        // 테스트 스펙 기반 테스트 코드 생성
         const specContent = loadFile("spec", testspecPath, true)
-
-        // package.json 파일에서 TypeScript 사용 여부 판단
-        try {
-            const pkgPath = path.resolve(process.cwd(), "package.json")
-            if (fs.existsSync(pkgPath)) {
-                const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"))
-                isTypeScript = !!(pkg.dependencies?.typescript || pkg.devDependencies?.typescript)
-            }
-        } catch {
-            // Error ignored
-            logger.warn("package.json을 읽지 못했습니다. JavaScript 형식으로 생성합니다.")
-        }
-
         const doc = await makedocByMD(openai, specContent, false, isTypeScript)
         if (!doc) {
             logger.error("마크다운 스펙 기반 테스트 코드 생성 실패")
@@ -235,9 +226,6 @@ export default async function generateByLLM(
     const fileExtension = isTypeScript ? ".ts" : ".js"
     const outPath = path.join(outputDir, `output${fileExtension}`)
 
-    // 앱 경로 가져오기
-    let appImportPath = appInfo?.importPath || (isTypeScript ? "../src/index" : "../expressApp.js")
-
     // TypeScript 파일에서는 확장자 제거
     if (isTypeScript && appImportPath.endsWith(".ts")) {
         appImportPath = appImportPath.replace(/\.ts$/, "")
@@ -246,16 +234,18 @@ export default async function generateByLLM(
     // JavaScript/TypeScript에 맞게 import 구문 생성
     let importStatement = ""
     if (isTypeScript) {
-        importStatement = `import { app } from "${appImportPath}"`
+        importStatement = `import { app } from "${appImportPath}"
+import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"`
     } else {
-        importStatement = `const app = require('${appImportPath}')`
+        importStatement = `const app = require('${appImportPath}')
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+
+const targetApp = app
+    `
     }
 
-    // app import 문제 해결을 위한 정규식 패턴
-    const badAppImportPattern = /(?:const app = require|import \{ app \} from "[^"]+")[^\n]*\n/
-
-    // 결과물에서 import 구문 수정
-    result = result.replace(badAppImportPattern, importStatement + "\n")
+    // 파일 시작 부분에 표준화된 import 구문 추가
+    result = importStatement + "\n\n" + result.trim()
 
     fs.writeFileSync(outPath, result, "utf8")
     logger.info(`itdoc 문서 생성 완료: ${outPath}`)
