@@ -31,7 +31,6 @@ const __dirname: string = dirname(__filename)
  * @param {boolean} isEn - true일 경우 결과물을 영어로, false일 경우 한글로 출력하도록 추가 메시지를 설정.
  * @param {number} part - 여러 출력으로 나누어질 경우 현재 부분 번호
  * @param {boolean} isTypeScript - true일 경우 TypeScript로, false일 경우 JavaScript로 출력
- * @param {object} appInfo - 앱 정보 객체 (importPath, originalPath, isTypeScript 등)
  * @returns {string} - 생성된 프롬프트 메시지 문자열.
  */
 export function getItdocPrompt(
@@ -39,27 +38,48 @@ export function getItdocPrompt(
     isEn: boolean,
     part: number,
     isTypeScript: boolean = false,
-    appInfo: any = null,
 ): string {
-    const exampleParts = ["express", "__tests__", "expressApp.test.js"]
+    const jsExampleParts = ["express", "__tests__", "expressApp.test.js"]
+    const tsExampleParts = ["express-ts", "src", "__tests__", "product.test.ts"]
     const baseDirs = [join(__dirname, "..", "examples"), join(__dirname, "..", "..", "examples")]
-    let examplePath: string | undefined
+
+    let jsExamplePath: string | undefined
+    let tsExamplePath: string | undefined
+
     for (const base of baseDirs) {
-        const p = join(base, ...exampleParts)
-        if (fs.existsSync(p)) {
-            examplePath = p
+        const jsPath = join(base, ...jsExampleParts)
+        const tsPath = join(base, ...tsExampleParts)
+
+        if (fs.existsSync(jsPath)) {
+            jsExamplePath = jsPath
+        }
+
+        if (fs.existsSync(tsPath)) {
+            tsExamplePath = tsPath
+        }
+
+        if (jsExamplePath && tsExamplePath) {
             break
         }
     }
 
-    if (!examplePath) {
+    if (!jsExamplePath && !tsExamplePath) {
         throw new Error(
             `테스트 예제 파일을 찾을 수 없습니다:\n` +
-                baseDirs.map((b) => join(b, ...exampleParts)).join("\n"),
+                baseDirs.map((b) => join(b, ...jsExampleParts)).join("\n") +
+                "\n또는\n" +
+                baseDirs.map((b) => join(b, ...tsExampleParts)).join("\n"),
         )
     }
 
-    const itdocExample: string = fs.readFileSync(examplePath, "utf8")
+    const selectedPath = isTypeScript ? tsExamplePath : jsExamplePath
+    if (!selectedPath) {
+        throw new Error(
+            `${isTypeScript ? "TypeScript" : "JavaScript"} 테스트 예제 파일을 찾을 수 없습니다.`,
+        )
+    }
+
+    const itdocExample: string = fs.readFileSync(selectedPath, "utf8")
 
     const addLangMsg: string = isEn
         ? "And the output must be in English."
@@ -74,52 +94,13 @@ export function getItdocPrompt(
     const codeLanguage = isTypeScript ? "타입스크립트" : "자바스크립트"
     const codeLanguageEn = isTypeScript ? "TypeScript" : "JavaScript"
 
-    // 앱 임포트 경로 확인
-    let appImportGuide = ""
-    let appTemplate = ""
-    if (appInfo) {
-        const relativePath = appInfo.importPath || "../src/index"
-        if (isTypeScript) {
-            appImportGuide = `
-- 코드의 첫 줄은 반드시 다음과 동일하게 작성하세요: import { app } from "${relativePath}"
-- TypeScript 모듈 임포트 시 확장자(.ts)를 포함하지 마세요.`
-            appTemplate = `import { app } from "${relativePath}"
-import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"
-
-const targetApp = app`
-        } else {
-            appImportGuide = `
-- 코드의 첫 줄은 반드시 다음과 동일하게 작성하세요: const app = require('${relativePath}')
-- 반드시 단일 따옴표를 사용하고 괄호와 따옴표 사이에 공백을 넣지 마세요.`
-            appTemplate = `const app = require('${relativePath}')
-const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
-
-const targetApp = app`
-        }
-    }
-
-    // 언어별 추가 지침
-    const additionalGuide = isTypeScript
-        ? `
-- 타입스크립트로 작성할 때 다음 타입을 사용하세요:
-  - Request와 Response 타입은 Express에서 import 하세요. (import { Request, Response } from 'express')
-  - 필요한 경우 interface나 type을 만들어 사용하세요.
-  - supertest의 Response 타입을 사용하세요.
-- require() 대신 ES 모듈 import 구문을 사용하세요.${appImportGuide}`
-        : `${appImportGuide}
-- ES 모듈이 아닌 CommonJS require 구문을 사용하세요.`
-
     const langMsg = isEn ? `${codeLanguageEn} code` : `${codeLanguage} 코드`
 
     return `
 다음 테스트 내용을 기반으로 itdoc 테스트 스크립트를 ${langMsg}로 생성해주세요.
-- 코드는 정확히 다음 부분으로 시작해야 합니다:
-
-${appTemplate}
-
 - 모든 라우터에 대한 테스트를 포함해야 합니다.
 - 코드 설명 없이 코드만 출력해야 하며, \`(1/3)\` 같은 자동 분할 제목은 넣지 마세요.
-- 출력은 ${langMsg}로만 구성되어야 하며, 백틱 블록(\`\`\`)도 사용하지 않습니다.${additionalGuide}
+- 출력은 ${langMsg}로만 구성되어야 하며, 백틱 블록(\`\`\`)도 사용하지 않습니다.
 - ${partGuide}
 ${addLangMsg}
 
@@ -128,6 +109,18 @@ ${content}
 
 [함수 예시]
 ${itdocExample}
+- 경로에 해당하는 코드는 출력하지 마세요.
+ex) 'import { app } from "examples/express-ts/index.ts"
+    import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"
+
+    const targetApp = app'
+
+    or
+
+    'const app = require("examples/express/index.js")
+    const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+
+    const targetApp = app'
 `.trim()
 }
 
