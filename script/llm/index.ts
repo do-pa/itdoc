@@ -62,7 +62,7 @@ async function makedocByMD(
             const cleaned = text
                 .replace(/```(?:json|javascript|typescript|markdown)?/g, "")
                 .replace(/```/g, "")
-                .replace(/\(.*?\/.*?\)/g, "") // (1/3) 제거
+                .replace(/\(.*?\/.*?\)/g, "")
                 .trim()
 
             result += cleaned + "\n"
@@ -161,7 +161,6 @@ export default async function generateByLLM(
     let isTypeScript = false
     let appImportPath = ""
 
-    // 앱 경로는 필수
     if (!appPath) {
         logger.error(
             "앱 경로가 지정되지 않았습니다. -a 또는 --app 옵션으로 앱 경로를 지정해주세요.",
@@ -169,17 +168,14 @@ export default async function generateByLLM(
         process.exit(1)
     }
 
-    // 앱 경로 처리
     const resolvedAppPath = loadFile("app", appPath, false)
-    // 파일 확장자를 통해 TypeScript 여부 판단
+
     isTypeScript = resolvedAppPath.endsWith(".ts")
 
-    // 앱 경로 정보 계산 (나중에 사용)
     const relativePath = path.relative(outputDir, resolvedAppPath).replace(/\\/g, "/")
     appImportPath = relativePath.startsWith(".") ? relativePath : `./${relativePath}`
 
     if (!testspecPath) {
-        // 앱 분석 기반 테스트 명세 생성
         logger.info(`appPath: ${appPath}를 기반으로 AST분석을 통해 테스트명세서(md)를 생성합니다.`)
         logger.info("참고: app 또는 router 이름으로 시작하는 코드를 찾아 분석을 실행합니다.")
         logger.info("ex) app.get(...), router.post(...) 등")
@@ -207,7 +203,6 @@ export default async function generateByLLM(
         }
         result = doc
     } else {
-        // 테스트 스펙 기반 테스트 코드 생성
         const specContent = loadFile("spec", testspecPath, true)
         const doc = await makedocByMD(openai, specContent, false, isTypeScript)
         if (!doc) {
@@ -222,16 +217,13 @@ export default async function generateByLLM(
         process.exit(1)
     }
 
-    // TypeScript 여부에 따라 파일 확장자 결정
     const fileExtension = isTypeScript ? ".ts" : ".js"
     const outPath = path.join(outputDir, `output${fileExtension}`)
 
-    // TypeScript 파일에서는 확장자 제거
     if (isTypeScript && appImportPath.endsWith(".ts")) {
         appImportPath = appImportPath.replace(/\.ts$/, "")
     }
 
-    // JavaScript/TypeScript에 맞게 import 구문 생성
     let importStatement = ""
     if (isTypeScript) {
         importStatement = `import { app } from "${appImportPath}"
@@ -244,7 +236,6 @@ const targetApp = app
     `
     }
 
-    // 파일 시작 부분에 표준화된 import 구문 추가
     result = importStatement + "\n\n" + result.trim()
 
     fs.writeFileSync(outPath, result, "utf8")
