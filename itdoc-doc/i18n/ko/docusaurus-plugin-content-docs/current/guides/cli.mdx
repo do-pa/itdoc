@@ -1,0 +1,474 @@
+---
+sidebar_position: 1
+toc_max_heading_level: 3
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# 📘 CLI 가이드
+
+itdoc CLI는 RESTful 서비스를 위한 테스트 기반 문서화 도구입니다. 이 가이드는 CLI 명령어의 설치 및 사용법을 상세히 설명합니다.
+
+## 🚀 설치
+
+```bash title="설치 명령어"
+npm install -g itdoc
+```
+
+## ✅ 필수 요구사항
+
+:::info 시작하기 전에 확인하세요
+- **Node.js 20 이상** - 최신 JavaScript 기능을 지원합니다
+- **OpenAI API 키** - LLM 기반 문서 생성에 필요합니다
+:::
+
+## ⚙️ 환경 설정
+
+itdoc는 `.env` 파일에서 설정을 로드합니다. 프로젝트 루트 디렉토리에 `.env` 파일을 생성하세요:
+
+```bash title=".env 파일 예시" {2}
+# OpenAI API 키 설정
+OPENAI_API_KEY=your-openai-api-key-here
+```
+
+:::tip 환경 변수 위치
+`.env` 파일은 기본적으로 현재 작업 디렉토리에서 찾습니다. 다른 위치에 있다면 `-e` 옵션을 사용하여 지정할 수 있습니다.
+:::
+
+## 📋 명령어
+
+### `generate`
+
+LLM 기반 ITDOC 테스트 코드를 생성합니다. 테스트 스펙 마크다운 또는 Express 앱 경로를 기반으로 문서를 생성할 수 있습니다.
+
+#### 사용법
+
+```bash title="기본 사용법"
+itdoc generate [옵션]
+```
+
+#### 옵션
+
+| 옵션 | 설명 | 필수 여부 |
+|------|------|--------|
+| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>-p, --path</span> | 테스트 스펙 마크다운 경로 | `-p` 또는 `-a` 중 하나 필수 |
+| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>-a, --app</span> | Express로 만들어진 root app 경로 | `-p` 또는 `-a` 중 하나 필수 |
+| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>-e, --env</span> | .env 파일 경로 | 선택사항 (기본값: 현재 디렉토리의 .env) |
+
+#### 예제
+
+<Tabs>
+  <TabItem value="spec" label="테스트 스펙 기반" default>
+
+```bash title="테스트 스펙 기반 명령어" {2,8}
+# 상대 경로 사용
+itdoc generate -p ./docs/api-specs.md
+
+# 절대 경로 사용
+itdoc generate --path /path/to/your/api-specs.md
+
+# 커스텀 .env 파일 지정
+itdoc generate -p ./docs/api-specs.md -e ./config/.env.dev
+```
+
+  </TabItem>
+  <TabItem value="app" label="Express 앱 기반">
+
+```bash title="Express 앱 기반 명령어" {2,5}
+# Express 앱 경로 사용
+itdoc generate -a ./src/app.js
+
+# 절대 경로와 커스텀 환경 파일 사용
+itdoc generate --app /path/to/your/app.js --env /path/to/your/.env.production
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+## 📝 API 스펙 마크다운 작성법
+
+API 스펙 마크다운(`api-specs.md`)은 itdoc가 테스트 코드를 자동 생성하기 위한 기초 문서입니다. 아래 형식을 참고하여 작성하세요.
+
+### 기본 구조
+
+```markdown title="api-specs.md" {1,3-4}
+HTTP메서드 /엔드포인트
+- Test Case: 테스트 케이스 제목
+  - Request: 요청에 대한 설명
+  - Expected Response: 예상 응답에 대한 설명
+
+- Test Case: 다른 테스트 케이스 제목
+  - Request: 요청에 대한 설명
+  - Expected Response: 예상 응답에 대한 설명
+
+다른HTTP메서드 /다른엔드포인트
+- Test Case: 테스트 케이스 제목
+  ...
+```
+
+### 상세 설명
+
+1. 📌 **API 엔드포인트 선언**
+   - 각 API는 `HTTP메서드 /경로` 형식으로 시작합니다 (예: `POST /signup`)
+   - 경로에 경로 파라미터가 있으면 `:파라미터명` 형식으로 표기합니다 (예: `/users/:userId`)
+
+2. 🧪 **테스트 케이스 정의**
+   - 각 테스트 케이스는 `- Test Case: 테스트 제목` 형식으로 작성합니다
+   - 테스트 제목은 테스트의 목적을 명확히 나타내야 합니다 (예: "Successful signup")
+
+3. 📤 **요청 설명**
+   - `  - Request: 요청 설명` 형식으로 작성합니다
+   - 요청 메서드, 헤더, 본문, 쿼리 파라미터, 경로 파라미터 등을 명확히 설명합니다
+
+4. 📥 **예상 응답 설명**
+   - `  - Expected Response: 응답 설명` 형식으로 작성합니다
+   - 예상 상태 코드, 응답 본문, 헤더 등을 명확히 설명합니다
+
+### 예제
+
+```markdown title="회원가입 및 사용자 조회 API 예제" {1-5,14-17}
+POST /signup
+- Test Case: Successful signup
+  - Request: Send a POST request with a valid username and password in the body.
+  - Expected Response: Status 201
+
+- Test Case: Missing username
+  - Request: Send a POST request with a missing username in the body.
+  - Expected Response: Status 400, JSON response with error "username is required"
+
+- Test Case: Password too short
+  - Request: Send a POST request with a password shorter than 8 characters.
+  - Expected Response: Status 400, JSON response with error "password must be at least 8 characters"
+
+GET /users/:userId
+- Test Case: Retrieve user details successfully
+  - Request: Send a GET request with userId "penek".
+  - Expected Response: Status 200, JSON response with user details
+
+- Test Case: User not found
+  - Request: Send a GET request with a userId other than "penek".
+  - Expected Response: Status 404
+```
+
+### 주요 API 패턴 예시
+
+<Tabs>
+  <TabItem value="auth" label="🔐 인증 API" default>
+
+```markdown title="인증 API 예시"
+GET /secret
+- Test Case: Access secret message with valid authorization
+  - Request: Send a GET request with the correct authorization header.
+  - Expected Response: Status 200, JSON response with secret message and specific headers
+
+- Test Case: Unauthorized access
+  - Request: Send a GET request with an incorrect authorization header.
+  - Expected Response: Status 401
+```
+
+  </TabItem>
+  <TabItem value="file" label="📁 파일 업로드 API">
+
+```markdown title="파일 업로드 API 예시"
+POST /users/:userId/profile-image
+- Test Case: Successfully upload profile image
+  - Request: Send a POST request with a valid image file and content type "multipart/form-data".
+  - Expected Response: Status 200, JSON response with image URL
+
+- Test Case: Invalid content type
+  - Request: Send a POST request without "multipart/form-data" content type.
+  - Expected Response: Status 400, JSON response with error message
+```
+
+  </TabItem>
+  <TabItem value="cache" label="🔄 캐싱 API">
+
+```markdown title="캐싱 API 예시"
+GET /cached-data
+- Test Case: Retrieve cached data with matching ETag
+  - Request: Send a GET request with If-None-Match header set to "abc123".
+  - Expected Response: Status 304, response with ETag and Cache-Control headers
+
+- Test Case: Retrieve cached data with non-matching ETag
+  - Request: Send a GET request without If-None-Match header or with a different value.
+  - Expected Response: Status 200, JSON response with data and headers including ETag
+```
+
+  </TabItem>
+</Tabs>
+
+:::tip 효과적인 API 스펙 작성 팁 💡
+- 각 API 엔드포인트에 대해 최소한 **성공 케이스**와 **실패 케이스**를 모두 포함하세요.
+- 동일한 엔드포인트의 다양한 시나리오(인증 오류, 유효성 검사 오류, 리소스 없음 등)를 고려하세요.
+- 요청과 응답에 대한 설명은 간결하면서도 필요한 정보(상태 코드, 주요 응답 필드 등)를 모두 포함해야 합니다.
+- 여러 API를 하나의 파일에 작성할 때는 관련 API끼리 그룹화하세요.
+:::
+
+### 테스트 케이스 작성 체크리스트
+
+:::info 테스트 케이스 체크리스트
+
+- ✅ **성공 케이스**: 유효한 입력으로 정상 작동하는 경우
+- ✅ **유효성 검사**: 필수 필드 누락, 잘못된 형식, 범위를 벗어난 값 등
+- ✅ **인증/권한**: 인증 실패, 권한 부족 등
+- ✅ **리소스 접근**: 존재하지 않는 리소스, 이미 존재하는 리소스 등
+- ✅ **특수 상황**: 캐싱, 조건부 요청, 대용량 데이터 등
+
+:::
+
+---
+
+## 🔄 작동 방식
+
+### Express 앱 작성 가이드
+
+itdoc는 AST 파서를 사용하여 Express 앱 코드를 분석합니다. 파서가 올바르게 라우터를 감지할 수 있도록 다음 가이드라인을 따라 Express 앱을 작성하세요.
+
+#### 지원되는 라우터 패턴
+
+:::note app 객체 사용
+
+```javascript title="app 객체 사용 예시"
+app.get('/path', (req, res) => { ... })
+app.post('/path', (req, res) => { ... })
+// 다른 HTTP 메서드들: put, delete, patch, all
+```
+
+:::
+
+:::note router 객체 사용
+
+```javascript title="router 객체 사용 예시"
+router.get('/path', (req, res) => { ... })
+router.post('/path', (req, res) => { ... })
+// 다른 HTTP 메서드들: put, delete, patch, all
+```
+
+:::
+
+#### 라우터 핸들러 작성 요구사항
+
+<Tabs>
+  <TabItem value="params" label="🔍 경로 파라미터" default>
+
+```javascript {2,4} title="경로 파라미터 사용 예시"
+app.get('/users/:userId', (req, res) => {
+  const { userId } = req.params; // 이런식으로 구조분해 할당 사용
+  // 또는
+  const userId = req.params.userId; // 직접 접근 방식도 지원
+  // ...
+});
+```
+
+  </TabItem>
+  <TabItem value="query" label="🔍 쿼리 파라미터">
+
+```javascript {2,4} title="쿼리 파라미터 사용 예시"
+app.get('/users', (req, res) => {
+  const { page, size } = req.query; // 구조분해 할당
+  // 또는
+  const page = req.query.page; // 직접 접근
+  // ...
+});
+```
+
+  </TabItem>
+  <TabItem value="body" label="📦 요청 본문">
+
+```javascript {2,4} title="요청 본문 사용 예시"
+app.post('/users', (req, res) => {
+  const { username, password } = req.body; // 구조분해 할당
+  // 또는
+  const username = req.body.username; // 직접 접근
+  // ...
+});
+```
+
+  </TabItem>
+  <TabItem value="response" label="📤 응답 반환">
+
+```javascript {3,6,9,12,14-17} title="응답 반환 예시"
+app.get('/users', (req, res) => {
+  // 상태 코드 설정
+  res.status(200);
+
+  // JSON 응답
+  res.json({ users: [...] });
+
+  // 또는 문자열/HTML 응답
+  res.send('Hello World');
+
+  // 헤더 설정 방법
+  res.setHeader('Content-Type', 'application/json');
+  // 또는
+  res.set({
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache'
+  });
+});
+```
+
+  </TabItem>
+  <TabItem value="conditional" label="🔀 조건부 응답">
+
+```javascript {4-7,10-13,16} title="조건부 응답 예시"
+app.post('/users', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username) {
+    // 조건부 응답 - 파서가 이런 분기 처리도 감지합니다
+    return res.status(400).json({ error: 'username is required' });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({
+      error: 'password must be at least 8 characters'
+    });
+  }
+
+  // 성공 응답
+  return res.status(201).json({ id: 'new-user-id' });
+});
+```
+
+  </TabItem>
+</Tabs>
+
+#### 완전한 예제
+
+:::info 예제 코드
+
+```javascript title="app.js 완전한 예제" {7-24,28-40,44-64}
+import express from 'express';
+
+const app = express();
+app.use(express.json());
+
+// 사용자 등록 API
+app.post('/signup', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ error: 'username is required' });
+  }
+
+  if (!password) {
+    return res.status(400).json({ error: 'password is required' });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'password must be at least 8 characters' });
+  }
+
+  // 실제로는 여기서 데이터베이스에 사용자 정보를 저장하는 코드가 들어갑니다
+  return res.status(201).json();
+});
+
+// 사용자 상세 정보 조회 API
+app.get('/users/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  // 예시: 특정 테스트용 ID만 처리
+  if (userId === 'testuser') {
+    return res.status(200).json({
+      id: userId,
+      name: '테스트 사용자',
+      email: 'test@example.com'
+    });
+  }
+
+  return res.status(404).json({ error: 'User not found' });
+});
+
+// 페이징을 포함한 사용자 목록 조회 API
+app.get('/users', (req, res) => {
+  const { page, size } = req.query;
+
+  if (!page) {
+    return res.status(400).json({ error: 'page parameter is required' });
+  }
+
+  if (!size) {
+    return res.status(400).json({ error: 'size parameter is required' });
+  }
+
+  // 페이징 처리된 사용자 목록 반환
+  return res.status(200).json({
+    users: [
+      { id: 'user1', name: '사용자1' },
+      { id: 'user2', name: '사용자2' }
+    ],
+    page: Number(page),
+    size: Number(size),
+    total: 2
+  });
+});
+
+export default app;
+```
+
+:::
+
+:::warning 주의사항 ⚠️
+파서가 감지하지 못하는 패턴들:
+- 미들웨어 함수 내에서 정의된 라우터
+- 동적으로 생성된 경로(변수를 사용한 경로)
+- 컨트롤러 클래스 메서드를 사용한 복잡한 라우팅 구조
+:::
+
+### 테스트 스펙 기반 워크플로우
+
+테스트 스펙 마크다운(`-p` 옵션 사용)을 통해 문서를 생성할 때 itdoc는 다음 단계를 수행합니다:
+
+:::note 워크플로우 단계
+1. 📄 **마크다운 파일을 로드하고 분석**
+2. 🧠 **OpenAI API를 통해 테스트 코드 생성** (최대 3회 시도)
+3. 💾 **결과 테스트 코드를 `./itdoc-output/output.js`에 저장**
+:::
+
+
+### 앱 기반 워크플로우
+
+Express 앱(`-a` 옵션 사용)을 통해 문서를 생성할 때 itdoc는 다음 단계를 수행합니다:
+
+:::note 워크플로우 단계
+1. 📄 **Express 앱 코드를 로드하고 AST 분석 실행**
+2. 🔍 **API 라우트 정보 추출** (`app.get()`, `router.post()` 등)
+3. 📝 **OpenAI API를 통해 테스트 명세서 마크다운 생성**
+4. 🧪 **생성된 마크다운을 기반으로 테스트 코드 생성**
+5. 💾 **결과 파일들을 `./itdoc-output/` 디렉토리에 저장**
+:::
+
+
+---
+
+## 📁 출력 결과
+
+명령 실행 후 `./itdoc-output/` 디렉토리에 다음 파일이 생성됩니다:
+
+:::info 생성 파일
+- 📄 **`output.js`**: 생성된 테스트 코드
+- 📄 **`output.md`**: (앱 기반 생성 시) 생성된 테스트 명세서
+:::
+
+## ❓ 문제 해결
+
+### 일반적인 오류
+
+:::danger 오류: 환경 변수 OPENAI_API_KEY가 설정되어 있지 않습니다.
+`.env` 파일에 유효한 OpenAI API 키를 설정했는지 확인하세요.
+:::
+
+:::danger 오류: 앱에 대한 AST분석이 실패하였습니다.
+Express 앱 코드가 `app.get()` 또는 `router.post()` 등의 표준 라우팅 패턴을 사용하는지 확인하세요.
+:::
+
+:::danger 오류: 마크다운 스펙 기반 테스트 코드 생성 실패
+- 마크다운 파일의 형식을 확인하고 API 명세를 명확하게 작성했는지 확인하세요.
+- OpenAI API 연결 상태와 사용량 한도를 확인하세요.
+:::
+
+
