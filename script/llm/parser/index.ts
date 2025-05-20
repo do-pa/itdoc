@@ -22,7 +22,7 @@ const traverse = traversePkg.default
 import dependencyTree from "dependency-tree"
 import * as t from "@babel/types"
 
-import { RouteResult, BranchDetail } from "./interface"
+import { RouteResult, BranchDetail, RoutePrefix } from "./interface"
 import { extractValue } from "./utils/extractValue"
 import { flattenTree } from "./utils/flattenTree"
 
@@ -41,6 +41,8 @@ export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
     }) as Record<string, any>
     const files = Array.from(new Set(flattenTree(tree)))
     const results: RouteResult[] = []
+
+    const routePrefixes: RoutePrefix[] = []
 
     for (const file of files) {
         let source: string
@@ -66,6 +68,73 @@ export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
                 if (
                     !t.isMemberExpression(node.callee) ||
                     !t.isIdentifier(node.callee.object) ||
+                    !t.isIdentifier(node.callee.property, { name: "use" })
+                )
+                    return
+
+                const obj = node.callee.object.name
+                if (obj !== "app") return
+
+                if (node.arguments.length < 2) return
+
+                const prefixArg = node.arguments[0]
+                if (!t.isStringLiteral(prefixArg)) return
+
+                const prefix = prefixArg.value
+
+                const routerArg = node.arguments[1]
+                if (!t.isIdentifier(routerArg)) return
+
+                const routerName = routerArg.name
+
+                routePrefixes.push({
+                    prefix,
+                    routerName,
+                    filePath: file,
+                })
+            },
+        })
+    }
+
+    for (const file of files) {
+        let source: string
+        try {
+            source = fs.readFileSync(file, "utf8").replace(/^#!.*\r?\n/, "")
+        } catch {
+            continue
+        }
+
+        let ast: t.File
+        try {
+            ast = parse(source, {
+                sourceType: "unambiguous",
+                plugins: ["jsx", "typescript", "classProperties", "dynamicImport"],
+            })
+        } catch {
+            continue
+        }
+
+        const exportedRouters: Record<string, string> = {}
+
+        traverse(ast, {
+            ExportNamedDeclaration(path: NodePath<t.ExportNamedDeclaration>) {
+                const { node } = path
+                if (t.isVariableDeclaration(node.declaration)) {
+                    node.declaration.declarations.forEach((decl) => {
+                        if (t.isIdentifier(decl.id)) {
+                            exportedRouters[decl.id.name] = decl.id.name
+                        }
+                    })
+                }
+            },
+        })
+
+        traverse(ast, {
+            CallExpression(pathExpr: NodePath<t.CallExpression>) {
+                const { node } = pathExpr
+                if (
+                    !t.isMemberExpression(node.callee) ||
+                    !t.isIdentifier(node.callee.object) ||
                     !t.isIdentifier(node.callee.property)
                 )
                     return
@@ -83,12 +152,30 @@ export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
                     ? node.arguments[0].value
                     : "<dynamic>"
 
+                let prefix = ""
+
+                if (obj === "app") {
+                    prefix = ""
+                } else if (obj === "router") {
+                    for (const routerName of Object.keys(exportedRouters)) {
+                        const routePrefix = routePrefixes.find((rp) => rp.routerName === routerName)
+                        if (routePrefix) {
+                            prefix = routePrefix.prefix
+                            break
+                        }
+                    }
+                }
+
                 node.arguments.slice(1).forEach((arg) => {
                     if (!t.isFunctionExpression(arg) && !t.isArrowFunctionExpression(arg)) return
 
                     const ret = {
                         method,
-                        path: routePath,
+                        path: prefix
+                            ? prefix.endsWith("/")
+                                ? prefix + routePath.replace(/^\//, "")
+                                : prefix + routePath
+                            : routePath,
                         reqHeaders: new Set<string>(),
                         reqParams: new Set<string>(),
                         reqQuery: new Set<string>(),
@@ -160,7 +247,6 @@ export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
                                     const { test, consequent, alternate } = ifParent.node
                                     const condSrc = source.slice(test.start!, test.end!)
 
-                                    // call 노드의 위치를 이용해서 consequent(then) 블록 내부인지 검사
                                     const callStart = call.start!,
                                         callEnd = call.end!
                                     const inThen =
@@ -169,7 +255,7 @@ export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
                                     if (inThen) {
                                         branchKey = `if ${condSrc}`
                                     } else if (
-                                        alternate && // else 또는 else-if 블록이 있을 때
+                                        alternate &&
                                         callStart >= alternate.start! &&
                                         callEnd <= alternate.end!
                                     ) {
@@ -279,7 +365,6 @@ export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
                             },
                             MemberExpression(memPath) {
                                 const mm = memPath.node
-                                // req.body.image 또는 req.headers.authorization 등 구체적 필드
                                 if (
                                     t.isMemberExpression(mm.object) &&
                                     t.isIdentifier(mm.object.object, { name: "req" }) &&

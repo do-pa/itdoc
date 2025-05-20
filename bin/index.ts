@@ -42,26 +42,36 @@ program
 
         if (!options.path && !options.app) {
             logger.error("테스트 스펙(-p) 또는 express app 경로(-a) 중 적어도 하나는 필수입니다.")
-            logger.info("ex) itdoc generate -p ../md/testspec.md")
-            logger.info("ex) itdoc generate --path ../md/testspec.md")
+            logger.info("ex) itdoc generate -p ../md/testspec.md -a ../app.js")
+            logger.info("ex) itdoc generate --path ../md/testspec.md --app ../app.js")
             logger.info("ex) itdoc generate -a ../app.js")
             logger.info("ex) itdoc generate --app ../app.js")
             process.exit(1)
         }
-        if (options.app) {
-            const appPath = path.isAbsolute(options.app)
-                ? options.app
-                : path.resolve(process.cwd(), options.app)
 
-            logger.info(`express app 경로 기반 분석 실행: ${appPath}`)
-            generateByLLM("", appPath, envPath)
-        } else if (options.path) {
+        // 앱 경로는 항상 필요
+        if (!options.app) {
+            logger.error("express app 경로(-a)는 필수입니다.")
+            logger.info("ex) itdoc generate -p ../md/testspec.md -a ../app.js")
+            logger.info("ex) itdoc generate -a ../app.js")
+            process.exit(1)
+        }
+
+        const appPath = path.isAbsolute(options.app)
+            ? options.app
+            : path.resolve(process.cwd(), options.app)
+
+        if (options.path) {
             const specPath = path.isAbsolute(options.path)
                 ? options.path
                 : path.resolve(process.cwd(), options.path)
 
             logger.info(`테스트 스펙 경로 기반 실행: ${specPath}`)
-            generateByLLM(specPath, "", envPath)
+            logger.info(`express app 경로: ${appPath}`)
+            generateByLLM(specPath, appPath, envPath)
+        } else {
+            logger.info(`express app 경로 기반 분석 실행: ${appPath}`)
+            generateByLLM("", appPath, envPath)
         }
     })
 
