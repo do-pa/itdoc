@@ -40,3 +40,12 @@ export interface RouteResult {
         branches: Record<string, BranchDetail>
     }
 }
+
+/**
+ * 라우터 접두사 정보를 저장하는 인터페이스
+ */
+export interface RoutePrefix {
+    prefix: string
+    routerName: string
+    filePath: string
+}
