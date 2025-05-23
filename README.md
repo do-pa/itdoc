@@ -14,7 +14,7 @@ Create reliable, test-driven API documentation – straight from your Node.js te
 - 📄 Supports OpenAPI, Markdown, [HTML output]
 - 🚫 Fails to generate docs if tests fail – ensures accuracy
 - 🔧 Easy integration with your existing test suite
-- 🧩 Framework-agnostic (Express, Fastify, etc.)
+- 🧩 Framework-agnostic (Express, NestJS, Fastify, etc.)
 - 🤖 GPT-powered test case generation for faster documentation
 
 [HTML output]: http://redocly.com/demo/openapi/museum-api/operations/getmuseumhours
