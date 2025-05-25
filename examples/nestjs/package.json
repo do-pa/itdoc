@@ -5,6 +5,7 @@
     "scripts": {
         "start": "nest start",
         "start:debug": "nest start --debug --watch",
+        "test": "pnpm run test:e2e && node ./scripts/check-itdoc-file-generated.js",
         "test:e2e": "jest --config __test__/jest-e2e.json"
     },
     "jest": {
