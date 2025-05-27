@@ -1,0 +1,77 @@
+---
+sidebar_position: 2
+---
+
+# Express가 아닌 다른 프레임워크기반 테스트 설정방법
+
+> **이 문서는 `Express`가 아닌 다른 웹 프레임워크에서 `itdoc`을 사용하는 방법을 안내합니다.**
+
+## NestJS 예제
+
+NestJS는 내부적으로 Express를 사용하지만, Nest의 구조상 describeAPI에 전달할 Express 타입의 app 인스턴스를 직접 생성해주어야 합니다.
+아래 예시는 가장 널리 쓰이는 **Jest** 테스트 러너 기준이며, 다른 러너를 사용하신다면 각 러너의 문서에 따라 동일한 개념으로 설정해 주세요.
+
+---
+
+### 1. `globalSetup` 작성
+
+[Jest `globalSetup`](https://jestjs.io/docs/configuration#globalsetup-string)을 이용해 **테스트 전용 Nest 애플리케이션**을 한 번만 기동하고, 모든 테스트에서 재사용합니다.
+
+`test/global-setup.ts` :
+
+```ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../src/app.module';
+import type { App } from 'supertest/types';
+
+declare global {
+  // itdoc에서 사용할 supertest 핸들을 전역으로 노출
+  var __APP__: App;
+}
+
+export default async function globalSetup(): Promise<void> {
+  const moduleFixture: TestingModule = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  const app: INestApplication = moduleFixture.createNestApplication();
+  await app.init();
+
+  global.__APP__ = app.getHttpServer() as App;
+}
+```
+
+---
+
+### 2. Jest 설정에 `globalSetup` 등록
+
+`jest-e2e.json`(또는 사용 중인 Jest 설정 파일)에 다음 항목을 추가합니다.
+
+```jsonc
+{
+  "globalSetup": "<rootDir>/test/global-setup.ts"
+}
+```
+
+---
+
+### 3. 테스트 코드에서 itdoc 사용
+
+`itdoc`의 `app` 인자로 **`global.__APP__`** 을 전달하면 끝입니다.
+
+```ts
+import { describeAPI, field, HttpMethod, HttpStatus, itDoc } from 'itdoc';
+
+describeAPI(
+  HttpMethod.GET,
+  '/',
+  {
+    summary: 'Hello World',
+    description: 'Returns greeting message',
+    tag: 'hello',
+  },
+  global.__APP__, // ← globalSetup에서 전역으로 노출한 핸들
+  // ...후략
+);
+```
