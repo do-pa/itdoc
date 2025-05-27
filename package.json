@@ -57,7 +57,7 @@
         "prettier:check": "prettier \"{lib,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
         "test": "pnpm build && pnpm test:unit && pnpm test:e2e",
         "test:unit": "mocha",
-        "test:e2e": "pnpm --filter example-express test && pnpm --filter testframework-compatibility-test test",
+        "test:e2e": "pnpm --filter example-express test && pnpm --filter testframework-compatibility-test test && pnpm --filter example-nestjs test",
         "docs": "cd itdoc-doc && pnpm install && pnpm run start",
         "docs-build": "cd itdoc-doc && pnpm install && pnpm run build"
     },

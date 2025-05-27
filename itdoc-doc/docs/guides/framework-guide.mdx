@@ -1,0 +1,78 @@
+---
+sidebar_position: 2
+---
+
+# How to set up tests based on frameworks other than Express
+
+> **This guide explains how to use `itdoc` with web frameworks other than `Express`.**
+
+## NestJS Example
+
+Although NestJS internally uses Express, due to its structure, you need to manually create and pass an Express-type `app` instance to `describeAPI`.
+The example below assumes you are using the popular **Jest** test runner. If you're using a different runner, follow the equivalent setup according to its documentation.
+
+---
+
+### 1. Create `globalSetup`
+
+Using [Jest `globalSetup`](https://jestjs.io/docs/configuration#globalsetup-string), spin up a **test-only Nest application** once and reuse it across all tests.
+
+`test/global-setup.ts` :
+
+```ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../src/app.module';
+import type { App } from 'supertest/types';
+
+declare global {
+  // Expose the supertest handle globally for itdoc
+  // eslint-disable-next-line no-var
+  var __APP__: App;
+}
+
+export default async function globalSetup(): Promise<void> {
+  const moduleFixture: TestingModule = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  const app: INestApplication = moduleFixture.createNestApplication();
+  await app.init();
+
+  global.__APP__ = app.getHttpServer() as App;
+}
+```
+
+---
+
+### 2. Register `globalSetup` in Jest config
+
+Add the following to `jest-e2e.json` (or your Jest config file):
+
+```jsonc
+{
+  "globalSetup": "<rootDir>/test/global-setup.ts"
+}
+```
+
+---
+
+### 3. Use itdoc in Test Code
+
+Pass **`global.__APP__`** to the `app` argument of `itdoc`.
+
+```ts
+import { describeAPI, field, HttpMethod, HttpStatus, itDoc } from 'itdoc';
+
+describeAPI(
+  HttpMethod.GET,
+  '/',
+  {
+    summary: 'Hello World',
+    description: 'Returns greeting message',
+    tag: 'hello',
+  },
+  global.__APP__, // ← Handle exposed globally in globalSetup
+  // ... (rest of your itdoc code)
+);
+```
