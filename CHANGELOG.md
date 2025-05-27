@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/do-pa/itdoc/compare/v0.3.0...v0.3.1) (2025-05-27)
+
+
+### 📚 Documentation
+
+* add how to use itdoc in a nestjs environment ([#182](https://github.com/do-pa/itdoc/issues/182)) ([8d12231](https://github.com/do-pa/itdoc/commit/8d1223173a072ecdd67c128a7f8adcb7ab7ab749))
+
 ## [0.3.0](https://github.com/do-pa/itdoc/compare/v0.2.1...v0.3.0) (2025-05-08)
 
 
