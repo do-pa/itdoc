@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "start": "fastify start ./src/app.js",
-        "test": "jest --config __test__/jest-e2e.json"
+        "test": "jest --config __test__/jest-e2e.json && node scripts/check-itdoc-file-generated.js"
     },
     "dependencies": {
         "fastify": "^5.3.3",
