@@ -23,6 +23,8 @@ import logger from "../../lib/config/logger"
 import { loadFile } from "./loader/index"
 import { getOutputPath } from "../../lib/config/getOutputPath"
 import { analyzeRoutes } from "./parser/index"
+import { parseSpecFile } from "../../lib/utils/specParser"
+import { resolvePath } from "../../lib/utils/pathResolver"
 
 /**
  * LLM을 호출해 itdoc 테스트스크립트를 작성합니다.
@@ -160,16 +162,39 @@ export default async function generateByLLM(
     let result = ""
     let isTypeScript = false
     let appImportPath = ""
+    let resolvedAppPath = ""
+    let parsedSpecContent = ""
+    const originalAppPath = appPath
+
+    if (testspecPath && !originalAppPath) {
+        if (!fs.existsSync(testspecPath)) {
+            logger.error(`테스트 스펙 파일을 찾을 수 없습니다: ${testspecPath}`)
+            process.exit(1)
+        }
+
+        const specContent = fs.readFileSync(testspecPath, "utf8")
+        const { metadata, content } = parseSpecFile(specContent)
+        parsedSpecContent = content
+
+        if (metadata.app) {
+            appPath = resolvePath(metadata.app)
+            logger.info(`테스트 스펙에서 앱 경로를 찾았습니다: ${metadata.app} -> ${appPath}`)
+        } else {
+            logger.error("테스트 스펙 파일에 앱 경로가 정의되지 않았습니다.")
+            logger.info("테스트 스펙 파일 상단에 다음과 같이 앱 경로를 정의해주세요:")
+            logger.info("---")
+            logger.info("app: @/path/to/your/app.js")
+            logger.info("---")
+            process.exit(1)
+        }
+    }
 
     if (!appPath) {
-        logger.error(
-            "앱 경로가 지정되지 않았습니다. -a 또는 --app 옵션으로 앱 경로를 지정해주세요.",
-        )
+        logger.error("앱 경로가 지정되지 않았습니다.")
         process.exit(1)
     }
 
-    const resolvedAppPath = loadFile("app", appPath, false)
-
+    resolvedAppPath = loadFile("app", appPath, false)
     isTypeScript = resolvedAppPath.endsWith(".ts")
 
     const relativePath = path.relative(outputDir, resolvedAppPath).replace(/\\/g, "/")
@@ -203,7 +228,13 @@ export default async function generateByLLM(
         }
         result = doc
     } else {
-        const specContent = loadFile("spec", testspecPath, true)
+        let specContent: string
+        if (parsedSpecContent) {
+            specContent = parsedSpecContent
+        } else {
+            specContent = loadFile("spec", testspecPath, true)
+        }
+
         const doc = await makedocByMD(openai, specContent, false, isTypeScript)
         if (!doc) {
             logger.error("마크다운 스펙 기반 테스트 코드 생성 실패")
