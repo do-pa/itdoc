@@ -3,7 +3,7 @@ import type { Config } from "@docusaurus/types"
 import type * as Preset from "@docusaurus/preset-classic"
 
 const config: Config = {
-    title: "itdoc",
+    title: "itdoc documentation",
     tagline: "Reliable API documentation, automatically generated from your tests",
     favicon: "img/favicon.ico",
     url: "https://itdoc.kr",
