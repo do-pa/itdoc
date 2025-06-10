@@ -190,7 +190,9 @@ export default async function generateByLLM(
     }
 
     if (!appPath) {
-        logger.error("앱 경로가 지정되지 않았습니다.")
+        logger.error(
+            "앱 경로가 지정되지 않았습니다. -a 또는 --app 옵션으로 앱 경로를 지정해주세요.",
+        )
         process.exit(1)
     }
 
