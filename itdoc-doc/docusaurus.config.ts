@@ -24,6 +24,15 @@ const config: Config = {
             },
         },
     },
+    plugins: [
+        [
+            "@docusaurus/plugin-google-gtag",
+            {
+                trackingID: "G-VJW3NW4CYJ",
+                anonymizeIP: true,
+            },
+        ],
+    ],
     presets: [
         [
             "classic",
