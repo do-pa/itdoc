@@ -1,0 +1,17 @@
+{
+    "name": "example-fastify",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "start": "fastify start ./src/app.js",
+        "test": "jest --config __test__/jest-e2e.json && node scripts/check-itdoc-file-generated.js"
+    },
+    "dependencies": {
+        "fastify": "^5.3.3",
+        "fastify-cli": "^7.4.0"
+    },
+    "devDependencies": {
+        "itdoc": "workspace:*",
+        "jest": "^29.7.0"
+    }
+}
