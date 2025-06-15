@@ -75,3 +75,75 @@ describeAPI(
   // ...후략
 );
 ```
+
+## Fastify 예제
+
+Fastify 환경에서 `itdoc`을 사용하려면 `describeAPI`에 전달할 Express 호환 핸들(app 인스턴스)을 생성해주어야 합니다. NestJS 예제와 유사하지만 Fastify만의 초기화 방식에 맞게 설정해야 합니다.
+
+아래 예시는 가장 널리 사용되는 **Jest** 테스트 러너 기준이며, 다른 러너를 사용할 경우 해당 러너의 문서를 참고하여 동일한 개념으로 적용하시면 됩니다.
+
+---
+
+### 1. `globalSetup` 작성
+
+[Jest `globalSetup`](https://jestjs.io/docs/configuration#globalsetup-string)을 사용해 **테스트 전용 Fastify 애플리케이션**을 한 번만 초기화하고 모든 테스트에서 공유합니다.
+
+`test/global-setup.js` :
+
+```js
+const buildFastify = require("../src/app")
+
+async function globalSetup() {
+    const fastify = buildFastify()
+    await fastify.ready()
+
+    global.__APP__ = fastify.server
+}
+
+module.exports = globalSetup
+```
+
+### 2. Jest 설정에 `globalSetup` 등록
+
+`jest.config.js` 또는 별도의 설정 파일에 다음을 추가합니다:
+
+```js
+module.exports = {
+  globalSetup: '<rootDir>/test/global-setup.js',
+  // 기타 Jest 설정 옵션...
+};
+```
+
+---
+
+### 3. 테스트 코드에서 itdoc 사용
+
+`itdoc`의 `app` 인자에 **`global.__APP__`** 을 전달합니다.
+
+```ts
+import { describeAPI, field, HttpMethod, HttpStatus, itDoc } from 'itdoc';
+
+describeAPI(
+  HttpMethod.GET,
+  '/hello',
+  {
+    summary: 'Hello World API',
+    description: '인사 메시지를 반환합니다',
+    tag: 'hello',
+  },
+  global.__APP__,
+  (apiDoc) => {
+    itDoc('Hello World를 반환해야 합니다', () => {
+      return apiDoc
+        .test()
+        .req()
+        .res()
+        .status(HttpStatus.OK)
+        .body({
+          message: field('인사 메시지', 'Hello World!'),
+        });
+    });
+  },
+);
+```
+
