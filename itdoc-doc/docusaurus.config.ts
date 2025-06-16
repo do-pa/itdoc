@@ -24,13 +24,22 @@ const config: Config = {
             },
         },
     },
+    plugins: [
+        [
+            "@docusaurus/plugin-google-gtag",
+            {
+                trackingID: "G-VJW3NW4CYJ",
+                anonymizeIP: true,
+            },
+        ],
+    ],
     presets: [
         [
             "classic",
             {
                 docs: {
                     sidebarPath: "./sidebars.ts",
-                    editUrl: "https://github.com/do-pa/itdoc/",
+                    editUrl: "https://github.com/do-pa/itdoc/tree/main/itdoc-doc",
                 },
                 blog: {
                     showReadingTime: true,
@@ -38,7 +47,7 @@ const config: Config = {
                         type: ["rss", "atom"],
                         xslt: true,
                     },
-                    editUrl: "https://github.com/do-pa/itdoc/",
+                    editUrl: "https://github.com/do-pa/itdoc/tree/main/itdoc-doc",
                     onInlineTags: "warn",
                     onInlineAuthors: "warn",
                     onUntruncatedBlogPosts: "warn",
