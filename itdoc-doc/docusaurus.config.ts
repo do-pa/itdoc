@@ -4,7 +4,7 @@ import type * as Preset from "@docusaurus/preset-classic"
 
 const config: Config = {
     title: "itdoc",
-    tagline: "API Documentation Automation Made Easy",
+    tagline: "Reliable API documentation, automatically generated from your tests",
     favicon: "img/favicon.ico",
     url: "https://itdoc.kr",
     baseUrl: "/",
@@ -80,26 +80,12 @@ const config: Config = {
             style: "dark",
             links: [
                 {
-                    title: "Docs",
-                    items: [
-                        {
-                            label: "Getting Started",
-                            to: "/docs/intro",
-                        },
-                    ],
-                },
-                {
                     title: "Community",
                     items: [
                         {
                             label: "Discord",
                             href: "https://discord.gg/ZhXk7VSu5Z",
                         },
-                    ],
-                },
-                {
-                    title: "More",
-                    items: [
                         {
                             label: "Blog",
                             to: "/blog",
