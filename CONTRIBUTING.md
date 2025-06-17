@@ -1,11 +1,11 @@
-# Contributing to Itdoc
+# Contributing to itdoc
 
-Thank you for your interest in contributing to Itdoc! This document will guide you through the
+Thank you for your interest in contributing to itdoc! This document will guide you through the
 process of making contributions and help you understand how you can best participate.
 
 ## License
 
-Itdoc is released under the [Apache 2.0 license]. Please ensure your contributions comply with this
+itdoc is released under the [Apache 2.0 license]. Please ensure your contributions comply with this
 license.
 
 [Apache 2.0 license]: https://www.apache.org/licenses/LICENSE-2.0
@@ -18,14 +18,14 @@ guidelines.
 
 ## Reporting Security Vulnerabilities
 
-If you discover a security vulnerability within Itdoc, please immediately report it privately by
+If you discover a security vulnerability within itdoc, please immediately report it privately by
 emailing [itdoc.js@gmail.com](mailto:itdoc.js@gmail.com). Do not disclose vulnerabilities publicly.
 
 ## How to Contribute
 
 ### Setting Up the Development Environment
 
-Good news! Itdoc provides pre-configured `.vscode` and `.idea` directories for contributors using VS
+Good news! itdoc provides pre-configured `.vscode` and `.idea` directories for contributors using VS
 Code and IntelliJ IDEA. These configurations ensure automatic code formatting. Additionally, we use
 [Husky](https://typicode.github.io/husky/) to automatically enforce coding conventions prior to
 commits.

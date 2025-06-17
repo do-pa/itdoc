@@ -1,7 +1,2 @@
 packages: 
-    - "blog/*"
-    - "docs/*"
-    - "src/**" 
-    - "static/**" 
-    - "!build/**" 
-    - "!.dousaurus/**"
+    - "itdoc-doc" 

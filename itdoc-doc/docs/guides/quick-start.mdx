@@ -234,12 +234,16 @@ Configure your test runner. Then run:
 
 If the documentation is not generated correctly, check the [Integration with Test Runner](integration-test-runner) guide.
 
-### 4. Generate OpenAPI Documentation
+### 4. Generate Reliable Documentation
+When you run your tests, itdoc automatically generates an OpenAPI document in your project’s output/ directory.
+The following files will be created:
 
-When you run the tests, an OpenAPI document will be automatically generated in the `output/oas.json`
-file in your project root directory. This file is generated based on the API documentation
-information written in your test code.
+ - `output/oas.json`: OpenAPI Specification (JSON)
+ - `output/api.md`: Markdown version of the API docs
+ - `output/redoc.html`: HTML documentation in `redocly` style
 
+These files are generated based on the API documentation defined in your test code, ensuring they are always accurate and reliable.
+ 
 ### 5. Additional Configuration (package.json)
 
 You can configure additional settings, such as the output directory and document metadata, by adding
