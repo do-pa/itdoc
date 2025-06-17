@@ -1,9 +1,9 @@
 import type { ReactNode } from "react"
 import clsx from "clsx"
-import Heading from "@theme/Heading"
-import Translate from "@docusaurus/Translate"
+import Heading from "@theme/Heading" 
 import styles from "./styles.module.css"
 
+import Translate, { translate } from "@docusaurus/Translate"
 type FeatureItem = {
     title: string
     image: string
@@ -12,7 +12,7 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
     {
-        title: "Problem without itdoc",
+        title: translate({ id: "homepage.features.easy.title", message: "Problem without itdoc" }),
         image: require("@site/static/img/index1.png").default,
         description: (
             <Translate id="homepage.features.easy.description">
@@ -20,7 +20,7 @@ We always make tests and then we make documents again. This process is very cumb
         ),
     },
     {
-        title: "Automate test-based document",
+        title: translate({ id: "homepage.features.focus.title", message: "Automate test-based document" }), 
         image: require("@site/static/img/index2.png").default,
         description: (
             <Translate id="homepage.features.focus.description"> 
@@ -29,7 +29,7 @@ However, itdoc makes it easy to create a test-based document when you create a t
         ),
     },
     {
-        title: "For JS and TS",
+        title: translate({ id: "homepage.features.jsts.title", message: "For JS and TS" }),  
         image: require("@site/static/img/index3.png").default,
         description: (
             <Translate id="homepage.features.jsts.description">
