@@ -4,7 +4,7 @@ sidebar_position: 1
 
 ## What is itdoc?
 
-Create reliable, test-driven API documentation.
+It is a library that generates reliable, test-driven API documentation.
 
 ## Features
 
@@ -24,7 +24,7 @@ For developers working with`JavaScript` or `TypeScript`, documenting RESTful web
 ###  Introducing itdoc 
 itdoc fundamentally solves this problem by ensuring your documentation is a direct result of your verified code.
 
-With itdoc, we don't just write documents; we produce them only after they've passed tests, ensuring they precisely match what the team has read
+With itdoc, you're not just writing documentation. it generates docs only after tests pass, ensuring that your documentation is perfectly aligned with your team's code and tests.
 
 ## 1. Just write itdoc code 
 ```js
@@ -37,31 +37,31 @@ describeAPI(
     HttpMethod.POST,
     "signup",
     {
-        summary: "회원 가입 API",
+        summary: "User Signup API",
         tag: "Auth",
-        description: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+        description: "Performs user signup by receiving ID and password from the user.",
     },
     targetApp,
     (apiDoc) => {
-        itDoc("회원가입 성공", async () => {
+        itDoc("Successful signup", async () => {
             await apiDoc
                 .test()
                 .prettyPrint()
                 .req()
                 .body({
-                    username: field("사용자 이름", "username"),
-                    password: field("패스워드", "P@ssw0rd123!@#"),
+                    username: field("Username", "username"),
+                    password: field("Password", "P@ssw0rd123!@#"),
                 })
                 .res()
                 .status(HttpStatus.CREATED)
-        })
+        }) 
 ...
 ```
 
 ## 2. Run test(with jest or mocha) 
-<img src="/img/intro_0.png" alt="테스트 결과" /> 
+<img src="/img/intro_0.png" alt="test result" /> 
 
 ## 3. Boom! Reliable documents are created.
 When the test passes, the document is automatically created in types such as redocly html, oas, etc.
 
-<img src="/img/intro_1.png" alt="테스트 결과" />   
+<img src="/img/intro_1.png" alt="test result" />   

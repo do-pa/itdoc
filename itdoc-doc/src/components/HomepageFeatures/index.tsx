@@ -33,7 +33,7 @@ However, itdoc makes it easy to create a test-based document when you create a t
         image: require("@site/static/img/index3.png").default,
         description: (
             <Translate id="homepage.features.jsts.description">
-                itdoc is a tool for creating tests focused on JavaScript and TypeScript API testing.
+                Itdoc is a tool for creating tests focused on JavaScript and TypeScript API testing.
             </Translate>
         ),
     },
