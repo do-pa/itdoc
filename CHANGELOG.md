@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.1](https://github.com/do-pa/itdoc/compare/v0.3.0...v0.3.1) (2025-06-17)
+
+
+### 📚 Documentation
+
+* add how to use itdoc in a nestjs environment ([#182](https://github.com/do-pa/itdoc/issues/182)) ([d6c95c8](https://github.com/do-pa/itdoc/commit/d6c95c898b310c651642c2bd0b4ed705657b50cd))
+* update readme more charming ([#193](https://github.com/do-pa/itdoc/issues/193)) ([7f563cf](https://github.com/do-pa/itdoc/commit/7f563cfebaf5c1f1cb30fb95c3a51ec61e080b8c))
+* write "how to use itdoc documentation" for developers using fastify ([#186](https://github.com/do-pa/itdoc/issues/186)) ([f19f943](https://github.com/do-pa/itdoc/commit/f19f943016980b59812f3a36aba20b0092454df0))
+* 문서 전체 다듬기  및 이미지 수정 ([#194](https://github.com/do-pa/itdoc/issues/194)) ([398a69c](https://github.com/do-pa/itdoc/commit/398a69c97048e1571be3ceac80fd7e149795bbf3))
+
 ## [0.3.0](https://github.com/do-pa/itdoc/compare/v0.2.1...v0.3.0) (2025-05-08)
 
 
