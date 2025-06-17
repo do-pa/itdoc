@@ -18,6 +18,7 @@ import { Command } from "commander"
 import path from "path"
 import generateByLLM from "../script/llm/index"
 import logger from "../lib/config/logger"
+import { resolvePath } from "../lib/utils/pathResolver"
 
 const args = process.argv.slice(2)
 const isRootHelp = args.length === 0 || args[0] === "--help" || args[0] === "-h"
@@ -48,18 +49,13 @@ program
             logger.info("ex) itdoc generate --app ../app.js")
             process.exit(1)
         }
-        if (options.app) {
-            const appPath = path.isAbsolute(options.app)
-                ? options.app
-                : path.resolve(process.cwd(), options.app)
 
+        if (options.app) {
+            const appPath = resolvePath(options.app)
             logger.info(`express app 경로 기반 분석 실행: ${appPath}`)
             generateByLLM("", appPath, envPath)
         } else if (options.path) {
-            const specPath = path.isAbsolute(options.path)
-                ? options.path
-                : path.resolve(process.cwd(), options.path)
-
+            const specPath = resolvePath(options.path)
             logger.info(`테스트 스펙 경로 기반 실행: ${specPath}`)
             generateByLLM(specPath, "", envPath)
         }
