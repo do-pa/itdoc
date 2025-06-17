@@ -1,25 +1,67 @@
 ---
 sidebar_position: 1
----
+--- 
 
-# What is itdoc?
+## What is itdoc?
 
-Create reliable, test-driven API documentation – straight from your Node.js test code!
+It is a library that generates reliable, test-driven API documentation.
 
 ## Features
 
 - 🧪 Test-driven API documentation generation
-- 📄 Supports OpenAPI, Markdown, HTML output
+- 📄 Supports OpenAPI, Markdown, HTML output(redocly style)
 - 🚫 Fails to generate docs if tests fail – ensures accuracy
 - 🔧 Easy integration with your existing test suite
 - 🧩 Framework-agnostic (Express, NestJS, Fastify)
-- 🤖 GPT-powered test case generation for faster documentation
+- 🤖 In addition, we offer automatic test generation powered by GPT
 
-## Project Goal
+## Why itdoc needed? 
 
-The main goal of this project is to reliably document `RESTful web services` written in `JavaScript`. Unlike typical JSON or JSDoc-based API documentation, `itdoc` extracts request/response examples directly from test code. Since the documentation is only generated when tests pass, you can always publish the most up-to-date, verified API information.
+### Tired of unreliable API documentation?
 
-`itdoc` combines your written descriptions with test results to generate documentation.
+For developers working with`JavaScript` or `TypeScript`, documenting RESTful web services is a constant challenge. The process is completely separate from testing; every code change requires updating your tests and then manually updating your documents. It's easy for them to fall out of sync, leaving you with documentation you can't trust.
 
-Test-based documentation will always reflect the actual behavior of your API. As long as your tests pass, you can export the documentation to formats such as OpenAPI Specification, Markdown, or HTML — and deploy it however you like.
+###  Introducing itdoc 
+itdoc fundamentally solves this problem by ensuring your documentation is a direct result of your verified code.
 
+With itdoc, you're not just writing documentation. it generates docs only after tests pass, ensuring that your documentation is perfectly aligned with your team's code and tests.
+
+## 1. Just write itdoc code 
+```js
+const app = require("../expressApp.js")
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+
+const targetApp = app
+
+describeAPI(
+    HttpMethod.POST,
+    "signup",
+    {
+        summary: "User Signup API",
+        tag: "Auth",
+        description: "Performs user signup by receiving ID and password from the user.",
+    },
+    targetApp,
+    (apiDoc) => {
+        itDoc("Successful signup", async () => {
+            await apiDoc
+                .test()
+                .prettyPrint()
+                .req()
+                .body({
+                    username: field("Username", "username"),
+                    password: field("Password", "P@ssw0rd123!@#"),
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        }) 
+...
+```
+
+## 2. Run test(with jest or mocha) 
+<img src="/img/intro_0.png" alt="test result" /> 
+
+## 3. Boom! Reliable documents are created.
+When the test passes, the document is automatically created in types such as redocly html, oas, etc.
+
+<img src="/img/intro_1.png" alt="test result" />   
