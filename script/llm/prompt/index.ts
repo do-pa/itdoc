@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-import fs from "fs"
-import { join, dirname } from "path"
-import { fileURLToPath } from "url"
-
-const __filename: string = fileURLToPath(import.meta.url)
-const __dirname: string = dirname(__filename)
-
+import { itdocExample } from "../examples/index"
 /**
  * 주어진 테스트 내용과 언어 설정에 따라, API 문서 및 테스트 케이스를 생성하기 위한
  * itdoc함수를 출력하기 위한 프롬프트 메시지를 반환합니다.
@@ -33,26 +27,6 @@ const __dirname: string = dirname(__filename)
  * @returns {string} - 생성된 프롬프트 메시지 문자열.
  */
 export function getItdocPrompt(content: string, isEn: boolean, part: number): string {
-    const exampleParts = ["express", "__tests__", "expressApp.test.js"]
-    const baseDirs = [join(__dirname, "..", "examples"), join(__dirname, "..", "..", "examples")]
-    let examplePath: string | undefined
-    for (const base of baseDirs) {
-        const p = join(base, ...exampleParts)
-        if (fs.existsSync(p)) {
-            examplePath = p
-            break
-        }
-    }
-
-    if (!examplePath) {
-        throw new Error(
-            `테스트 예제 파일을 찾을 수 없습니다:\n` +
-                baseDirs.map((b) => join(b, ...exampleParts)).join("\n"),
-        )
-    }
-
-    const itdocExample: string = fs.readFileSync(examplePath, "utf8")
-
     const addLangMsg: string = isEn
         ? "And the output must be in English."
         : "그리고 반드시 한글로 출력해야 합니다."
@@ -95,6 +69,5 @@ export function getMDPrompt(content: any, part?: number): string {
         - 강조표시(**), 백틱(\`\`\`) 등 마크다운 스타일은 사용하지 마세요. 
         JSON 입력:
         ${JSON.stringify(content, null, 2)}  
-
         `
 }
