@@ -23,7 +23,6 @@ import { parseFile } from "./fileParser"
 import { collectExportedRouters, determineRoutePrefix, buildFullPath } from "./routeCollector"
 import { analyzeVariableDeclarator, analyzeMemberExpression } from "./variableAnalyzer"
 import { analyzeResponseCall } from "./responseAnalyzer"
-import { analyzeArrayPush } from "./utils/arrayAnalyzer"
 
 /**
  * 함수 내부를 순회하여 라우트 세부사항을 분석합니다.
@@ -49,9 +48,6 @@ export function analyzeFunctionBody(
                 analyzeVariableDeclarator(varPath, ret, localArrays, filePath)
             },
             CallExpression(callPath: NodePath<t.CallExpression>) {
-                const call = callPath.node
-                const variableMap = ret.variableMap || {}
-                analyzeArrayPush(call, localArrays, variableMap)
                 analyzeResponseCall(callPath, source, ret, localArrays)
             },
             MemberExpression(memPath: NodePath<t.MemberExpression>) {
@@ -92,10 +88,10 @@ export function analyzeRouteDefinition(
     const obj = node.callee.object.name
     const prop = node.callee.property.name
 
-    if (
-        !["app", "router"].includes(obj) ||
-        !["get", "post", "put", "delete", "patch", "all"].includes(prop)
-    ) {
+    const routerObjects = ["app", "router", "server", "express"]
+    const httpMethods = ["get", "post", "put", "delete", "patch", "all", "use", "head", "options"]
+
+    if (!routerObjects.includes(obj) || !httpMethods.includes(prop)) {
         return []
     }
 

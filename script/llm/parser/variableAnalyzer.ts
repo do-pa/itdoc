@@ -51,21 +51,14 @@ export function analyzeVariableDeclarator(
             const { object, property } = callExpression.callee
 
             if (t.isIdentifier(object) && t.isIdentifier(property)) {
-                const serviceName = object.name
                 const methodName = property.name
 
-                if (serviceName.includes("Service") || serviceName.includes("Repository")) {
-                    const actualReturnValue = extractActualReturnValue(
-                        serviceName,
-                        methodName,
-                        currentFilePath,
-                    )
-                    if (actualReturnValue) {
-                        if (!ret.variableMap) {
-                            ret.variableMap = {}
-                        }
-                        ret.variableMap[decl.id.name] = actualReturnValue
+                const actualReturnValue = extractActualReturnValue(methodName, currentFilePath)
+                if (actualReturnValue) {
+                    if (!ret.variableMap) {
+                        ret.variableMap = {}
                     }
+                    ret.variableMap[decl.id.name] = actualReturnValue
                 }
             }
         }
