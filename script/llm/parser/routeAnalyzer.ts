@@ -21,7 +21,7 @@ import * as t from "@babel/types"
 import { RouteResult, BranchDetail, RoutePrefix } from "./interface"
 import { parseFile } from "./fileParser"
 import { collectExportedRouters, determineRoutePrefix, buildFullPath } from "./routeCollector"
-import { analyzeVariableDeclarator, analyzeMemberExpression } from "./requestAnalyzer"
+import { analyzeVariableDeclarator, analyzeMemberExpression } from "./variableAnalyzer"
 import { analyzeResponseCall } from "./responseAnalyzer"
 import { analyzeArrayPush } from "./utils/arrayAnalyzer"
 
@@ -31,12 +31,14 @@ import { analyzeArrayPush } from "./utils/arrayAnalyzer"
  * @param {string} source - 소스 코드
  * @param {any} ret - 분석 결과 저장 객체
  * @param {NodePath<t.CallExpression>} parentPath - 부모 노드
+ * @param {string} filePath - 현재 파일 경로
  */
 export function analyzeFunctionBody(
     functionNode: t.FunctionExpression | t.ArrowFunctionExpression,
     source: string,
     ret: any,
     parentPath: NodePath<t.CallExpression>,
+    filePath: string,
 ) {
     const localArrays: Record<string, any[]> = {}
 
@@ -44,11 +46,12 @@ export function analyzeFunctionBody(
         functionNode.body as t.Node,
         {
             VariableDeclarator(varPath: NodePath<t.VariableDeclarator>) {
-                analyzeVariableDeclarator(varPath, ret, localArrays)
+                analyzeVariableDeclarator(varPath, ret, localArrays, filePath)
             },
             CallExpression(callPath: NodePath<t.CallExpression>) {
                 const call = callPath.node
-                analyzeArrayPush(call, localArrays)
+                const variableMap = ret.variableMap || {}
+                analyzeArrayPush(call, localArrays, variableMap)
                 analyzeResponseCall(callPath, source, ret, localArrays)
             },
             MemberExpression(memPath: NodePath<t.MemberExpression>) {
@@ -66,6 +69,7 @@ export function analyzeFunctionBody(
  * @param {string} source - 소스 코드
  * @param {Record<string, string>} exportedRouters - 내보낸 라우터 정보
  * @param {RoutePrefix[]} routePrefixes - 라우트 프리픽스 목록
+ * @param {string} filePath - 현재 파일 경로
  * @returns {RouteResult[]} 라우트 분석 결과
  */
 export function analyzeRouteDefinition(
@@ -73,6 +77,7 @@ export function analyzeRouteDefinition(
     source: string,
     exportedRouters: Record<string, string>,
     routePrefixes: RoutePrefix[],
+    filePath: string,
 ): RouteResult[] {
     const { node } = pathExpr
 
@@ -121,7 +126,7 @@ export function analyzeRouteDefinition(
             branchResponses: {} as Record<string, BranchDetail>,
         }
 
-        analyzeFunctionBody(arg, source, ret, pathExpr)
+        analyzeFunctionBody(arg, source, ret, pathExpr, filePath)
 
         results.push({
             method: ret.method,
@@ -165,6 +170,7 @@ export function analyzeFileRoutes(filePath: string, routePrefixes: RoutePrefix[]
                 source,
                 exportedRouters,
                 routePrefixes,
+                filePath,
             )
             results.push(...routeResults)
         },

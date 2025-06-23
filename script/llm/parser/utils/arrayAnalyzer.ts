@@ -21,8 +21,13 @@ import { extractValue } from "./extractValue"
  * 배열 push 호출을 분석합니다.
  * @param {t.CallExpression} call - 호출 표현식 노드
  * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
+ * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
  */
-export function analyzeArrayPush(call: t.CallExpression, localArrays: Record<string, any[]>) {
+export function analyzeArrayPush(
+    call: t.CallExpression,
+    localArrays: Record<string, any[]>,
+    variableMap: Record<string, any> = {},
+) {
     if (
         t.isMemberExpression(call.callee) &&
         t.isIdentifier(call.callee.property, { name: "push" }) &&
@@ -30,7 +35,7 @@ export function analyzeArrayPush(call: t.CallExpression, localArrays: Record<str
     ) {
         const arrName = call.callee.object.name
         if (localArrays[arrName] && call.arguments[0]) {
-            localArrays[arrName].push(extractValue(call.arguments[0], localArrays))
+            localArrays[arrName].push(extractValue(call.arguments[0], localArrays, variableMap))
         }
     }
 }
