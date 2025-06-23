@@ -20,12 +20,7 @@ import { determineBranchKey, getBranchDetail } from "./branchAnalyzer"
 import { handleResponseStatus, handleJsonResponse, handleHeaderResponse } from "./responseHandler"
 import { extractValue } from "./utils/extractValue"
 
-export {
-    determineBranchKey,
-    getBranchDetail,
-    hasEarlyReturn,
-    findEarlyReturnIfStatements,
-} from "./branchAnalyzer"
+export { determineBranchKey, getBranchDetail } from "./branchAnalyzer"
 export { handleResponseStatus, handleJsonResponse, handleHeaderResponse } from "./responseHandler"
 
 /**
@@ -68,7 +63,10 @@ export function analyzeResponseCall(
             break
         case "send":
             if (call.arguments[0]) {
-                target.send.push(extractValue(call.arguments[0], localArrays, variableMap))
+                const extractedValue = extractValue(call.arguments[0], localArrays, variableMap)
+                if (extractedValue !== null) {
+                    target.send.push(extractedValue)
+                }
             }
             break
         case "setHeader":
