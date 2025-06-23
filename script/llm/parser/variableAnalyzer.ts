@@ -16,23 +16,59 @@
 
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
+import { extractActualReturnValue } from "./returnValueExtractor"
 
 /**
- * 변수 선언에서 요청 매개변수를 분석합니다.
+ * 변수 선언에서 요청 매개변수와 서비스 호출 결과를 분석합니다.
  * @param {NodePath<t.VariableDeclarator>} varPath - 변수 선언 노드
  * @param {any} ret - 분석 결과 저장 객체
  * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
+ * @param {string} currentFilePath - 현재 파일 경로
  */
 export function analyzeVariableDeclarator(
     varPath: NodePath<t.VariableDeclarator>,
     ret: any,
     localArrays: Record<string, any[]>,
+    currentFilePath?: string,
 ) {
     const decl = varPath.node
 
     if (t.isIdentifier(decl.id) && t.isArrayExpression(decl.init)) {
         localArrays[decl.id.name] = []
         return
+    }
+
+    if (t.isIdentifier(decl.id) && decl.init && currentFilePath) {
+        let callExpression: t.CallExpression | null = null
+
+        if (t.isAwaitExpression(decl.init) && t.isCallExpression(decl.init.argument)) {
+            callExpression = decl.init.argument
+        } else if (t.isCallExpression(decl.init)) {
+            callExpression = decl.init
+        }
+
+        if (callExpression && t.isMemberExpression(callExpression.callee)) {
+            const { object, property } = callExpression.callee
+
+            if (t.isIdentifier(object) && t.isIdentifier(property)) {
+                const serviceName = object.name
+                const methodName = property.name
+
+                if (serviceName.includes("Service") || serviceName.includes("Repository")) {
+                    const actualReturnValue = extractActualReturnValue(
+                        serviceName,
+                        methodName,
+                        currentFilePath,
+                    )
+                    if (actualReturnValue) {
+                        if (!ret.variableMap) {
+                            ret.variableMap = {}
+                        }
+                        ret.variableMap[decl.id.name] = actualReturnValue
+                    }
+                }
+            }
+        }
     }
 
     if (
