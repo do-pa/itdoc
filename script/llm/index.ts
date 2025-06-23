@@ -27,6 +27,28 @@ import { parseSpecFile } from "../../lib/utils/specParser"
 import { resolvePath } from "../../lib/utils/pathResolver"
 
 /**
+ * MD 콘텐츠에서 정의된 API 엔드포인트 개수를 계산합니다.
+ * @param {string} mdContent - MD 파일 내용
+ * @returns {number} API 엔드포인트 개수
+ */
+function countApiEndpointsInMD(mdContent: string): number {
+    const apiRegex = /^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\//gm
+    const matches = mdContent.match(apiRegex)
+    return matches ? matches.length : 0
+}
+
+/**
+ * 생성된 TypeScript 코드에서 describeAPI 호출 개수를 계산합니다.
+ * @param {string} tsContent - TypeScript 코드 내용
+ * @returns {number} describeAPI 호출 개수
+ */
+function countDescribeAPICalls(tsContent: string): number {
+    const describeAPIRegex = /describeAPI\s*\(/g
+    const matches = tsContent.match(describeAPIRegex)
+    return matches ? matches.length : 0
+}
+
+/**
  * LLM을 호출해 itdoc 테스트스크립트를 작성합니다.
  * @param {OpenAI} openai - 초기화된 OpenAI 클라이언트 인스턴스
  * @param {string} content - 처리할 마크다운 콘텐츠
@@ -44,8 +66,11 @@ async function makedocByMD(
         const maxRetry = 3
         let result = ""
 
+        const expectedApiCount = countApiEndpointsInMD(content)
+        logger.info(`MD에서 감지된 API 엔드포인트 개수: ${expectedApiCount}`)
+
         logger.info(
-            `테스트명세서(md)를 기반으로 GPT API를 통해 itdoc 테스트 코드를 생성합니다. GPT API 호출은 최대 3회까지 이루어집니다.`,
+            `테스트명세서(md)를 기반으로 GPT API를 통해 itdoc 테스트 코드를 생성합니다. GPT API 호출은 최대 5회까지 이루어집니다.`,
         )
         for (let i = 0; i < maxRetry; i++) {
             logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
@@ -55,7 +80,7 @@ async function makedocByMD(
                 model: "gpt-4o",
                 messages: [{ role: "user", content: msg }],
                 temperature: 0,
-                max_tokens: 4096,
+                max_tokens: 16384,
             })
 
             const text = response.choices[0].message.content?.trim() ?? ""
@@ -69,12 +94,31 @@ async function makedocByMD(
 
             result += cleaned + "\n"
 
+            const generatedApiCount = countDescribeAPICalls(result)
+            const isComplete = generatedApiCount >= expectedApiCount
+
+            logger.info(`생성된 API 개수: ${generatedApiCount}/${expectedApiCount}`)
+
             if (
                 finishReason === "stop" &&
                 !cleaned.endsWith("...") &&
-                !/\(\d+\/\d+\)\s*$/.test(cleaned)
+                !/\(\d+\/\d+\)\s*$/.test(cleaned) &&
+                isComplete
             ) {
+                logger.info("모든 API가 생성되었습니다.")
                 break
+            }
+
+            if (finishReason === "stop" && !isComplete) {
+                logger.info(
+                    `API가 부족합니다 (${generatedApiCount}/${expectedApiCount}). 계속 생성합니다...`,
+                )
+                continue
+            }
+
+            if (finishReason === "length") {
+                logger.info("토큰 제한으로 인해 일부가 잘렸습니다. 계속 생성합니다...")
+                continue
             }
 
             await new Promise((res) => setTimeout(res, 500))
@@ -215,10 +259,12 @@ export default async function generateByLLM(
             process.exit(1)
         }
         const specFromApp = await makeMDByApp(openai, analyzedRoutes)
+
         if (!specFromApp) {
             logger.error("앱 분석 기반 스펙 MD문서 생성 실패")
             process.exit(1)
         }
+
         const mdPath = path.join(outputDir, "output.md")
         fs.writeFileSync(mdPath, specFromApp, "utf8")
         logger.info(`앱 분석 기반 스펙 MD문서 생성 완료: ${mdPath}`)
