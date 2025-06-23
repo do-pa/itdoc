@@ -67,10 +67,10 @@ async function makedocByMD(
         let result = ""
 
         const expectedApiCount = countApiEndpointsInMD(content)
-        logger.info(`MD에서 감지된 API 엔드포인트 개수: ${expectedApiCount}`)
+        logger.debug(`MD에서 감지된 API 엔드포인트 개수: ${expectedApiCount}`)
 
         logger.info(
-            `테스트명세서(md)를 기반으로 GPT API를 통해 itdoc 테스트 코드를 생성합니다. GPT API 호출은 최대 5회까지 이루어집니다.`,
+            `테스트명세서(md)를 기반으로 GPT API를 통해 itdoc 테스트 코드를 생성합니다. GPT API 호출은 최대 3회까지 이루어집니다.`,
         )
         for (let i = 0; i < maxRetry; i++) {
             logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
@@ -97,7 +97,7 @@ async function makedocByMD(
             const generatedApiCount = countDescribeAPICalls(result)
             const isComplete = generatedApiCount >= expectedApiCount
 
-            logger.info(`생성된 API 개수: ${generatedApiCount}/${expectedApiCount}`)
+            logger.debug(`생성된 API 개수: ${generatedApiCount}/${expectedApiCount}`)
 
             if (
                 finishReason === "stop" &&
@@ -105,19 +105,19 @@ async function makedocByMD(
                 !/\(\d+\/\d+\)\s*$/.test(cleaned) &&
                 isComplete
             ) {
-                logger.info("모든 API가 생성되었습니다.")
+                logger.debug("모든 API가 생성되었습니다.")
                 break
             }
 
             if (finishReason === "stop" && !isComplete) {
-                logger.info(
+                logger.debug(
                     `API가 부족합니다 (${generatedApiCount}/${expectedApiCount}). 계속 생성합니다...`,
                 )
                 continue
             }
 
             if (finishReason === "length") {
-                logger.info("토큰 제한으로 인해 일부가 잘렸습니다. 계속 생성합니다...")
+                logger.debug("토큰 제한으로 인해 일부가 잘렸습니다. 계속 생성합니다...")
                 continue
             }
 

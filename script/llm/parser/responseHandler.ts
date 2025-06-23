@@ -47,6 +47,8 @@ export function handleJsonResponse(
     const argNode = call.arguments[0]
     if (t.isObjectExpression(argNode)) {
         const obj: any = {}
+        let hasActualValues = false
+
         argNode.properties.forEach((prop) => {
             if (
                 t.isObjectProperty(prop) &&
@@ -55,32 +57,49 @@ export function handleJsonResponse(
                 const keyName = t.isIdentifier(prop.key) ? prop.key.name : prop.key.value
                 const v = prop.value
 
+                let actualValue: any = null
+
                 if (t.isArrayExpression(v)) {
-                    obj[keyName] = v.elements.map((el) =>
-                        t.isStringLiteral(el) ||
-                        t.isNumericLiteral(el) ||
-                        t.isBooleanLiteral(el) ||
-                        t.isNullLiteral(el)
-                            ? (el as t.StringLiteral | t.NumericLiteral | t.BooleanLiteral).value
-                            : `<Identifier:${keyName}>`,
-                    )
+                    const elements = v.elements
+                        .map((el) => {
+                            if (
+                                t.isStringLiteral(el) ||
+                                t.isNumericLiteral(el) ||
+                                t.isBooleanLiteral(el) ||
+                                t.isNullLiteral(el)
+                            ) {
+                                return (el as t.StringLiteral | t.NumericLiteral | t.BooleanLiteral)
+                                    .value
+                            }
+                            return null
+                        })
+                        .filter((val) => val !== null)
+
+                    actualValue = elements.length > 0 ? elements : null
                 } else if (
                     t.isStringLiteral(v) ||
                     t.isNumericLiteral(v) ||
                     t.isBooleanLiteral(v) ||
                     t.isNullLiteral(v)
                 ) {
-                    obj[keyName] = (
-                        v as t.StringLiteral | t.NumericLiteral | t.BooleanLiteral
-                    ).value
-                } else {
-                    obj[keyName] = `<Identifier:${keyName}>`
+                    actualValue = (v as t.StringLiteral | t.NumericLiteral | t.BooleanLiteral).value
+                }
+
+                if (actualValue !== null) {
+                    obj[keyName] = actualValue
+                    hasActualValues = true
                 }
             }
         })
-        target.json.push(obj)
+
+        if (hasActualValues) {
+            target.json.push(obj)
+        }
     } else {
-        target.json.push(extractValue(argNode, localArrays, variableMap))
+        const extractedValue = extractValue(argNode, localArrays, variableMap)
+        if (extractedValue !== null) {
+            target.json.push(extractedValue)
+        }
     }
 }
 
