@@ -32,30 +32,19 @@ export const exportOASToJSON = (generator: IOpenAPIGenerator, outputPath: string
         if (!outputPath) {
             throw new Error("유효한 출력 경로가 제공되지 않았습니다.")
         }
-
-        // OAS 생성
         const spec = generator.generateOpenAPISpec()
         if (!spec) {
             throw new Error("OpenAPI 스펙 생성에 실패했습니다.")
         }
-
-        // 출력 디렉토리 확인 및 생성
         const outputDir = path.dirname(path.resolve(outputPath))
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true })
         }
-
-        // JSON 문자열로 변환
         const specJson = JSON.stringify(spec, null, 2)
-
-        // 파일 쓰기
         fs.writeFileSync(path.resolve(outputPath), specJson, "utf8")
-
-        // 테스트 환경에서 로그 출력 문제 방지를 위해 debug 레벨로 출력
         logger.debug(`OpenAPI Specification exported to ${outputPath}`)
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류 발생"
         logger.error(`OpenAPI Specification 내보내기 실패: ${errorMessage}`)
-        // 오류를 다시 던지지 않고 로깅만 수행하여 테스트 실행을 중단하지 않음
     }
 }

@@ -36,11 +36,11 @@ describeAPI(
                 .res()
                 .status(HttpStatus.BAD_REQUEST)
                 .body({
-                    error: field("에러 메세지", "username is required"),
+                    error: field("에러 메시지", "username is required"),
                 })
         })
 
-        itDoc("패스워드가 8자 이하면 회원가입 실패한다.", async () => {
+        itDoc("패스워드가 8자 미만이면 회원가입 실패한다.", async () => {
             await apiDoc
                 .test()
                 .req()
@@ -51,7 +51,7 @@ describeAPI(
                 .res()
                 .status(HttpStatus.BAD_REQUEST)
                 .body({
-                    error: field("에러 메세지", "password must be at least 8 characters"),
+                    error: field("에러 메시지", "password must be at least 8 characters"),
                 })
         })
     },
@@ -99,7 +99,7 @@ describeAPI(
 
 describeAPI(
     HttpMethod.DELETE,
-    "/users/:userId/friends/:friendId",
+    "/users/:userId/friends/:friendName",
     {
         summary: "특정 사용자의 친구를 삭제합니다.",
         tag: "User",
@@ -124,7 +124,7 @@ describeAPI(
                 .req()
                 .pathParam({
                     userId: field("유효한 사용자 ID", "penek"),
-                    friendId: field("존재하지 않는 친구 ID", "invalid-friend-id"),
+                    friendName: field("존재하지 않는 친구 이름", "invalid-friend-name"),
                 })
                 .res()
                 .status(HttpStatus.NOT_FOUND)
@@ -136,13 +136,71 @@ describeAPI(
                 .req()
                 .pathParam({
                     userId: field("유효한 사용자 ID", "penek"),
-                    friendId: field("유효한 친구 ID", "zagabi"),
+                    friendName: field("유효한 친구 이름", "zagabi")
                 })
                 .res()
                 .status(HttpStatus.NO_CONTENT)
         })
     },
 )
+
+describeAPI(
+    HttpMethod.POST,
+    "/users/:userId/profile-image",
+    {
+      summary: "프로필 이미지 업로드 API",
+      tag: "User",
+      description: "사용자의 프로필 이미지를 업로드합니다.",
+    },
+    targetApp,
+    (apiDoc) => {
+      itDoc("유효한 이미지로 업로드 성공", async () => {
+        await apiDoc
+          .test()
+          .req()
+          .pathParam({ userId: field("유저 ID", "user123") })
+          .header({ "Content-Type": "multipart/form-data" })
+          .body({ image: field("이미지 파일 이름", "profile.jpg") })
+          .res()
+          .status(HttpStatus.OK)
+          .body({
+            success: true,
+            imageUrl: field("이미지 URL", "https://example.com/images/user123.jpg"),
+          });
+      });
+  
+      itDoc("잘못된 Content-Type으로 실패", async () => {
+        await apiDoc
+          .test()
+          .req()
+          .pathParam({ userId: "user123" })
+          .header({ "Content-Type": "application/json" })
+          .body({ image: "profile.jpg" })
+          .res()
+          .status(HttpStatus.BAD_REQUEST)
+          .body({
+            success: false,
+            message: "Content-Type must be multipart/form-data",
+          });
+      });
+  
+      itDoc("지원되지 않는 파일 형식 업로드 실패", async () => {
+        await apiDoc
+          .test()
+          .req()
+          .pathParam({ userId: "user123" })
+          .header({ "Content-Type": "multipart/form-data" })
+          .body({ image: "invalid.bmp" })
+          .res()
+          .status(HttpStatus.BAD_REQUEST)
+          .body({
+            success: false,
+            message: "Unsupported file type. Only jpg, png, gif are allowed.",
+          });
+      });
+    }
+  );
+  
 
 describeAPI(
     HttpMethod.GET,
@@ -189,7 +247,7 @@ describeAPI(
                 .res()
                 .status(HttpStatus.BAD_REQUEST)
                 .body({
-                    error: field("에러 메세지", "page are required"),
+                    error: field("에러 메시지", "page are required"),
                 })
         })
 
@@ -237,10 +295,10 @@ describeAPI(
                 .header({
                     "Content-Type": "application/json; charset=utf-8",
                     "itdoc-custom-Header": "secret-header-value",
-                    Authorization: `Bearer ${token}`,
+                    "Authorization": `Bearer ${token}`,
                 })
                 .body({
-                    message: field("비밀 메세지", "This is a secret message"),
+                    message: field("비밀 메시지", "This is a secret message"),
                 })
         })
     },
@@ -545,3 +603,26 @@ describeAPI(
         })
     },
 )
+describeAPI(
+    HttpMethod.GET,
+    "/failed-test",
+    {
+      summary: "테스트 실패 유도 API",
+      tag: "Test",
+      description: "일부러 실패하는 응답을 주는 API입니다.",
+    },
+    targetApp,
+    (apiDoc) => {
+      itDoc("404 응답을 의도적으로 반환", async () => {
+        await apiDoc
+          .test()
+          .req()
+          .res()
+          .status(HttpStatus.NOT_FOUND)
+          .body({
+            message: field("실패 메시지", "This endpoint is designed to make tests fail"),
+          });
+      });
+    }
+  );
+  

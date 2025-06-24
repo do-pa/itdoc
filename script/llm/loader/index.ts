@@ -62,7 +62,5 @@ export function loadFile(type: FileType, filePath?: string, readContent: boolean
         logger.error(`${type} 파일이 존재하지 않습니다: ${resolvedPath}`)
         process.exit(1)
     }
-
-    logger.info(`${type} 파일 로드: ${resolvedPath}`)
     return readContent ? fs.readFileSync(resolvedPath, "utf8") : resolvedPath
 }
