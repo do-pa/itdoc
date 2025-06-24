@@ -98,6 +98,8 @@ export function getItdocPrompt(
     return `
 다음 테스트 내용을 기반으로 itdoc 테스트 스크립트를 ${langMsg}로 생성해주세요.
 - 모든 라우터에 대한 테스트를 포함해야 합니다.
+- field는 field("a", "b") 처럼 2개의 매개변수를 반드시 포함해야 합니다. field로만 나오면 안됩니다.  
+- 중복되는 설명은 없어야 합니다.
 - 코드 설명 없이 코드만 출력해야 하며, \`(1/3)\` 같은 자동 분할 제목은 넣지 마세요.
 - 출력은 ${langMsg}로만 구성되어야 하며, 백틱 블록(\`\`\`)도 사용하지 않습니다.
 - ${partGuide}
@@ -108,18 +110,17 @@ ${content}
 
 [함수 예시]
 ${itdocExample}
-- 경로에 해당하는 코드는 출력하지 마세요.
-ex) 'import { app } from "examples/express-ts/index.ts"
-    import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"
+- 경로에 해당하는 코드는 출력하지 말아야 합니다.
+ex) import { app } from "examples/express-ts/index.ts" 
+    또는
+    const app = require("examples/express/index.js") 
 
-    const targetApp = app'
-
-    or
-
-    'const app = require("examples/express/index.js")
-    const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
-
-    const targetApp = app'
+- 아래 초기 설정 코드는 이미 포함되어 있으니 해당부분은 생성하지 말아야 합니다.
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc") 
+- header() 메서드는 다음과 같이 객체가 포함되어야 합니다.
+header({
+    Authorization: field("인증 토큰", "Bearer 123456"),
+})
 `.trim()
 }
 

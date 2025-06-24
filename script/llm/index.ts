@@ -67,13 +67,13 @@ async function makedocByMD(
         let result = ""
 
         const expectedApiCount = countApiEndpointsInMD(content)
-        logger.debug(`MD에서 감지된 API 엔드포인트 개수: ${expectedApiCount}`)
-
-        logger.info(
-            `테스트명세서(md)를 기반으로 GPT API를 통해 itdoc 테스트 코드를 생성합니다. GPT API 호출은 최대 3회까지 이루어집니다.`,
-        )
+        logger.info(`
+            테스트명세서(MD)에서 감지된 API 엔드포인트 개수는 ${expectedApiCount}개 입니다.
+            감지된 API 엔드포인트를 분석해 GPT API를 통해 itdoc 테스트 코드를 생성합니다.
+            GPT API 호출은 최대 3회까지 이루어지며 보통 1분에서 2분정도 소요됩니다.
+        `)
         for (let i = 0; i < maxRetry; i++) {
-            logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
+            logger.info(`GPT API 호출횟수: (${i + 1}/${maxRetry})`)
             const msg = getItdocPrompt(content, isEn, i + 1, isTypeScript)
 
             const response: any = await openai.chat.completions.create({
@@ -91,13 +91,12 @@ async function makedocByMD(
                 .replace(/```/g, "")
                 .replace(/\(.*?\/.*?\)/g, "")
                 .trim()
-
             result += cleaned + "\n"
 
             const generatedApiCount = countDescribeAPICalls(result)
             const isComplete = generatedApiCount >= expectedApiCount
 
-            logger.debug(`생성된 API 개수: ${generatedApiCount}/${expectedApiCount}`)
+            logger.info(`itdoc 테스트 생성 진행상황: ${generatedApiCount}/${expectedApiCount}`)
 
             if (
                 finishReason === "stop" &&
@@ -105,25 +104,19 @@ async function makedocByMD(
                 !/\(\d+\/\d+\)\s*$/.test(cleaned) &&
                 isComplete
             ) {
-                logger.debug("모든 API가 생성되었습니다.")
                 break
             }
 
             if (finishReason === "stop" && !isComplete) {
-                logger.debug(
-                    `API가 부족합니다 (${generatedApiCount}/${expectedApiCount}). 계속 생성합니다...`,
-                )
                 continue
             }
 
             if (finishReason === "length") {
-                logger.debug("토큰 제한으로 인해 일부가 잘렸습니다. 계속 생성합니다...")
                 continue
             }
 
             await new Promise((res) => setTimeout(res, 500))
         }
-
         return result.trim()
     } catch (error: unknown) {
         logger.error(`makedocByMD() 에러 발생: ${error}`)
@@ -141,10 +134,13 @@ async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null>
         const maxRetry = 3
         let result = ""
         logger.info(
-            `AST파서로 분석된 앱을 기반으로 GPT API를 통해 테스트명세서(md)를 생성합니다. GPT API 호출은 최대 3회까지 이루어집니다.`,
+            `
+            AST파서로 분석된 앱을 기반으로 GPT API를 통해 테스트명세서(MD)를 생성합니다. 
+            GPT API 호출은 최대 3회까지 이루어집니다.
+            `,
         )
         for (let i = 0; i < maxRetry; i++) {
-            logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
+            logger.info(`GPT API 호출횟수: (${i + 1}/${maxRetry})`)
             const msg = getMDPrompt(content, i + 1)
             const response: any = await openai.chat.completions.create({
                 model: "gpt-4o",
@@ -224,11 +220,13 @@ export default async function generateByLLM(
             appPath = resolvePath(metadata.app)
             logger.info(`테스트 스펙에서 앱 경로를 찾았습니다: ${metadata.app} -> ${appPath}`)
         } else {
-            logger.error("테스트 스펙 파일에 앱 경로가 정의되지 않았습니다.")
-            logger.info("테스트 스펙 파일 상단에 다음과 같이 앱 경로를 정의해주세요:")
-            logger.info("---")
-            logger.info("app: @/path/to/your/app.js")
-            logger.info("---")
+            logger.error(`
+                테스트 스펙 파일에 앱 경로가 정의되지 않았습니다.
+                테스트 스펙 파일 상단에 다음과 같이 앱 경로를 정의해주세요:
+                ---
+                app:@/path/to/your/app.js
+                ---
+                `)
             process.exit(1)
         }
     }
@@ -247,9 +245,11 @@ export default async function generateByLLM(
     appImportPath = relativePath.startsWith(".") ? relativePath : `./${relativePath}`
 
     if (!testspecPath) {
-        logger.info(`appPath: ${appPath}를 기반으로 AST분석을 통해 테스트명세서(md)를 생성합니다.`)
-        logger.info("참고: app 또는 router 이름으로 시작하는 코드를 찾아 분석을 실행합니다.")
-        logger.info("ex) app.get(...), router.post(...) 등")
+        logger.info(`
+            appPath: ${appPath}를 기반으로 AST분석을 통해 테스트명세서(MD)를 생성합니다.
+            참고: app 또는 router로 시작하는 코드를 찾아 분석을 실행합니다. 
+            ex) app.get(...), router.post(...) 등
+        `)
 
         const analyzedRoutes = await analyzeRoutes(resolvedAppPath)
         if (!analyzedRoutes) {
@@ -318,5 +318,5 @@ const targetApp = app
     result = importStatement + "\n\n" + result.trim()
 
     fs.writeFileSync(outPath, result, "utf8")
-    logger.info(`itdoc 문서 생성 완료: ${outPath}`)
+    logger.info(`itdoc 문서가 생성 완료되었습니다. : ${outPath}`)
 }

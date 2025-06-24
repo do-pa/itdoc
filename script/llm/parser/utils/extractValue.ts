@@ -52,7 +52,6 @@ export function extractValue(
                 const key = t.isIdentifier(prop.key) ? prop.key.name : prop.key.value
                 const value = extractValue(prop.value as t.Node, localArrays, variableMap)
 
-                // 실제 값이 있는 경우에만 포함
                 if (value !== null) {
                     obj[key] = value
                     hasActualValues = true
