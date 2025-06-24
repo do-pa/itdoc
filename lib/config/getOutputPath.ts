@@ -28,10 +28,11 @@ export function getOutputPath(): string {
         outputPath = path.resolve(process.cwd(), outputPath)
     }
 
-    logger.info(`itdoc - output 경로는 다음과 같습니다. : ${outputPath}`)
     logger.info(
-        "output 경로는 package.json내의 itdoc - output을 수정해서 바꿀 수 있습니다.",
-        "{itdoc:{output : 'output'}}",
+        `
+        itdoc - output 경로는 다음과 같습니다. : ${outputPath}
+        output 경로는 package.json내의 itdoc - output을 수정해서 바꿀 수 있습니다.`,
+        `ex) {itdoc:{output : 'output'}}`,
     )
 
     return outputPath

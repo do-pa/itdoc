@@ -50,13 +50,14 @@ program
             process.exit(1)
         }
 
+        logger.box(`ITDOC LLM START`)
         if (options.app) {
             const appPath = resolvePath(options.app)
-            logger.info(`express app 경로 기반 분석 실행: ${appPath}`)
+            logger.info(`express app 경로 기반으로 분석을 실행합니다. ${appPath}`)
             generateByLLM("", appPath, envPath)
         } else if (options.path) {
             const specPath = resolvePath(options.path)
-            logger.info(`테스트 스펙 경로 기반 실행: ${specPath}`)
+            logger.info(`테스트명세서(MD) 경로 기반으로 분석을 실행합니다. ${specPath}`)
             generateByLLM(specPath, "", envPath)
         }
     })

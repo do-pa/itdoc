@@ -196,44 +196,31 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
         })
         return value
     }
-
     /**
-     * 리턴 구문을 찾습니다.
-     * @param node
+     * Babel traverse를 이용해 리턴값을 추출합니다.
+     * 함수 본문 내 `return` 구문만 탐색합니다.
      */
-    function findReturnStatements(node: t.Node): void {
-        if (t.isReturnStatement(node) && node.argument) {
-            if (t.isIdentifier(node.argument)) {
-                const variableName = node.argument.name
-                const actualValue = findVariableValue(variableName)
-                if (actualValue !== null) {
-                    returnValue = actualValue
+    traverse(
+        t.file(t.program([])),
+        {
+            ReturnStatement(path: any) {
+                const arg = path.node.argument
+                if (!arg) return
+
+                if (t.isIdentifier(arg)) {
+                    const resolved = findVariableValue(arg.name)
+                    returnValue = resolved ?? extractValueFromNode(arg)
                 } else {
-                    returnValue = extractValueFromNode(node.argument)
+                    returnValue = extractValueFromNode(arg)
                 }
-            } else {
-                returnValue = extractValueFromNode(node.argument)
-            }
-            return
-        }
 
-        for (const key in node) {
-            const child = (node as any)[key]
-            if (Array.isArray(child)) {
-                child.forEach((item) => {
-                    if (item && typeof item === "object" && item.type) {
-                        findReturnStatements(item)
-                    }
-                })
-            } else if (child && typeof child === "object" && child.type) {
-                findReturnStatements(child)
-            }
-        }
-    }
-
-    if (func.body) {
-        findReturnStatements(func.body)
-    }
+                path.stop()
+            },
+        },
+        undefined,
+        undefined,
+        func.body,
+    )
 
     return returnValue
 }
