@@ -40,3 +40,9 @@ export interface RouteResult {
         branches: Record<string, BranchDetail>
     }
 }
+
+export interface RoutePrefix {
+    prefix: string
+    routerName: string
+    filePath: string
+}

@@ -60,7 +60,7 @@
                                         "error": {
                                             "type": "string",
                                             "example": "username is required",
-                                            "description": "에러 메세지"
+                                            "description": "에러 메시지"
                                         }
                                     },
                                     "required": ["error"]
@@ -74,10 +74,10 @@
                                             }
                                         }
                                     },
-                                    "패스워드가 8자 이하면 회원가입 실패한다.": {
+                                    "패스워드가 8자 미만이면 회원가입 실패한다.": {
                                         "value": {
                                             "error": {
-                                                "message": "패스워드가 8자 이하면 회원가입 실패한다.",
+                                                "message": "패스워드가 8자 미만이면 회원가입 실패한다.",
                                                 "code": "ERROR_400"
                                             }
                                         }
@@ -383,12 +383,12 @@
                 }
             }
         },
-        "/users/:userId/friends/:friendId": {
+        "/users/:userId/friends/:friendName": {
             "delete": {
                 "summary": "특정 사용자의 친구를 삭제합니다.",
                 "tags": ["User"],
                 "description": "특정 사용자의 특정 친구 삭제 API",
-                "operationId": "deleteUsersByuseridFriendsByfriendid",
+                "operationId": "deleteUsersByuseridFriendsByfriendname",
                 "parameters": [
                     {
                         "name": "userId",
@@ -401,13 +401,13 @@
                         "example": "invalid-user-id"
                     },
                     {
-                        "name": "friendId",
+                        "name": "friendName",
                         "in": "path",
                         "required": true,
                         "schema": {
                             "type": "string"
                         },
-                        "description": "friendId 파라미터"
+                        "description": "friendName 파라미터"
                     }
                 ],
                 "security": [{}],
@@ -566,7 +566,7 @@
                                         "error": {
                                             "type": "string",
                                             "example": "page are required",
-                                            "description": "에러 메세지"
+                                            "description": "에러 메시지"
                                         }
                                     },
                                     "required": ["error"]
@@ -617,7 +617,7 @@
                                         "message": {
                                             "type": "string",
                                             "example": "This is a secret message",
-                                            "description": "비밀 메세지"
+                                            "description": "비밀 메시지"
                                         }
                                     },
                                     "required": ["message"]
@@ -1372,6 +1372,45 @@
                                             "error": {
                                                 "message": "다양한 필드 유효성 오류",
                                                 "code": "ERROR_400"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/failed-test": {
+            "get": {
+                "summary": "테스트 실패 유도 API",
+                "tags": ["Test"],
+                "description": "일부러 실패하는 응답을 주는 API입니다.",
+                "operationId": "getFailed-test",
+                "security": [{}],
+                "responses": {
+                    "404": {
+                        "description": "404 응답을 의도적으로 반환",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This endpoint is designed to make tests fail",
+                                            "description": "실패 메시지"
+                                        }
+                                    },
+                                    "required": ["message"]
+                                },
+                                "examples": {
+                                    "404 응답을 의도적으로 반환": {
+                                        "value": {
+                                            "error": {
+                                                "message": "404 응답을 의도적으로 반환",
+                                                "code": "ERROR_404"
                                             }
                                         }
                                     }

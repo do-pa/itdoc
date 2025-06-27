@@ -3,7 +3,6 @@ import { ProductService } from "../services/productService"
 
 const router = express.Router()
 
-// Get all products
 router.get("/", async (req: express.Request, res: express.Response) => {
     try {
         const products = await ProductService.getAllProducts()
@@ -13,7 +12,6 @@ router.get("/", async (req: express.Request, res: express.Response) => {
     }
 })
 
-// Get product by ID
 router.get("/:id", async (req: express.Request, res: express.Response) => {
     try {
         const id = parseInt(req.params.id)
@@ -29,7 +27,6 @@ router.get("/:id", async (req: express.Request, res: express.Response) => {
     }
 })
 
-// Create new product
 router.post("/", async (req: express.Request, res: express.Response) => {
     try {
         const { name, price, category } = req.body
@@ -50,7 +47,6 @@ router.post("/", async (req: express.Request, res: express.Response) => {
     }
 })
 
-// Update product
 router.put("/:id", async (req: express.Request, res: express.Response) => {
     try {
         const id = parseInt(req.params.id)
@@ -72,7 +68,6 @@ router.put("/:id", async (req: express.Request, res: express.Response) => {
     }
 })
 
-// Delete product
 router.delete("/:id", async (req: express.Request, res: express.Response) => {
     try {
         const id = parseInt(req.params.id)
