@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import { itdocExample } from "../examples/index"
+import { itdocExample as itdocExampleJs } from "../examples/index"
+import fs from "fs"
+import { join, dirname } from "path"
+import { fileURLToPath } from "url"
+
+const __filename: string = fileURLToPath(import.meta.url)
+const __dirname: string = dirname(__filename)
 /**
  * 주어진 테스트 내용과 언어 설정에 따라, API 문서 및 테스트 케이스를 생성하기 위한
  * itdoc함수를 출력하기 위한 프롬프트 메시지를 반환합니다.
@@ -33,47 +39,40 @@ export function getItdocPrompt(
     part: number,
     isTypeScript: boolean = false,
 ): string {
-    const jsExampleParts = ["express", "__tests__", "expressApp.test.js"]
     const tsExampleParts = ["express-ts", "src", "__tests__", "product.test.ts"]
     const baseDirs = [join(__dirname, "..", "examples"), join(__dirname, "..", "..", "examples")]
 
-    let jsExamplePath: string | undefined
     let tsExamplePath: string | undefined
 
     for (const base of baseDirs) {
-        const jsPath = join(base, ...jsExampleParts)
         const tsPath = join(base, ...tsExampleParts)
-
-        if (fs.existsSync(jsPath)) {
-            jsExamplePath = jsPath
-        }
 
         if (fs.existsSync(tsPath)) {
             tsExamplePath = tsPath
         }
 
-        if (jsExamplePath && tsExamplePath) {
+        if (tsExamplePath) {
             break
         }
     }
 
-    if (!jsExamplePath && !tsExamplePath) {
+    if (!tsExamplePath) {
         throw new Error(
             `테스트 예제 파일을 찾을 수 없습니다:\n` +
-                baseDirs.map((b) => join(b, ...jsExampleParts)).join("\n") +
-                "\n또는\n" +
                 baseDirs.map((b) => join(b, ...tsExampleParts)).join("\n"),
         )
     }
 
-    const selectedPath = isTypeScript ? tsExamplePath : jsExamplePath
+    const selectedPath = tsExamplePath
     if (!selectedPath) {
         throw new Error(
             `${isTypeScript ? "TypeScript" : "JavaScript"} 테스트 예제 파일을 찾을 수 없습니다.`,
         )
     }
 
-    const itdocExample: string = fs.readFileSync(selectedPath, "utf8")
+    const itdocExample: string = isTypeScript
+        ? fs.readFileSync(selectedPath, "utf8")
+        : itdocExampleJs
 
     const addLangMsg: string = isEn
         ? "And the output must be in English."
