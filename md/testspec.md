@@ -1,3 +1,7 @@
+---
+app: @/examples/express-ts/src/index.ts
+---
+
 회원가입 API 테스트 문서
 
 1. API 개요

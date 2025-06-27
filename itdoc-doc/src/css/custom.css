@@ -38,3 +38,16 @@ a:hover {
     text-decoration: underline;
     color: var(--ifm-color-primary-lightest);
 }
+
+.footer__items {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.footer__title{
+    text-align: center;
+    margin: 0 auto;
+}
+.footer{
+    padding-bottom: 0;
+}

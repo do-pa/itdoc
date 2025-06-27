@@ -1,0 +1,7 @@
+{
+    "rootDir": ".",
+    "testEnvironment": "node",
+    "testRegex": ".test.js$",
+    "globalSetup": "<rootDir>/global-setup.js",
+    "testTimeout": 1000000
+}

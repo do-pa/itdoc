@@ -1,9 +1,9 @@
 import type { ReactNode } from "react"
 import clsx from "clsx"
-import Heading from "@theme/Heading"
-import Translate from "@docusaurus/Translate"
+import Heading from "@theme/Heading" 
 import styles from "./styles.module.css"
 
+import Translate, { translate } from "@docusaurus/Translate"
 type FeatureItem = {
     title: string
     image: string
@@ -12,30 +12,28 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
     {
-        title: "Easy to Use",
-        image: require("@site/static/img/a.png").default,
+        title: translate({ id: "homepage.features.easy.title", message: "Problem without itdoc" }),
+        image: require("@site/static/img/index1.png").default,
         description: (
             <Translate id="homepage.features.easy.description">
-                itdoc makes API testing very easy. The interface itself is really simple!
-            </Translate>
+We always make tests and then we make documents again. This process is very cumbersome and causes developers to make mistakes.            </Translate>
         ),
     },
     {
-        title: "Focus on What Matters",
-        image: require("@site/static/img/b.png").default,
+        title: translate({ id: "homepage.features.focus.title", message: "Automate test-based document" }), 
+        image: require("@site/static/img/index2.png").default,
         description: (
-            <Translate id="homepage.features.focus.description">
-                API testing is often tedious to create and difficult to document. With itdoc, you
-                can not only create tests but also easily create documentation.
+            <Translate id="homepage.features.focus.description"> 
+However, itdoc makes it easy to create a test-based document when you create a test.
             </Translate>
         ),
     },
     {
-        title: "For JS and TS",
-        image: require("@site/static/img/c.png").default,
+        title: translate({ id: "homepage.features.jsts.title", message: "For JS and TS" }),  
+        image: require("@site/static/img/index3.png").default,
         description: (
             <Translate id="homepage.features.jsts.description">
-                itdoc is a tool for creating tests focused on JavaScript and TypeScript API testing.
+                Itdoc is a tool for creating tests focused on JavaScript and TypeScript API testing.
             </Translate>
         ),
     },

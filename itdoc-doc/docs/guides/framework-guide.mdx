@@ -1,0 +1,151 @@
+---
+sidebar_position: 2
+---
+
+# Using itdoc outside Express
+> **This guide explains how to use `itdoc` with web frameworks other than `Express`.**
+
+## NestJS Example
+
+Although NestJS internally uses Express, due to its structure, you need to manually create and pass an Express-type `app` instance to `describeAPI`.
+The example below assumes you are using the popular **Jest** test runner. If you're using a different runner, follow the equivalent setup according to its documentation.
+
+---
+
+### 1. Create `globalSetup`
+
+Using [Jest `globalSetup`](https://jestjs.io/docs/configuration#globalsetup-string), spin up a **test-only Nest application** once and reuse it across all tests.
+
+`test/global-setup.ts` :
+
+```ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../src/app.module';
+import type { App } from 'supertest/types';
+
+declare global {
+  // Expose the supertest handle globally for itdoc
+  // eslint-disable-next-line no-var
+  var __APP__: App;
+}
+
+export default async function globalSetup(): Promise<void> {
+  const moduleFixture: TestingModule = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  const app: INestApplication = moduleFixture.createNestApplication();
+  await app.init();
+
+  global.__APP__ = app.getHttpServer() as App;
+}
+```
+
+---
+
+### 2. Register `globalSetup` in Jest config
+
+Add the following to `jest-e2e.json` (or your Jest config file):
+
+```jsonc
+{
+  "globalSetup": "<rootDir>/test/global-setup.ts"
+}
+```
+
+---
+
+### 3. Use itdoc in Test Code
+
+Pass **`global.__APP__`** to the `app` argument of `itdoc`.
+
+```ts
+import { describeAPI, field, HttpMethod, HttpStatus, itDoc } from 'itdoc';
+
+describeAPI(
+  HttpMethod.GET,
+  '/',
+  {
+    summary: 'Hello World',
+    description: 'Returns greeting message',
+    tag: 'hello',
+  },
+  global.__APP__, // ← Handle exposed globally in globalSetup
+  // ... (rest of your itdoc code)
+);
+```
+
+
+## Fastify Example
+
+To use `itdoc` with Fastify, you must create an Express-compatible handler (app instance) and pass it to `describeAPI`. This is similar to the NestJS setup but tailored to Fastify’s own bootstrapping method.
+
+The following example assumes you are using **Jest** as your test runner. If you use a different runner, please consult its documentation to apply a similar concept.
+
+---
+
+### 1. Create `globalSetup`
+
+Use [Jest `globalSetup`](https://jestjs.io/docs/configuration#globalsetup-string) to initialize a dedicated Fastify app for testing **once**, and reuse it across all test files.
+
+`test/global-setup.js`:
+
+```js
+const buildFastify = require("../src/app");
+
+async function globalSetup() {
+    const fastify = buildFastify();
+    await fastify.ready();
+
+    global.__APP__ = fastify.server;
+}
+
+module.exports = globalSetup;
+```
+
+---
+
+### 2. Register `globalSetup` in Jest config
+
+Add the following to your `jest.config.js` or another Jest configuration file:
+
+```js
+module.exports = {
+  globalSetup: '<rootDir>/test/global-setup.js',
+  // other Jest config options...
+};
+```
+
+---
+
+### 3. Use `itdoc` in Test Code
+
+Pass **`global.__APP__`** as the `app` parameter when calling `describeAPI`:
+
+```ts
+import { describeAPI, field, HttpMethod, HttpStatus, itDoc } from 'itdoc';
+
+describeAPI(
+  HttpMethod.GET,
+  '/hello',
+  {
+    summary: 'Hello World API',
+    description: 'Returns a greeting message',
+    tag: 'hello',
+  },
+  global.__APP__, // ← Handle exposed globally in globalSetup
+  (apiDoc) => {
+    itDoc('Should return Hello World message', () => {
+      return apiDoc
+        .test()
+        .req()
+        .res()
+        .status(HttpStatus.OK)
+        .body({
+          message: field('Greeting message', 'Hello World!'),
+        });
+    });
+  },
+);
+```

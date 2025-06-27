@@ -321,5 +321,17 @@
     "homepage.features.jsts.description": {
         "message": "itdoc는 JavaScript와 TypeScript API 테스트에 초점을 맞춘 테스트 생성 도구입니다.",
         "description": "Description for the For JS and TS feature"
+    },
+    "homepage.features.easy.title": {
+        "message": "기존의 문제점",
+        "description": "."
+    },
+    "homepage.features.focus.title": {
+        "message": "신뢰성 있는 테스트의 자동화",
+        "description": "."
+    },
+    "homepage.features.jsts.title": {
+        "message": "JS 그리고 TS",
+        "description": "."
     }
 }

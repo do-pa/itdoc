@@ -1,8 +1,4 @@
 import { defineConfig } from "tsup"
-import fg from "fast-glob"
-import { copyFile, mkdir } from "node:fs/promises"
-import path from "node:path"
-
 export default defineConfig([
     {
         entry: ["lib/dsl/index.ts"],
@@ -19,21 +15,6 @@ export default defineConfig([
         minify: false,
         metafile: false,
         noExternal: ["consola"],
-        onSuccess: async () => {
-            const entries = await fg("examples/**/*", {
-                dot: true,
-                onlyFiles: true,
-                ignore: ["**/node_modules/**"],
-            })
-            await mkdir("build/examples", { recursive: true })
-            await Promise.all(
-                entries.map(async (src) => {
-                    const dest = path.join("build", src)
-                    await mkdir(path.dirname(dest), { recursive: true })
-                    await copyFile(src, dest)
-                }),
-            )
-        },
     },
     {
         entry: ["bin/index.ts"],

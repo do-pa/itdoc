@@ -2,23 +2,65 @@
 sidebar_position: 1
 ---
 
-# itdoc이 뭐죠?
+## itdoc이란?
 
-신뢰할 수 있는 테스트 기반 API 문서를 생성하세요 – Node.js 테스트 코드만으로!
+신뢰할 수 있는 "테스트 기반 API 문서"를 생성해주는 라이브러리입니다.
 
 ## 기능
 
-- 🧪 테스트 기반 API 문서 자동 생성
-- 📄 OpenAPI, Markdown, HTML 출력 지원
-- 🚫 테스트가 실패하면 문서를 생성하지 않음 – 정확성 보장
-- 🔧 기존 테스트 스위트와 쉽게 통합 가능
-- 🧩 프레임워크 무관 (Express, Fastify 등)
-- 🤖 GPT 기반 테스트 케이스 생성으로 더 빠른 문서화
+-   🧪 **테스트 기반** API 문서 생성
+-   📄 **OpenAPI**, **Markdown**, **HTML** 출력 지원 (Redocly 스타일)
+-   🚫 **테스트 실패 시 문서 생성 실패** – 정확성 보장
+-   🔧 기존 테스트와의 **쉬운 통합**
+-   🧩 여러 프레임워크에서 사용가능 (Express, NestJS, Fastify)
+-   🤖 추가적으로 GPT 기반의 **자동 테스트 생성** 기능 제공
 
-## 프로젝트의 목표
+## 왜 itdoc이 필요할까요?
 
-이 프로젝트의 주요 목표는 `JavaScript`로 작성된 `RESTful 웹 서비스`를 신뢰성 있게 문서화하는 것입니다. 일반적인 JSON 또는 JSDoc 기반 API 문서화 방식과 달리, `itdoc`은 테스트 코드에서 요청/응답 예제를 직접 추출합니다. 테스트가 통과해야만 문서가 생성되므로, 항상 최신이며 검증된 API 정보를 배포할 수 있습니다.
+### 신뢰할 수 없는 API 문서에 지치셨나요?
 
-`itdoc`은 여러분이 작성한 설명과 테스트 결과를 결합해 문서를 생성합니다.
+`JavaScript` 또는 `TypeScript`를 사용하는 개발자에게 RESTful 웹 서비스를 문서화하는 것은 끊임없는 도전입니다. 문서화 프로세스가 테스트와 완전히 분리되어 있어, 코드를 변경할 때마다 테스트를 업데이트하고 문서를 수동으로 업데이트해야 합니다. 이로 인해 문서와 코드가 쉽게 동기화되지 않아 신뢰할 수 없는 문서가 발생할 수 있습니다.
 
-테스트 기반 문서는 API의 실제 동작을 항상 반영합니다. 테스트가 통과하기만 하면, 문서를 OpenAPI 스펙, Markdown, HTML 등 다양한 형식으로 내보내어 원하는 방식으로 배포할 수 있습니다.
+### itdoc을 소개합니다
+itdoc은 문서자체가 오로지 테스트가 통과된 코드기반으로 생성되는 것을 보장함으로써 이 문제를 근본적으로 해결합니다.
+itdoc을 사용하면 단순히 문서를 작성하는 것이 아니라, 테스트를 통과한 후에만 문서를 생성하여 팀이 만든 코드 및 테스트와 문서가 정확히 일치하도록 합니다.
+
+## 1. itdoc 코드 작성
+
+```js
+const app = require("../expressApp.js")
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+
+const targetApp = app
+
+describeAPI(
+    HttpMethod.POST,
+    "signup",
+    {
+        summary: "회원 가입 API",
+        tag: "Auth",
+        description: "사용자로부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+    },
+    targetApp,
+    (apiDoc) => {
+        itDoc("회원가입 성공", async () => {
+            await apiDoc
+                .test()
+                .prettyPrint()
+                .req()
+                .body({
+                    username: field("사용자 이름", "username"),
+                    password: field("패스워드", "P@ssw0rd123!@#"),
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        })
+...
+```
+
+## 2. 테스트 실행 (jest 또는 mocha와 함께)
+<img src="/img/intro_0_ko.png" alt="test result" /> 
+
+## 3. 짜잔! 신뢰할 수 있는 문서가 생성되었습니다. 
+테스트가 통과되면 Redocly HTML, OAS 등과 같은 형식의 문서가 자동으로 생성됩니다.
+<img src="/img/intro_1_ko.png" alt="test result" /> 

@@ -6,35 +6,48 @@
 [![License](https://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 [![Discord](https://img.shields.io/badge/Chat-Discord-5765F2.svg)](https://discord.gg/ZhXk7VSu5Z)
 
-Create reliable, test-driven API documentation – straight from your Node.js tests!
+**itdoc is a Node.js tool for automatically generating API documentation based on your test
+code.**  
+Hate writing docs? Let your tests do it. Your API docs stay in sync—no surprises, ever.
 
-## Features
+> A perfect alternative to [swagger-jsdoc] and [swagger-ui-express].
 
-- 🧪 Test-driven API documentation generation
-- 📄 Supports OpenAPI, Markdown, [HTML output]
-- 🚫 Fails to generate docs if tests fail – ensures accuracy
-- 🔧 Easy integration with your existing test suite
-- 🧩 Framework-agnostic (Express, Fastify, etc.)
-- 🤖 GPT-powered test case generation for faster documentation
+[swagger-jsdoc]: https://github.com/Surnet/swagger-jsdoc
+[swagger-ui-express]: https://github.com/scottie1984/swagger-ui-express
 
+- **Test-based Documentation:** itdoc generates documentation by directly extracting API request and
+  response examples from your test code, ensuring your documentation accurately reflects your API
+  behavior.
+- **Multiple Documentation Formats:** Export documentation in various formats, such as
+  [OpenAPI Specification](https://swagger.io/specification/), Markdown, and HTML
+  ([Redoc-style](https://redocly.github.io/redoc/)).
+- **Supports Various Frameworks:** Compatible with popular Node.js frameworks like Express, NestJS,
+  fastify.
+- **Easy to Use Without Complex Configuration:** Generate documentation effortlessly by writing
+  tests alone. ([Optional configuration is available](https://itdoc.kr/docs/guides/configuration))
+
+[//]: # "TODO : 나중에 CLI 문서 작성된다면, REAMDE에 추가할 것."
+[OpenAPI Specification]: https://swagger.io/specification/
+[Redoc-style]: https://redocly.github.io/redoc/
 [HTML output]: http://redocly.com/demo/openapi/museum-api/operations/getmuseumhours
 
-## Quick Start
+## Installation
 
 ```bash
 npm install itdoc --save-dev
 ```
 
-## Overview
+## Documentation
 
-The main goal of this project is to reliably document RESTful web services written in JavaScript.
-Unlike typical JSON or JSDoc-based API documentation, itdoc extracts request/response examples
-directly from test code. Since the documentation is only generated when tests pass, you can always
-publish the most up-to-date, verified API information.
+Full documentation for itdoc can be found on the [official website](https://itdoc.kr/).
 
-itdoc combines your written descriptions with test results to generate documentation.
+> you can contribute to improving our documentation by submitting a PR to our
+> [docs folder](https://github.com/do-pa/itdoc/tree/develop/itdoc-doc).
 
-Here’s a sample test-based API doc definition:
+## Examples
+
+We have several examples available in the [examples directory]. Here's a simple Express example to
+help you get started.
 
 ```javascript
 import { describeAPI, itDoc, field, HttpMethod, HttpStatus } from "itdoc"
@@ -77,43 +90,25 @@ describeAPI(
                     error: field("Error message", "username is required"),
                 })
         })
-
-        itDoc("Fails to sign up if password is 8 characters or fewer.", async () => {
-            await apiDoc
-                .test()
-                .req()
-                .body({
-                    username: field("Username", "penekhun"),
-                    password: field("Password", "1234567"),
-                })
-                .res()
-                .status(HttpStatus.BAD_REQUEST)
-                .body({
-                    error: field("Error message", "password must be at least 8 characters"),
-                })
-        })
     },
 )
 ```
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/8251bb8e-3829-4488-8992-8450d12403b8" alt="itdoc docs workflow" style="width:30%;">
-</p>
+[examples directory]: https://github.com/do-pa/itdoc/tree/develop/examples
 
-Test-based documentation will always reflect the actual behavior of your API. As long as your tests
-pass, you can export the documentation to formats such as [OpenAPI Specification], Markdown, or HTML
-— and deploy it however you like.
+> - If you are using Express, please refer to the [Quick Start Guide].
+> - If you are using NestJS, please refer to the [Quick Start Guide] and [NestJS guide].
+> - If you are using fastify, please refer to the [Quick Start Guide] and [fastify guide].
 
-[OpenAPI Specification]: https://swagger.io/specification/
+[Quick Start Guide]: https://itdoc.kr/docs/guides/quick-start
+[NestJS guide]: https://itdoc.kr/docs/guides/framework-guide/#nestjs-example
+[fastify guide]: https://itdoc.kr/docs/guides/framework-guide/#fastify-example
 
-<!--
-## env 설정
+## Running Tests
 
-.env를 설정해서 GPT API기반으로 테스트를 생성할 수 있습니다. .env.example를 기반으로 설정해주세요.
--->
-
-> For detailed usage and additional information, please visit
-> [https://itdoc.kr/](https://itdoc.kr/).
+Since `describeAPI()` and `itdoc()` integrate seamlessly with testing frameworks like
+[Jest](https://jestjs.io/docs/getting-started) and [Mocha](https://mochajs.org/#getting-started),
+you can simply use your existing test commands such as `mocha .` or `jest .` without any changes.
 
 ## Contributing
 
@@ -122,6 +117,4 @@ We welcome contributions! Please open an issue or submit a pull request. See
 
 ## License
 
-This project is licensed under the terms of the [Apache 2.0].
-
-[Apache 2.0]: LICENSE.txt
+This project is licensed under the terms of the [Apache 2.0 License](LICENSE.txt).
