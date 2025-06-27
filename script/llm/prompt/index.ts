@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-import fs from "fs"
-import { join, dirname } from "path"
-import { fileURLToPath } from "url"
-
-const __filename: string = fileURLToPath(import.meta.url)
-const __dirname: string = dirname(__filename)
-
+import { itdocExample } from "../examples/index"
 /**
  * 주어진 테스트 내용과 언어 설정에 따라, API 문서 및 테스트 케이스를 생성하기 위한
  * itdoc함수를 출력하기 위한 프롬프트 메시지를 반환합니다.
