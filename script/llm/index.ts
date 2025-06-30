@@ -135,7 +135,7 @@ async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null>
         let result = ""
         logger.info(
             `
-            AST파서로 분석된 앱을 기반으로 GPT API를 통해 테스트명세서(MD)를 생성합니다. 
+            AST파서로 분석된 앱을 기반으로 GPT API를 통해 테스트명세서(MD)를 생성합니다.
             GPT API 호출은 최대 3회까지 이루어집니다.
             `,
         )
@@ -247,7 +247,7 @@ export default async function generateByLLM(
     if (!testspecPath) {
         logger.info(`
             appPath: ${appPath}를 기반으로 AST분석을 통해 테스트명세서(MD)를 생성합니다.
-            참고: app 또는 router로 시작하는 코드를 찾아 분석을 실행합니다. 
+            참고: app 또는 router로 시작하는 코드를 찾아 분석을 실행합니다.
             ex) app.get(...), router.post(...) 등
         `)
 
@@ -318,5 +318,5 @@ const targetApp = app
     result = importStatement + "\n\n" + result.trim()
 
     fs.writeFileSync(outPath, result, "utf8")
-    logger.info(`itdoc 문서가 생성 완료되었습니다. : ${outPath}`)
+    logger.info(`itdoc 문서생성이 완료되었습니다.`)
 }

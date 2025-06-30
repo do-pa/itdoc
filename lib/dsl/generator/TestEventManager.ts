@@ -80,7 +80,7 @@ export class TestEventManager {
     }
     private onAllTestsCompleted(): void {
         if (this.failedTests > 0) {
-            logger.error(`${this.failedTests}개의 테스트가 실패하여 OAS 생성을 건너뜁니다.`)
+            logger.error(`[OAS_GENERATION_SKIPPED] 실패한 테스트 수: ${this.failedTests}`)
             return
         }
         try {

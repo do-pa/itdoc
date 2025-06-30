@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-import { itdocExample as itdocExampleJs } from "../examples/index"
-import fs from "fs"
-import { join, dirname } from "path"
-import { fileURLToPath } from "url"
-
-const __filename: string = fileURLToPath(import.meta.url)
-const __dirname: string = dirname(__filename)
+import { itdocExampleJs, itdocExampleTs } from "../examples/index"
 /**
  * 주어진 테스트 내용과 언어 설정에 따라, API 문서 및 테스트 케이스를 생성하기 위한
  * itdoc함수를 출력하기 위한 프롬프트 메시지를 반환합니다.
@@ -39,64 +33,39 @@ export function getItdocPrompt(
     part: number,
     isTypeScript: boolean = false,
 ): string {
-    const tsExampleParts = ["express-ts", "src", "__tests__", "product.test.ts"]
-    const baseDirs = [join(__dirname, "..", "examples"), join(__dirname, "..", "..", "examples")]
+    const itdocExample: string = isTypeScript ? itdocExampleTs : itdocExampleJs
 
-    let tsExamplePath: string | undefined
+    const LANGUAGE_TEXTS = {
+        ko: {
+            codeTypes: { js: "자바스크립트", ts: "타입스크립트" },
+            outputInstruction: "그리고 반드시 한글로 출력해야 합니다.",
+            codeLabel: "코드",
+        },
+        en: {
+            codeTypes: { js: "JavaScript", ts: "TypeScript" },
+            outputInstruction: "And the output must be in English.",
+            codeLabel: "code",
+        },
+    } as const
 
-    for (const base of baseDirs) {
-        const tsPath = join(base, ...tsExampleParts)
-
-        if (fs.existsSync(tsPath)) {
-            tsExamplePath = tsPath
-        }
-
-        if (tsExamplePath) {
-            break
-        }
-    }
-
-    if (!tsExamplePath) {
-        throw new Error(
-            `테스트 예제 파일을 찾을 수 없습니다:\n` +
-                baseDirs.map((b) => join(b, ...tsExampleParts)).join("\n"),
-        )
-    }
-
-    const selectedPath = tsExamplePath
-    if (!selectedPath) {
-        throw new Error(
-            `${isTypeScript ? "TypeScript" : "JavaScript"} 테스트 예제 파일을 찾을 수 없습니다.`,
-        )
-    }
-
-    const itdocExample: string = isTypeScript
-        ? fs.readFileSync(selectedPath, "utf8")
-        : itdocExampleJs
-
-    const addLangMsg: string = isEn
-        ? "And the output must be in English."
-        : "그리고 반드시 한글로 출력해야 합니다."
+    const lang = isEn ? LANGUAGE_TEXTS.en : LANGUAGE_TEXTS.ko
+    const codeType = isTypeScript ? lang.codeTypes.ts : lang.codeTypes.js
+    const codeMessage = `${codeType} ${lang.codeLabel}`
 
     const partGuide =
         part > 1
             ? `이전 출력의 이어지는 ${part}번째 부분만 출력하세요. 이전 내용을 반복하지 마세요.`
             : `출력이 길어질 경우 다음 요청에서 이어받을 수 있도록 적절한 단위로 분할하여 출력하세요. 응답 마지막에 '...' 같은 기호는 넣지 마세요.`
 
-    const codeLanguage = isTypeScript ? "타입스크립트" : "자바스크립트"
-    const codeLanguageEn = isTypeScript ? "TypeScript" : "JavaScript"
-
-    const langMsg = isEn ? `${codeLanguageEn} code` : `${codeLanguage} 코드`
-
     return `
-다음 테스트 내용을 기반으로 itdoc 테스트 스크립트를 ${langMsg}로 생성해주세요.
+다음 테스트 내용을 기반으로 itdoc 테스트 스크립트를 ${codeMessage}로 생성해주세요.
 - 모든 라우터에 대한 테스트를 포함해야 합니다.
 - field는 field("a", "b") 처럼 2개의 매개변수를 반드시 포함해야 합니다. field로만 나오면 안됩니다.
 - 중복되는 설명은 없어야 합니다.
 - 코드 설명 없이 코드만 출력해야 하며, \`(1/3)\` 같은 자동 분할 제목은 넣지 마세요.
-- 출력은 ${langMsg}로만 구성되어야 하며, 백틱 블록(\`\`\`)도 사용하지 않습니다.
+- 출력은 ${codeMessage}로만 구성되어야 하며, 백틱 블록(\`\`\`)도 사용하지 않습니다.
 - ${partGuide}
-${addLangMsg}
+${lang.outputInstruction}
 
 [테스트 설명 내용]
 ${content}

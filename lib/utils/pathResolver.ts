@@ -18,7 +18,7 @@ import path from "path"
 import fs from "fs"
 
 /**
- * @/ 형식의 경로를 프로젝트 루트 기준으로 해석합니다.
+ * "@/..." 형식의 경로를 프로젝트 루트경로를 기준으로 절대 경로로 변환합니다.
  * @param inputPath - 해석할 경로 (@/path/to/file 형식)
  * @param baseDir - 기준 디렉토리 (기본값: process.cwd())
  * @returns 해석된 절대 경로
