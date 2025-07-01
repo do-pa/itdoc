@@ -32,8 +32,6 @@ export async function generateDocs(oasOutputPath: string, outputDir: string): Pr
     }
 
     try {
-        logger.box("ITDOC MAKEDOCS SCRIPT START")
-
         const markdownPath = join(outputDir, "api.md")
         const htmlPath = join(outputDir, "redoc.html")
 

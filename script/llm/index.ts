@@ -23,31 +23,59 @@ import logger from "../../lib/config/logger"
 import { loadFile } from "./loader/index"
 import { getOutputPath } from "../../lib/config/getOutputPath"
 import { analyzeRoutes } from "./parser/index"
+import { parseSpecFile } from "../../lib/utils/specParser"
+import { resolvePath } from "../../lib/utils/pathResolver"
+
+/**
+ * MD 콘텐츠에서 정의된 API 엔드포인트 개수를 계산합니다.
+ * @param {string} mdContent - MD 파일 내용
+ * @returns {number} API 엔드포인트 개수
+ */
+function countApiEndpointsInMD(mdContent: string): number {
+    const apiRegex = /^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\//gm
+    const matches = mdContent.match(apiRegex)
+    return matches ? matches.length : 0
+}
+
+/**
+ * 생성된 TypeScript 코드에서 describeAPI 호출 개수를 계산합니다.
+ * @param {string} tsContent - TypeScript 코드 내용
+ * @returns {number} describeAPI 호출 개수
+ */
+function countDescribeAPICalls(tsContent: string): number {
+    const describeAPIRegex = /describeAPI\s*\(/g
+    const matches = tsContent.match(describeAPIRegex)
+    return matches ? matches.length : 0
+}
 
 /**
  * LLM을 호출해 itdoc 테스트스크립트를 작성합니다.
  * @param {OpenAI} openai - 초기화된 OpenAI 클라이언트 인스턴스
  * @param {string} content - 처리할 마크다운 콘텐츠
  * @param {boolean} isEn - 영어 출력을 원할 경우 true
+ * @param {boolean} isTypeScript - TypeScript 형식으로 출력할 경우 true
  * @returns {Promise<string|null>} 생성된 문서 문자열, 오류 발생 시 null 반환
  */
-async function makedocByMD(openai: OpenAI, content: string, isEn: boolean): Promise<string | null> {
+async function makedocByMD(
+    openai: OpenAI,
+    content: string,
+    isEn: boolean,
+    isTypeScript: boolean = false,
+): Promise<string | null> {
     try {
-        const maxRetry = 3
+        const maxRetry = 10
         let result = ""
 
-        logger.info(
-            `테스트명세서(md)를 기반으로 GPT API를 통해 itdoc 테스트 코드를 생성합니다. GPT API 호출은 최대 3회까지 이루어집니다.`,
-        )
+        const expectedApiCount = countApiEndpointsInMD(content)
         for (let i = 0; i < maxRetry; i++) {
-            logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
-            const msg = getItdocPrompt(content, isEn, i + 1)
+            logger.info(`GPT API 호출횟수: (${i + 1}/${maxRetry})`)
+            const msg = getItdocPrompt(content, isEn, i + 1, isTypeScript)
 
             const response: any = await openai.chat.completions.create({
                 model: "gpt-4o",
                 messages: [{ role: "user", content: msg }],
                 temperature: 0,
-                max_tokens: 4096,
+                max_tokens: 16384,
             })
 
             const text = response.choices[0].message.content?.trim() ?? ""
@@ -56,22 +84,34 @@ async function makedocByMD(openai: OpenAI, content: string, isEn: boolean): Prom
             const cleaned = text
                 .replace(/```(?:json|javascript|typescript|markdown)?/g, "")
                 .replace(/```/g, "")
-                .replace(/\(.*?\/.*?\)/g, "") // (1/3) 제거
+                .replace(/\(.*?\/.*?\)/g, "")
                 .trim()
-
             result += cleaned + "\n"
+
+            const generatedApiCount = countDescribeAPICalls(result)
+            const isComplete = generatedApiCount >= expectedApiCount
+
+            logger.info(`itdoc 테스트 생성 진행상황: ${generatedApiCount}/${expectedApiCount}`)
 
             if (
                 finishReason === "stop" &&
                 !cleaned.endsWith("...") &&
-                !/\(\d+\/\d+\)\s*$/.test(cleaned)
+                !/\(\d+\/\d+\)\s*$/.test(cleaned) &&
+                isComplete
             ) {
                 break
             }
 
+            if (finishReason === "stop" && !isComplete) {
+                continue
+            }
+
+            if (finishReason === "length") {
+                continue
+            }
+
             await new Promise((res) => setTimeout(res, 500))
         }
-
         return result.trim()
     } catch (error: unknown) {
         logger.error(`makedocByMD() 에러 발생: ${error}`)
@@ -86,19 +126,16 @@ async function makedocByMD(openai: OpenAI, content: string, isEn: boolean): Prom
  */
 async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null> {
     try {
-        const maxRetry = 3
+        const maxRetry = 10
         let result = ""
-        logger.info(
-            `AST파서로 분석된 앱을 기반으로 GPT API를 통해 테스트명세서(md)를 생성합니다. GPT API 호출은 최대 3회까지 이루어집니다.`,
-        )
         for (let i = 0; i < maxRetry; i++) {
-            logger.info(`호출횟수: (${i + 1}/${maxRetry})`)
+            logger.info(`GPT API 호출횟수: (${i + 1}/${maxRetry})`)
             const msg = getMDPrompt(content, i + 1)
             const response: any = await openai.chat.completions.create({
                 model: "gpt-4o",
                 messages: [{ role: "user", content: msg }],
                 temperature: 0,
-                max_tokens: 4096,
+                max_tokens: 16384,
             })
 
             const text = response.choices[0].message.content?.trim() ?? ""
@@ -152,13 +189,58 @@ export default async function generateByLLM(
     const outputDir = getOutputPath()
     fs.mkdirSync(outputDir, { recursive: true })
     let result = ""
-    if (appPath) {
-        const resolvedAppContent = loadFile("app", appPath, false)
-        logger.info(`appPath: ${appPath}를 기반으로 AST분석을 통해 테스트명세서(md)를 생성합니다.`)
-        logger.info("참고: app 또는 router 이름으로 시작하는 코드를 찾아 분석을 실행합니다.")
-        logger.info("ex) app.get(...), router.post(...) 등")
+    let isTypeScript = false
+    let appImportPath = ""
+    let resolvedAppPath = ""
+    let parsedSpecContent = ""
+    const originalAppPath = appPath
 
-        const analyzedRoutes = await analyzeRoutes(resolvedAppContent)
+    if (testspecPath && !originalAppPath) {
+        if (!fs.existsSync(testspecPath)) {
+            logger.error(`테스트 스펙 파일을 찾을 수 없습니다: ${testspecPath}`)
+            process.exit(1)
+        }
+
+        const specContent = fs.readFileSync(testspecPath, "utf8")
+        const { metadata, content } = parseSpecFile(specContent)
+        parsedSpecContent = content
+
+        if (metadata.app) {
+            appPath = resolvePath(metadata.app)
+            logger.info(`테스트 스펙에서 앱 경로를 찾았습니다: ${metadata.app} -> ${appPath}`)
+        } else {
+            logger.error(`
+                테스트 스펙 파일에 앱 경로가 정의되지 않았습니다.
+                테스트 스펙 파일 상단에 다음과 같이 앱 경로를 정의해주세요:
+                ---
+                app:@/path/to/your/app.js
+                ---
+                `)
+            process.exit(1)
+        }
+    }
+
+    if (!appPath) {
+        logger.error(
+            "앱 경로가 지정되지 않았습니다. -a 또는 --app 옵션으로 앱 경로를 지정해주세요.",
+        )
+        process.exit(1)
+    }
+
+    resolvedAppPath = loadFile("app", appPath, false)
+    isTypeScript = resolvedAppPath.endsWith(".ts")
+
+    const relativePath = path.relative(outputDir, resolvedAppPath).replace(/\\/g, "/")
+    appImportPath = relativePath.startsWith(".") ? relativePath : `./${relativePath}`
+
+    if (!testspecPath) {
+        logger.info(`
+            appPath: ${appPath}
+            AST분석 -> 테스트명세서(MD) 생성 -> GPT API 기반 itdoc 스크립트 생성  
+            * GPT API 호출은 최대 10회까지 이루어집니다.
+        `)
+
+        const analyzedRoutes = await analyzeRoutes(resolvedAppPath)
         if (!analyzedRoutes) {
             logger.error(
                 "앱에 대한 AST분석이 실패하였습니다. 사용자의 코드 중 라우터 부분을 app.get() 또는 router.post()와 같은 형식으로 작성해 주세요.",
@@ -166,23 +248,31 @@ export default async function generateByLLM(
             process.exit(1)
         }
         const specFromApp = await makeMDByApp(openai, analyzedRoutes)
+
         if (!specFromApp) {
             logger.error("앱 분석 기반 스펙 MD문서 생성 실패")
             process.exit(1)
         }
+
         const mdPath = path.join(outputDir, "output.md")
         fs.writeFileSync(mdPath, specFromApp, "utf8")
         logger.info(`앱 분석 기반 스펙 MD문서 생성 완료: ${mdPath}`)
 
-        const doc = await makedocByMD(openai, specFromApp, false)
+        const doc = await makedocByMD(openai, specFromApp, false, isTypeScript)
         if (!doc) {
             logger.error("앱 분석 기반 스펙 MD문서 생성 실패")
             process.exit(1)
         }
         result = doc
-    } else if (testspecPath) {
-        const specContent = loadFile("spec", testspecPath, true)
-        const doc = await makedocByMD(openai, specContent, false)
+    } else {
+        let specContent: string
+        if (parsedSpecContent) {
+            specContent = parsedSpecContent
+        } else {
+            specContent = loadFile("spec", testspecPath, true)
+        }
+
+        const doc = await makedocByMD(openai, specContent, false, isTypeScript)
         if (!doc) {
             logger.error("마크다운 스펙 기반 테스트 코드 생성 실패")
             process.exit(1)
@@ -194,7 +284,28 @@ export default async function generateByLLM(
         logger.error("generateByLLM()이 작동하지 않습니다.")
         process.exit(1)
     }
-    const outPath = path.join(outputDir, "output.js")
+
+    const fileExtension = isTypeScript ? ".ts" : ".js"
+    const outPath = path.join(outputDir, `output${fileExtension}`)
+
+    if (isTypeScript && appImportPath.endsWith(".ts")) {
+        appImportPath = appImportPath.replace(/\.ts$/, "")
+    }
+
+    let importStatement = ""
+    if (isTypeScript) {
+        importStatement = `import { app } from "${appImportPath}"
+import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"`
+    } else {
+        importStatement = `const app = require('${appImportPath}')
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+
+const targetApp = app
+    `
+    }
+
+    result = importStatement + "\n\n" + result.trim()
+
     fs.writeFileSync(outPath, result, "utf8")
-    logger.info(`itdoc 문서 생성 완료: ${outPath}`)
+    logger.info(`itdoc 문서생성이 완료되었습니다.`)
 }
