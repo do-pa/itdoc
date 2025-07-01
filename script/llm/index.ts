@@ -63,15 +63,10 @@ async function makedocByMD(
     isTypeScript: boolean = false,
 ): Promise<string | null> {
     try {
-        const maxRetry = 3
+        const maxRetry = 10
         let result = ""
 
         const expectedApiCount = countApiEndpointsInMD(content)
-        logger.info(`
-            테스트명세서(MD)에서 감지된 API 엔드포인트 개수는 ${expectedApiCount}개 입니다.
-            감지된 API 엔드포인트를 분석해 GPT API를 통해 itdoc 테스트 코드를 생성합니다.
-            GPT API 호출은 최대 3회까지 이루어지며 보통 1분에서 2분정도 소요됩니다.
-        `)
         for (let i = 0; i < maxRetry; i++) {
             logger.info(`GPT API 호출횟수: (${i + 1}/${maxRetry})`)
             const msg = getItdocPrompt(content, isEn, i + 1, isTypeScript)
@@ -131,14 +126,8 @@ async function makedocByMD(
  */
 async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null> {
     try {
-        const maxRetry = 3
+        const maxRetry = 10
         let result = ""
-        logger.info(
-            `
-            AST파서로 분석된 앱을 기반으로 GPT API를 통해 테스트명세서(MD)를 생성합니다.
-            GPT API 호출은 최대 3회까지 이루어집니다.
-            `,
-        )
         for (let i = 0; i < maxRetry; i++) {
             logger.info(`GPT API 호출횟수: (${i + 1}/${maxRetry})`)
             const msg = getMDPrompt(content, i + 1)
@@ -146,7 +135,7 @@ async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null>
                 model: "gpt-4o",
                 messages: [{ role: "user", content: msg }],
                 temperature: 0,
-                max_tokens: 4096,
+                max_tokens: 16384,
             })
 
             const text = response.choices[0].message.content?.trim() ?? ""
@@ -246,9 +235,9 @@ export default async function generateByLLM(
 
     if (!testspecPath) {
         logger.info(`
-            appPath: ${appPath}를 기반으로 AST분석을 통해 테스트명세서(MD)를 생성합니다.
-            참고: app 또는 router로 시작하는 코드를 찾아 분석을 실행합니다.
-            ex) app.get(...), router.post(...) 등
+            appPath: ${appPath}
+            AST분석 -> 테스트명세서(MD) 생성 -> GPT API 기반 itdoc 스크립트 생성  
+            * GPT API 호출은 최대 10회까지 이루어집니다.
         `)
 
         const analyzedRoutes = await analyzeRoutes(resolvedAppPath)
