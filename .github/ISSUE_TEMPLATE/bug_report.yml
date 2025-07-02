@@ -1,5 +1,5 @@
 name: 🐛 Bug Report
-description: itdoc 라이브러리 사용 중 발생한 버그를 제보해주세요
+description: Report a bug you encountered while using the itdoc library
 title: "[Bug]: "
 labels: ["bug"]
 assignees:
@@ -8,14 +8,14 @@ body:
     - type: markdown
       attributes:
           value: |
-              itdoc 라이브러리 사용 중 발생한 버그를 제보해 주셔서 감사합니다. 자세한 내용을 알려주시면 더 빠른 해결이 가능합니다.
+              Thank you for reporting a bug with the itdoc library.
 
     - type: textarea
       id: expected
       attributes:
           label: Expected Behavior
-          description: 원래 어떻게 동작해야 하나요?
-          placeholder: 테스트 코드가 예상대로 문서를 생성해야 합니다
+          description: What should happen?
+          placeholder: Test code should generate documentation as expected
       validations:
           required: true
 
@@ -23,81 +23,39 @@ body:
       id: actual
       attributes:
           label: Actual Behavior
-          description: 실제로는 어떻게 동작하나요?
-          placeholder: 문서 생성이 실패하거나 예상과 다른 결과가 생성됩니다
+          description: What actually happens?
+          placeholder: Documentation generation fails or produces unexpected results
       validations:
           required: true
 
     - type: textarea
-      id: example
+      id: reproduce
       attributes:
-          label: 테스트 코드 예시
-          description: 버그를 재현할 수 있는 테스트 코드를 공유해주세요
+          label: Steps to Reproduce
+          description: Please provide code or steps to reproduce the bug
           placeholder: |
               ```javascript
-              import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"
+              import { describeAPI, itDoc } from "itdoc"
 
-              // 문제가 발생하는 테스트 코드
-              describeAPI(
-                  HttpMethod.POST,
-                  "/example",
-                  {
-                      name: "예시 API",
-                      tag: "Example",
-                      summary: "문제 발생하는 예시 API",
-                  },
-                  app,
-                  (apiDoc) => {
-                      itDoc("테스트 케이스", () => {
-                          // 문제 발생 지점
-                      })
-                  }
-              )
+              // Code that causes the issue
               ```
-      validations:
-          required: true
-
-    - type: dropdown
-      id: output_format
-      attributes:
-          label: 출력 형식
-          description: 어떤 출력 형식을 사용하고 있나요?
-          options:
-              - OpenAPI Specification
-              - Markdown
-              - HTML
-              - 기타 (Additional Context에 명시해주세요)
       validations:
           required: true
 
     - type: input
       id: version
       attributes:
-          label: itdoc 버전
-          description: 사용 중인 itdoc 버전을 알려주세요
-          placeholder: 예) 1.0.0
-      validations:
-          required: true
-
-    - type: dropdown
-      id: environment
-      attributes:
-          label: 실행 환경
-          description: 어떤 환경에서 실행 중인가요?
-          options:
-              - Node.js
-              - Jest
-              - Vitest
-              - Mocha
-              - 기타 (Additional Context에 명시해주세요)
+          label: itdoc Version
+          description: Which version of itdoc are you using?
+          placeholder: e.g. 1.0.0
       validations:
           required: true
 
     - type: textarea
       id: additional
       attributes:
-          label: Additional Context
-          description: 추가적인 정보나 스크린샷이 있다면 첨부해주세요
-          placeholder: 환경 정보, 에러 메시지, 스크린샷 등을 첨부해주세요
+          label: Additional Information
+          description:
+              Environment details, error messages, screenshots, or any other relevant information
       validations:
           required: false
