@@ -3,7 +3,7 @@ import type { Config } from "@docusaurus/types"
 import type * as Preset from "@docusaurus/preset-classic"
 
 const config: Config = {
-    title: "itdoc",
+    title: "itdoc documentation",
     tagline: "Reliable API documentation, automatically generated from your tests",
     favicon: "img/favicon.ico",
     url: "https://itdoc.kr",
@@ -24,13 +24,22 @@ const config: Config = {
             },
         },
     },
+    plugins: [
+        [
+            "@docusaurus/plugin-google-gtag",
+            {
+                trackingID: "G-VJW3NW4CYJ",
+                anonymizeIP: true,
+            },
+        ],
+    ],
     presets: [
         [
             "classic",
             {
                 docs: {
                     sidebarPath: "./sidebars.ts",
-                    editUrl: "https://github.com/do-pa/itdoc/",
+                    editUrl: "https://github.com/do-pa/itdoc/tree/main/itdoc-doc",
                 },
                 blog: {
                     showReadingTime: true,
@@ -38,7 +47,7 @@ const config: Config = {
                         type: ["rss", "atom"],
                         xslt: true,
                     },
-                    editUrl: "https://github.com/do-pa/itdoc/",
+                    editUrl: "https://github.com/do-pa/itdoc/tree/main/itdoc-doc",
                     onInlineTags: "warn",
                     onInlineAuthors: "warn",
                     onUntruncatedBlogPosts: "warn",
