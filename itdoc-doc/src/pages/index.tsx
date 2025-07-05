@@ -21,7 +21,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-              Introduce itdoc 
+              Introduce itdoc
           </Link>
         </div>
       </div>
@@ -30,15 +30,16 @@ function HomepageHeader() {
 }
 
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
-  return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
-      <HomepageHeader />
-      <main>
-        <HomepageFeatures />
-      </main>
-    </Layout>
-  );
+    const { siteConfig } = useDocusaurusContext()
+    return (
+        <Layout
+            title={`${siteConfig.title}`}
+            description="Reliable API documentation automatically generated from your JavaScript/TypeScript"
+        >
+            <HomepageHeader />
+            <main>
+                <HomepageFeatures />
+            </main>
+        </Layout>
+    )
 }
