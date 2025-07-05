@@ -34,7 +34,7 @@ export default function Home(): ReactNode {
     return (
         <Layout
             title={`${siteConfig.title}`}
-            description="Description will go into a meta tag in <head />"
+            description="Reliable API documentation automatically generated from your JavaScript/TypeScript"
         >
             <HomepageHeader />
             <main>
