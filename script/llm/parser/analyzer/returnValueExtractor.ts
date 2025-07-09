@@ -100,16 +100,14 @@ export function extractReturnValueFromAST(ast: t.File, methodName: string): any 
             if (t.isObjectExpression(varPath.node.init)) {
                 const objExpr = varPath.node.init
                 objExpr.properties.forEach((prop) => {
-                    if (
-                        t.isObjectProperty(prop) &&
-                        t.isIdentifier(prop.key) &&
-                        prop.key.name === methodName
-                    ) {
-                        if (
-                            t.isArrowFunctionExpression(prop.value) ||
-                            t.isFunctionExpression(prop.value)
-                        ) {
-                            returnValue = extractReturnFromFunction(prop.value, ast)
+                    if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
+                        if (prop.key.name === methodName) {
+                            if (
+                                t.isArrowFunctionExpression(prop.value) ||
+                                t.isFunctionExpression(prop.value)
+                            ) {
+                                returnValue = extractReturnFromFunction(prop.value, ast)
+                            }
                         }
                     }
                 })
@@ -140,6 +138,7 @@ export function extractReturnValueFromAST(ast: t.File, methodName: string): any 
  */
 export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
     let returnValue: any = null
+    const visitedVariables = new Set<string>()
 
     /**
      * AST 노드에서 실제 값을 추출합니다
@@ -148,16 +147,28 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
     function extractValueFromNode(node: t.Node): any {
         if (t.isObjectExpression(node)) {
             const obj: Record<string, any> = {}
+            let hasActualValues = false
+
             node.properties.forEach((prop) => {
                 if (
                     t.isObjectProperty(prop) &&
                     (t.isIdentifier(prop.key) || t.isStringLiteral(prop.key))
                 ) {
                     const key = t.isIdentifier(prop.key) ? prop.key.name : prop.key.value
-                    obj[key] = extractValueFromNode(prop.value as t.Node)
+                    const value = extractValueFromNode(prop.value as t.Node)
+
+                    if (value !== null) {
+                        obj[key] = value
+                        hasActualValues = true
+                    } else {
+                        obj[key] = null
+                    }
+                } else if (t.isSpreadElement(prop)) {
+                    hasActualValues = true
                 }
             })
-            return obj
+
+            return hasActualValues ? obj : null
         }
 
         if (t.isArrayExpression(node)) {
@@ -172,6 +183,34 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
             return null
         }
 
+        if (t.isIdentifier(node)) {
+            return findVariableValue(node.name)
+        }
+
+        if (t.isCallExpression(node)) {
+            if (t.isMemberExpression(node.callee)) {
+                const { object, property } = node.callee
+
+                if (t.isIdentifier(object) && t.isIdentifier(property)) {
+                    const baseArray = findVariableValue(object.name)
+                    if (baseArray && Array.isArray(baseArray)) {
+                        switch (property.name) {
+                            case "find":
+                                return baseArray.length > 0 ? baseArray[0] : null
+                            case "filter":
+                                return baseArray
+                            case "map":
+                                return baseArray
+                            default:
+                                return baseArray.length > 0 ? baseArray[0] : null
+                        }
+                    }
+                }
+            }
+
+            return null
+        }
+
         return null
     }
 
@@ -182,6 +221,11 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
     function findVariableValue(variableName: string): any {
         if (!ast) return null
 
+        if (visitedVariables.has(variableName)) {
+            return null
+        }
+        visitedVariables.add(variableName)
+
         let value: any = null
         traverse(ast, {
             VariableDeclarator(varPath: NodePath<t.VariableDeclarator>) {
@@ -191,36 +235,90 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
                     varPath.node.init
                 ) {
                     value = extractValueFromNode(varPath.node.init)
+
+                    if (value === null && t.isIdentifier(varPath.node.init)) {
+                        value = findVariableValue(varPath.node.init.name)
+                    }
                 }
             },
         })
+
+        visitedVariables.delete(variableName)
         return value
     }
     /**
-     * Babel traverse를 이용해 리턴값을 추출합니다.
-     * 함수 본문 내 `return` 구문만 탐색합니다.
+     * 재귀적으로 노드를 탐색하여 모든 ReturnStatement를 찾습니다.
+     * @param node
      */
-    traverse(
-        t.file(t.program([])),
-        {
-            ReturnStatement(path: any) {
-                const arg = path.node.argument
-                if (!arg) return
+    function findAllReturnStatements(node: t.Node): t.ReturnStatement[] {
+        const returns: t.ReturnStatement[] = []
 
-                if (t.isIdentifier(arg)) {
-                    const resolved = findVariableValue(arg.name)
-                    returnValue = resolved ?? extractValueFromNode(arg)
+        if (t.isReturnStatement(node)) {
+            returns.push(node)
+        }
+
+        if (t.isBlockStatement(node)) {
+            for (const stmt of node.body) {
+                returns.push(...findAllReturnStatements(stmt))
+            }
+        }
+
+        if (t.isIfStatement(node)) {
+            returns.push(...findAllReturnStatements(node.consequent))
+            if (node.alternate) {
+                returns.push(...findAllReturnStatements(node.alternate))
+            }
+        }
+
+        return returns
+    }
+
+    /**
+     * 가장 의미있는 ReturnStatement를 선택합니다.
+     * undefined나 null보다는 실제 값을 우선적으로 선택합니다.
+     * @param returnStatements
+     */
+    function selectBestReturnStatement(
+        returnStatements: t.ReturnStatement[],
+    ): t.ReturnStatement | null {
+        if (returnStatements.length === 0) return null
+
+        for (const stmt of returnStatements) {
+            if (stmt.argument) {
+                if (t.isIdentifier(stmt.argument)) {
+                    if (stmt.argument.name !== "undefined" && stmt.argument.name !== "null") {
+                        return stmt
+                    }
                 } else {
-                    returnValue = extractValueFromNode(arg)
+                    return stmt
                 }
+            }
+        }
 
-                path.stop()
-            },
-        },
-        undefined,
-        undefined,
-        func.body,
-    )
+        return returnStatements[0]
+    }
+
+    if (func.body && t.isBlockStatement(func.body)) {
+        const allReturns = findAllReturnStatements(func.body)
+
+        const returnStmt = selectBestReturnStatement(allReturns)
+
+        if (returnStmt) {
+            const arg = returnStmt.argument
+            if (!arg) {
+                return null
+            }
+
+            if (t.isIdentifier(arg)) {
+                const resolved = findVariableValue(arg.name)
+                returnValue = resolved ?? extractValueFromNode(arg)
+            } else {
+                returnValue = extractValueFromNode(arg)
+            }
+        }
+    } else if (func.body && t.isExpression(func.body)) {
+        returnValue = extractValueFromNode(func.body)
+    }
 
     return returnValue
 }
