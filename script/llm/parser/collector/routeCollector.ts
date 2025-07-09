@@ -18,8 +18,8 @@ import traversePkg, { NodePath } from "@babel/traverse"
 // @ts-expect-error - CommonJS/ES modules 호환성 이슈로 인한 타입 에러 무시
 const traverse = traversePkg.default
 import * as t from "@babel/types"
-import { RoutePrefix } from "./interface"
-import { parseFile } from "./fileParser"
+import { RoutePrefix } from "../type/interface"
+import { parseFile } from "../utils/fileParser"
 
 /**
  * app.use() 호출을 찾아 라우트 프리픽스를 수집합니다.

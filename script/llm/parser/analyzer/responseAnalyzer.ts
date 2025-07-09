@@ -17,11 +17,12 @@
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
 import { determineBranchKey, getBranchDetail } from "./branchAnalyzer"
-import { handleResponseStatus, handleJsonResponse, handleHeaderResponse } from "./responseHandler"
-import { extractValue } from "./utils/extractValue"
-
-export { determineBranchKey, getBranchDetail } from "./branchAnalyzer"
-export { handleResponseStatus, handleJsonResponse, handleHeaderResponse } from "./responseHandler"
+import {
+    handleResponseStatus,
+    handleJsonResponse,
+    handleHeaderResponse,
+} from "../handler/responseHandler"
+import { extractValue } from "../utils/extractValue"
 
 /**
  * 응답 호출을 분석합니다.

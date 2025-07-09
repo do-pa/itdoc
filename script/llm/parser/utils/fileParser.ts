@@ -19,7 +19,7 @@ import * as path from "path"
 import { parse } from "@babel/parser"
 import dependencyTree from "dependency-tree"
 import * as t from "@babel/types"
-import { flattenTree } from "./utils/flattenTree"
+import { flattenTree } from "./flattenTree"
 
 /**
  * 의존성 트리를 기반으로 분석할 파일 목록을 가져옵니다.

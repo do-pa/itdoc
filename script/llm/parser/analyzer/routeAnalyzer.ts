@@ -18,9 +18,13 @@ import traversePkg, { NodePath } from "@babel/traverse"
 // @ts-expect-error - CommonJS/ES modules 호환성 이슈로 인한 타입 에러 무시
 const traverse = traversePkg.default
 import * as t from "@babel/types"
-import { RouteResult, BranchDetail, RoutePrefix } from "./interface"
-import { parseFile } from "./fileParser"
-import { collectExportedRouters, determineRoutePrefix, buildFullPath } from "./routeCollector"
+import { RouteResult, BranchDetail, RoutePrefix } from "../type/interface"
+import { parseFile } from "../utils/fileParser"
+import {
+    collectExportedRouters,
+    determineRoutePrefix,
+    buildFullPath,
+} from "../collector/routeCollector"
 import { analyzeVariableDeclarator, analyzeMemberExpression } from "./variableAnalyzer"
 import { analyzeResponseCall } from "./responseAnalyzer"
 

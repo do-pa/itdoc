@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { RouteResult } from "./interface"
-import { getAnalysisFiles } from "./fileParser"
-import { collectRoutePrefixes } from "./routeCollector"
-import { analyzeFileRoutes } from "./routeAnalyzer"
+import { RouteResult } from "./type/interface"
+import { getAnalysisFiles } from "./utils/fileParser"
+import { collectRoutePrefixes } from "./collector/routeCollector"
+import { analyzeFileRoutes } from "./analyzer/routeAnalyzer"
 
 /**
  * 주어진 Express 앱 파일을 시작점으로

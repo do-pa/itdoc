@@ -16,14 +16,14 @@
 
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
-import { parseFile } from "./fileParser"
+import { parseFile } from "../utils/fileParser"
 import traversePkg from "@babel/traverse"
 // @ts-expect-error - CommonJS/ES modules 호환성 이슈로 인한 타입 에러 무시
 const traverse = traversePkg.default
 import path from "path"
 import fs from "fs"
 import dependencyTree from "dependency-tree"
-import { flattenTree } from "./utils/flattenTree"
+import { flattenTree } from "../utils/flattenTree"
 
 /**
  * 프로젝트 전체에서 관련 서비스 메서드를 동적으로 찾아 실제 리턴값을 추출합니다.

@@ -15,8 +15,8 @@
  */
 
 import * as t from "@babel/types"
-import { BranchDetail } from "./interface"
-import { extractValue } from "./utils/extractValue"
+import { BranchDetail } from "../type/interface"
+import { extractValue } from "../utils/extractValue"
 
 /**
  * 응답 상태 코드를 처리합니다.
