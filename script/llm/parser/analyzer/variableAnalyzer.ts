@@ -16,20 +16,18 @@
 
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
-import { extractActualReturnValue } from "./returnValueExtractor"
+import { createFunctionIdentifier } from "../utils/extractValue"
 
 /**
- * 변수 선언에서 요청 매개변수와 서비스 호출 결과를 분석합니다.
+ * 변수 선언에서 요청 매개변수와 함수 호출 결과를 분석합니다.
  * @param {NodePath<t.VariableDeclarator>} varPath - 변수 선언 노드
  * @param {any} ret - 분석 결과 저장 객체
  * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
- * @param {string} currentFilePath - 현재 파일 경로
  */
 export function analyzeVariableDeclarator(
     varPath: NodePath<t.VariableDeclarator>,
     ret: any,
     localArrays: Record<string, any[]>,
-    currentFilePath?: string,
 ) {
     const decl = varPath.node
 
@@ -38,7 +36,7 @@ export function analyzeVariableDeclarator(
         return
     }
 
-    if (t.isIdentifier(decl.id) && decl.init && currentFilePath) {
+    if (t.isIdentifier(decl.id) && decl.init) {
         let callExpression: t.CallExpression | null = null
 
         if (t.isAwaitExpression(decl.init) && t.isCallExpression(decl.init.argument)) {
@@ -47,20 +45,11 @@ export function analyzeVariableDeclarator(
             callExpression = decl.init
         }
 
-        if (callExpression && t.isMemberExpression(callExpression.callee)) {
-            const { object, property } = callExpression.callee
-
-            if (t.isIdentifier(object) && t.isIdentifier(property)) {
-                const methodName = property.name
-
-                const actualReturnValue = extractActualReturnValue(methodName, currentFilePath)
-                if (actualReturnValue) {
-                    if (!ret.variableMap) {
-                        ret.variableMap = {}
-                    }
-                    ret.variableMap[decl.id.name] = actualReturnValue
-                }
+        if (callExpression) {
+            if (!ret.variableMap) {
+                ret.variableMap = {}
             }
+            ret.variableMap[decl.id.name] = createFunctionIdentifier(callExpression)
         }
     }
 

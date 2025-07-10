@@ -15,7 +15,7 @@
  */
 
 import { RouteResult } from "./type/interface"
-import { getAnalysisFiles } from "./utils/fileParser"
+import { getProjectFiles } from "./utils/fileParser"
 import { collectRoutePrefixes } from "./collector/routeCollector"
 import { analyzeFileRoutes } from "./analyzer/routeAnalyzer"
 
@@ -26,7 +26,7 @@ import { analyzeFileRoutes } from "./analyzer/routeAnalyzer"
  * @returns {Promise<RouteResult[]>} 라우트 분석 결과
  */
 export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
-    const files = getAnalysisFiles(appPath)
+    const files = getProjectFiles(appPath)
     const routePrefixes = collectRoutePrefixes(files)
     const results: RouteResult[] = []
 

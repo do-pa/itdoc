@@ -17,12 +17,81 @@
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
 import { determineBranchKey, getBranchDetail } from "./branchAnalyzer"
-import {
-    handleResponseStatus,
-    handleJsonResponse,
-    handleHeaderResponse,
-} from "../handler/responseHandler"
 import { extractValue } from "../utils/extractValue"
+import { BranchDetail } from "../type/interface"
+
+/**
+ * 응답 상태 코드를 처리합니다.
+ * @param {t.CallExpression} call - 호출 표현식 노드
+ * @param {BranchDetail} target - 브랜치 세부사항
+ */
+function handleResponseStatus(call: t.CallExpression, target: BranchDetail) {
+    if (t.isNumericLiteral(call.arguments[0])) {
+        target.status.push(call.arguments[0].value)
+    }
+}
+
+/**
+ * JSON 응답을 처리합니다.
+ * @param {t.CallExpression} call - 호출 표현식 노드
+ * @param {BranchDetail} target - 브랜치 세부사항
+ * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
+ * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
+ */
+function handleJsonResponse(
+    call: t.CallExpression,
+    target: BranchDetail,
+    localArrays: Record<string, any[]>,
+    variableMap: Record<string, any> = {},
+) {
+    if (!call.arguments[0]) return
+
+    const argNode = call.arguments[0]
+    const extractedValue = extractValue(argNode, localArrays, variableMap)
+
+    if (extractedValue !== null) {
+        target.json.push(extractedValue)
+    }
+}
+
+/**
+ * 헤더 설정을 처리합니다.
+ * @param {t.CallExpression} call - 호출 표현식 노드
+ * @param {BranchDetail} target - 브랜치 세부사항
+ * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
+ * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
+ */
+function handleHeaderResponse(
+    call: t.CallExpression,
+    target: BranchDetail,
+    localArrays: Record<string, any[]>,
+    variableMap: Record<string, any> = {},
+) {
+    const callee = call.callee as t.MemberExpression
+    if (!t.isIdentifier(callee.property)) return
+
+    const method = callee.property.name
+
+    if (method === "setHeader" && t.isStringLiteral(call.arguments[0]) && call.arguments[1]) {
+        target.headers.push({
+            key: call.arguments[0].value,
+            value: extractValue(call.arguments[1], localArrays, variableMap),
+        })
+    } else if (method === "set" && t.isObjectExpression(call.arguments[0])) {
+        call.arguments[0].properties.forEach((prop) => {
+            if (
+                t.isObjectProperty(prop) &&
+                (t.isIdentifier(prop.key) || t.isStringLiteral(prop.key))
+            ) {
+                const key = t.isIdentifier(prop.key) ? prop.key.name : prop.key.value
+                target.headers.push({
+                    key,
+                    value: extractValue(prop.value as t.Node, localArrays, variableMap),
+                })
+            }
+        })
+    }
+}
 
 /**
  * 응답 호출을 분석합니다.

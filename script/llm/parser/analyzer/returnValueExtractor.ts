@@ -16,14 +16,11 @@
 
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
-import { parseFile } from "../utils/fileParser"
+import { getProjectFiles, parseMultipleFiles } from "../utils/fileParser"
+import { extractValue } from "../utils/extractValue"
 import traversePkg from "@babel/traverse"
 // @ts-expect-error - CommonJS/ES modules 호환성 이슈로 인한 타입 에러 무시
 const traverse = traversePkg.default
-import path from "path"
-import fs from "fs"
-import dependencyTree from "dependency-tree"
-import { flattenTree } from "../utils/flattenTree"
 
 /**
  * 프로젝트 전체에서 관련 서비스 메서드를 동적으로 찾아 실제 리턴값을 추출합니다.
@@ -33,22 +30,10 @@ import { flattenTree } from "../utils/flattenTree"
  */
 export function extractActualReturnValue(methodName: string, projectRoot: string): any {
     try {
-        const tree = dependencyTree({
-            filename: path.resolve(projectRoot),
-            directory: path.dirname(path.resolve(projectRoot)),
-            filter: (p: string) => !p.includes("node_modules"),
-        }) as Record<string, any>
+        const filePaths = getProjectFiles(projectRoot)
+        const parsedFiles = parseMultipleFiles(filePaths)
 
-        const files = Array.from(new Set(flattenTree(tree)))
-
-        for (const filePath of files) {
-            if (!fs.existsSync(filePath)) continue
-            if (!/\.(ts|js)$/.test(filePath)) continue
-
-            const parsed = parseFile(filePath)
-            if (!parsed) continue
-
-            const { ast } = parsed
+        for (const { ast } of parsedFiles) {
             const result = extractReturnValueFromAST(ast, methodName)
 
             if (result && !hasPartialNullValues(result)) {
@@ -141,112 +126,6 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
     const visitedVariables = new Set<string>()
 
     /**
-     * AST 노드에서 실제 값을 추출합니다
-     * @param node
-     */
-    function extractValueFromNode(node: t.Node): any {
-        if (t.isObjectExpression(node)) {
-            const obj: Record<string, any> = {}
-            let hasActualValues = false
-
-            node.properties.forEach((prop) => {
-                if (
-                    t.isObjectProperty(prop) &&
-                    (t.isIdentifier(prop.key) || t.isStringLiteral(prop.key))
-                ) {
-                    const key = t.isIdentifier(prop.key) ? prop.key.name : prop.key.value
-                    const value = extractValueFromNode(prop.value as t.Node)
-
-                    if (value !== null) {
-                        obj[key] = value
-                        hasActualValues = true
-                    } else {
-                        obj[key] = null
-                    }
-                } else if (t.isSpreadElement(prop)) {
-                    hasActualValues = true
-                }
-            })
-
-            return hasActualValues ? obj : null
-        }
-
-        if (t.isArrayExpression(node)) {
-            return node.elements.map((el) => (el ? extractValueFromNode(el) : null))
-        }
-
-        if (t.isStringLiteral(node) || t.isNumericLiteral(node) || t.isBooleanLiteral(node)) {
-            return node.value
-        }
-
-        if (t.isNullLiteral(node)) {
-            return null
-        }
-
-        if (t.isIdentifier(node)) {
-            return findVariableValue(node.name)
-        }
-
-        if (t.isCallExpression(node)) {
-            if (t.isMemberExpression(node.callee)) {
-                const { object, property } = node.callee
-
-                if (t.isIdentifier(object) && t.isIdentifier(property)) {
-                    const baseArray = findVariableValue(object.name)
-                    if (baseArray && Array.isArray(baseArray)) {
-                        switch (property.name) {
-                            case "find":
-                                return baseArray.length > 0 ? baseArray[0] : null
-                            case "filter":
-                                return baseArray
-                            case "map":
-                                return baseArray
-                            default:
-                                return baseArray.length > 0 ? baseArray[0] : null
-                        }
-                    }
-                }
-            }
-
-            return null
-        }
-
-        return null
-    }
-
-    /**
-     * AST에서 변수의 실제 값을 찾습니다
-     * @param variableName
-     */
-    function findVariableValue(variableName: string): any {
-        if (!ast) return null
-
-        if (visitedVariables.has(variableName)) {
-            return null
-        }
-        visitedVariables.add(variableName)
-
-        let value: any = null
-        traverse(ast, {
-            VariableDeclarator(varPath: NodePath<t.VariableDeclarator>) {
-                if (
-                    t.isIdentifier(varPath.node.id) &&
-                    varPath.node.id.name === variableName &&
-                    varPath.node.init
-                ) {
-                    value = extractValueFromNode(varPath.node.init)
-
-                    if (value === null && t.isIdentifier(varPath.node.init)) {
-                        value = findVariableValue(varPath.node.init.name)
-                    }
-                }
-            },
-        })
-
-        visitedVariables.delete(variableName)
-        return value
-    }
-    /**
      * 재귀적으로 노드를 탐색하여 모든 ReturnStatement를 찾습니다.
      * @param node
      */
@@ -300,24 +179,13 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
 
     if (func.body && t.isBlockStatement(func.body)) {
         const allReturns = findAllReturnStatements(func.body)
-
         const returnStmt = selectBestReturnStatement(allReturns)
 
-        if (returnStmt) {
-            const arg = returnStmt.argument
-            if (!arg) {
-                return null
-            }
-
-            if (t.isIdentifier(arg)) {
-                const resolved = findVariableValue(arg.name)
-                returnValue = resolved ?? extractValueFromNode(arg)
-            } else {
-                returnValue = extractValueFromNode(arg)
-            }
+        if (returnStmt?.argument) {
+            returnValue = extractValue(returnStmt.argument, {}, {}, ast, visitedVariables)
         }
     } else if (func.body && t.isExpression(func.body)) {
-        returnValue = extractValueFromNode(func.body)
+        returnValue = extractValue(func.body, {}, {}, ast, visitedVariables)
     }
 
     return returnValue
