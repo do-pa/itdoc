@@ -34,12 +34,14 @@ import { analyzeResponseCall } from "./responseAnalyzer"
  * @param {string} source - 소스 코드
  * @param {any} ret - 분석 결과 저장 객체
  * @param {NodePath<t.CallExpression>} parentPath - 부모 노드
+ * @param {t.File} ast - 파일 AST
  */
 export function analyzeFunctionBody(
     functionNode: t.FunctionExpression | t.ArrowFunctionExpression,
     source: string,
     ret: any,
     parentPath: NodePath<t.CallExpression>,
+    ast?: t.File,
 ) {
     const localArrays: Record<string, any[]> = {}
 
@@ -50,7 +52,7 @@ export function analyzeFunctionBody(
                 analyzeVariableDeclarator(varPath, ret, localArrays)
             },
             CallExpression(callPath: NodePath<t.CallExpression>) {
-                analyzeResponseCall(callPath, source, ret, localArrays)
+                analyzeResponseCall(callPath, source, ret, localArrays, ast)
             },
             MemberExpression(memPath: NodePath<t.MemberExpression>) {
                 analyzeMemberExpression(memPath, ret)
@@ -67,6 +69,7 @@ export function analyzeFunctionBody(
  * @param {string} source - 소스 코드
  * @param {Record<string, string>} exportedRouters - 내보낸 라우터 정보
  * @param {RoutePrefix[]} routePrefixes - 라우트 프리픽스 목록
+ * @param {t.File} ast - 파일 AST
  * @returns {RouteResult[]} 라우트 분석 결과
  */
 export function analyzeRouteDefinition(
@@ -74,6 +77,7 @@ export function analyzeRouteDefinition(
     source: string,
     exportedRouters: Record<string, string>,
     routePrefixes: RoutePrefix[],
+    ast?: t.File,
 ): RouteResult[] {
     const { node } = pathExpr
 
@@ -122,7 +126,7 @@ export function analyzeRouteDefinition(
             branchResponses: {} as Record<string, BranchDetail>,
         }
 
-        analyzeFunctionBody(arg, source, ret, pathExpr)
+        analyzeFunctionBody(arg, source, ret, pathExpr, ast)
 
         results.push({
             method: ret.method,
@@ -166,6 +170,7 @@ export function analyzeFileRoutes(filePath: string, routePrefixes: RoutePrefix[]
                 source,
                 exportedRouters,
                 routePrefixes,
+                ast,
             )
             results.push(...routeResults)
         },

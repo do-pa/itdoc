@@ -37,17 +37,19 @@ function handleResponseStatus(call: t.CallExpression, target: BranchDetail) {
  * @param {BranchDetail} target - 브랜치 세부사항
  * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
  * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
+ * @param {t.File} ast - 파일 AST
  */
 function handleJsonResponse(
     call: t.CallExpression,
     target: BranchDetail,
     localArrays: Record<string, any[]>,
     variableMap: Record<string, any> = {},
+    ast?: t.File,
 ) {
     if (!call.arguments[0]) return
 
     const argNode = call.arguments[0]
-    const extractedValue = extractValue(argNode, localArrays, variableMap)
+    const extractedValue = extractValue(argNode, localArrays, variableMap, ast)
 
     if (extractedValue !== null) {
         target.json.push(extractedValue)
@@ -60,12 +62,14 @@ function handleJsonResponse(
  * @param {BranchDetail} target - 브랜치 세부사항
  * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
  * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
+ * @param {t.File} ast - 파일 AST
  */
 function handleHeaderResponse(
     call: t.CallExpression,
     target: BranchDetail,
     localArrays: Record<string, any[]>,
     variableMap: Record<string, any> = {},
+    ast?: t.File,
 ) {
     const callee = call.callee as t.MemberExpression
     if (!t.isIdentifier(callee.property)) return
@@ -75,7 +79,7 @@ function handleHeaderResponse(
     if (method === "setHeader" && t.isStringLiteral(call.arguments[0]) && call.arguments[1]) {
         target.headers.push({
             key: call.arguments[0].value,
-            value: extractValue(call.arguments[1], localArrays, variableMap),
+            value: extractValue(call.arguments[1], localArrays, variableMap, ast),
         })
     } else if (method === "set" && t.isObjectExpression(call.arguments[0])) {
         call.arguments[0].properties.forEach((prop) => {
@@ -86,7 +90,7 @@ function handleHeaderResponse(
                 const key = t.isIdentifier(prop.key) ? prop.key.name : prop.key.value
                 target.headers.push({
                     key,
-                    value: extractValue(prop.value as t.Node, localArrays, variableMap),
+                    value: extractValue(prop.value as t.Node, localArrays, variableMap, ast),
                 })
             }
         })
@@ -99,12 +103,14 @@ function handleHeaderResponse(
  * @param {string} source - 소스 코드
  * @param {any} ret - 분석 결과 저장 객체
  * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
+ * @param {t.File} ast - 파일 AST
  */
 export function analyzeResponseCall(
     callPath: NodePath<t.CallExpression>,
     source: string,
     ret: any,
     localArrays: Record<string, any[]>,
+    ast?: t.File,
 ) {
     const call = callPath.node
 
@@ -129,11 +135,16 @@ export function analyzeResponseCall(
             handleResponseStatus(call, target)
             break
         case "json":
-            handleJsonResponse(call, target, localArrays, variableMap)
+            handleJsonResponse(call, target, localArrays, variableMap, ast)
             break
         case "send":
             if (call.arguments[0]) {
-                const extractedValue = extractValue(call.arguments[0], localArrays, variableMap)
+                const extractedValue = extractValue(
+                    call.arguments[0],
+                    localArrays,
+                    variableMap,
+                    ast,
+                )
                 if (extractedValue !== null) {
                     target.send.push(extractedValue)
                 }
@@ -141,7 +152,7 @@ export function analyzeResponseCall(
             break
         case "setHeader":
         case "set":
-            handleHeaderResponse(call, target, localArrays, variableMap)
+            handleHeaderResponse(call, target, localArrays, variableMap, ast)
             break
     }
 }

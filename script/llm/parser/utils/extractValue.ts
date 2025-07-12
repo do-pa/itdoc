@@ -102,19 +102,18 @@ export function extractValue(
                     obj[key] = null
                 }
             } else if (t.isSpreadElement(prop)) {
-                const spreadValue = extractValue(
+                const resolved = resolveSpreadValue(
                     prop.argument,
                     localArrays,
                     variableMap,
                     ast,
                     visitedVariables,
                 )
-
-                if (spreadValue && typeof spreadValue === "object" && !Array.isArray(spreadValue)) {
-                    Object.assign(obj, spreadValue)
+                if (resolved && typeof resolved === "object" && !Array.isArray(resolved)) {
+                    Object.assign(obj, resolved)
                     hasActualValues = true
                 } else if (t.isIdentifier(prop.argument)) {
-                    obj[`...${prop.argument.name}`] = "<spread>"
+                    obj[`...${prop.argument.name}`] = resolved || "<spread>"
                     hasActualValues = true
                 } else {
                     hasActualValues = true
@@ -126,17 +125,35 @@ export function extractValue(
     }
 
     if (t.isArrayExpression(node)) {
-        const elements = node.elements
-            .map((el) =>
-                el ? extractValue(el, localArrays, variableMap, ast, visitedVariables) : null,
-            )
-            .filter((value) => value !== null)
+        const elements: any[] = []
+
+        node.elements.forEach((el) => {
+            if (!el) return
+
+            if (t.isSpreadElement(el)) {
+                const resolved = resolveSpreadValue(
+                    el.argument,
+                    localArrays,
+                    variableMap,
+                    ast,
+                    visitedVariables,
+                )
+                if (Array.isArray(resolved)) {
+                    elements.push(...resolved)
+                } else if (resolved !== null) {
+                    elements.push(resolved)
+                } else if (t.isIdentifier(el.argument)) {
+                    elements.push(`<spread:${el.argument.name}>`)
+                }
+            } else {
+                const value = extractValue(el, localArrays, variableMap, ast, visitedVariables)
+                if (value !== null) {
+                    elements.push(value)
+                }
+            }
+        })
 
         return elements.length > 0 ? elements : null
-    }
-
-    if (t.isCallExpression(node)) {
-        return createFunctionIdentifier(node)
     }
 
     if (t.isIdentifier(node)) {
@@ -154,6 +171,40 @@ export function extractValue(
         }
 
         return null
+    }
+
+    if (t.isCallExpression(node)) {
+        return createFunctionIdentifier(node)
+    }
+
+    return null
+}
+
+/**
+ *
+ * @param node
+ * @param localArrays
+ * @param variableMap
+ * @param ast
+ * @param visitedVariables
+ */
+function resolveSpreadValue(
+    node: t.Node,
+    localArrays: Record<string, any[]>,
+    variableMap: Record<string, any>,
+    ast?: t.File,
+    visitedVariables: Set<string> = new Set(),
+): any {
+    const direct = extractValue(node, localArrays, variableMap, ast, visitedVariables)
+    if (direct !== null) return direct
+
+    if (t.isIdentifier(node)) {
+        const name = node.name
+        return (
+            localArrays[name] ||
+            variableMap[name] ||
+            (ast ? findVariableValue(name, ast, visitedVariables, localArrays, variableMap) : null)
+        )
     }
 
     return null
@@ -184,6 +235,8 @@ function findVariableValue(
     let value: any = null
     traverse(ast, {
         VariableDeclarator(varPath: NodePath<t.VariableDeclarator>) {
+            if (value !== null) return
+
             if (
                 t.isIdentifier(varPath.node.id) &&
                 varPath.node.id.name === variableName &&
@@ -196,18 +249,11 @@ function findVariableValue(
                     ast,
                     visitedVariables,
                 )
-                if (value === null && t.isIdentifier(varPath.node.init)) {
-                    value = findVariableValue(
-                        varPath.node.init.name,
-                        ast,
-                        visitedVariables,
-                        localArrays,
-                        variableMap,
-                    )
-                }
             }
         },
         AssignmentExpression(assignPath: NodePath<t.AssignmentExpression>) {
+            if (value !== null) return
+
             if (
                 t.isIdentifier(assignPath.node.left) &&
                 assignPath.node.left.name === variableName

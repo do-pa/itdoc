@@ -14,7 +14,32 @@ app.use(express.json())
 app.use("/api/products", productRoutes)
 
 app.get("/health", (_req, res) => {
-    res.status(200).json({ status: "OK", message: "Server is running" })
+    const baseResponse = {
+        status: "OK",
+        message: "Server is running",
+    }
+
+    const runtimeInfo = {
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memoryUsage: process.memoryUsage(),
+    }
+
+    const systemInfo = {
+        nodeVersion: process.version,
+        platform: process.platform,
+        cpuCount: process.cpuUsage().user,
+        env: process.env.NODE_ENV || "unknown",
+    }
+
+    const healthPayload = {
+        ...baseResponse,
+        data: {
+            ...runtimeInfo,
+            ...systemInfo,
+        },
+    }
+    res.status(200).json(healthPayload)
 })
 
 app.use((err: Error, _req: express.Request, res: express.Response) => {
