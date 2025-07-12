@@ -6,7 +6,7 @@ const router = express.Router()
 router.get("/", async (req: express.Request, res: express.Response) => {
     try {
         const products = await ProductService.getAllProducts()
-        res.json(products)
+        res.status(200).json(products)
     } catch (error) {
         res.status(500).json({ message: "Error fetching products" })
     }
@@ -21,7 +21,7 @@ router.get("/:id", async (req: express.Request, res: express.Response) => {
             return res.status(404).json({ message: "Product not found" })
         }
 
-        res.json(product)
+        res.status(200).json(product)
     } catch (error) {
         res.status(500).json({ message: "Error fetching product" })
     }
@@ -62,7 +62,7 @@ router.put("/:id", async (req: express.Request, res: express.Response) => {
             return res.status(404).json({ message: "Product not found" })
         }
 
-        res.json(updatedProduct)
+        res.status(200).json(updatedProduct)
     } catch (error) {
         res.status(500).json({ message: "Error updating product" })
     }

@@ -21,7 +21,7 @@ export const ProductService = {
 
     createProduct: async (productData: Omit<Product, "id">): Promise<Product> => {
         const newProduct = {
-            id: products.length + 1,
+            id: 3,
             ...productData,
         }
         products.push(newProduct)
