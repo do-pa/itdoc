@@ -52,7 +52,166 @@ export function createFunctionIdentifier(callExpression: t.CallExpression): obje
 }
 
 /**
- * 고급 값 추출 함수 - SpreadElement, CallExpression 등 복잡한 케이스 처리
+ * 기본 리터럴 값들을 처리합니다
+ * @param node
+ */
+function extractLiteralValue(node: t.Node): any {
+    if (t.isStringLiteral(node)) return node.value
+    if (t.isNumericLiteral(node) || t.isBooleanLiteral(node)) return node.value
+    if (t.isNullLiteral(node)) return null
+    return undefined
+}
+
+/**
+ * 객체 표현식을 처리합니다
+ * @param node
+ * @param localArrays
+ * @param variableMap
+ * @param ast
+ * @param visitedVariables
+ */
+function extractObjectValue(
+    node: t.ObjectExpression,
+    localArrays: Record<string, any[]>,
+    variableMap: Record<string, any>,
+    ast?: t.File,
+    visitedVariables: Set<string> = new Set(),
+): any {
+    const obj: Record<string, any> = {}
+    let hasActualValues = false
+
+    node.properties.forEach((prop) => {
+        if (t.isObjectProperty(prop) && (t.isIdentifier(prop.key) || t.isStringLiteral(prop.key))) {
+            const key = t.isIdentifier(prop.key) ? prop.key.name : prop.key.value
+            const value = extractValue(
+                prop.value as t.Node,
+                localArrays,
+                variableMap,
+                ast,
+                visitedVariables,
+            )
+
+            obj[key] = value !== null ? value : null
+            if (value !== null) hasActualValues = true
+        } else if (t.isSpreadElement(prop)) {
+            hasActualValues = true
+            const resolved = resolveSpreadValue(
+                prop.argument,
+                localArrays,
+                variableMap,
+                ast,
+                visitedVariables,
+            )
+
+            if (resolved && typeof resolved === "object" && !Array.isArray(resolved)) {
+                Object.assign(obj, resolved)
+            } else if (t.isIdentifier(prop.argument)) {
+                if (!resolved && ast) {
+                    const deepResolved = findVariableValue(
+                        prop.argument.name,
+                        ast,
+                        visitedVariables,
+                        localArrays,
+                        variableMap,
+                    )
+                    if (
+                        deepResolved &&
+                        typeof deepResolved === "object" &&
+                        !Array.isArray(deepResolved)
+                    ) {
+                        Object.assign(obj, deepResolved)
+                    } else {
+                        obj[`...${prop.argument.name}`] = deepResolved || "<spread>"
+                    }
+                } else {
+                    obj[`...${prop.argument.name}`] = resolved || "<spread>"
+                }
+            }
+        }
+    })
+
+    return hasActualValues ? obj : null
+}
+
+/**
+ * 배열 표현식을 처리합니다
+ * @param node
+ * @param localArrays
+ * @param variableMap
+ * @param ast
+ * @param visitedVariables
+ */
+function extractArrayValue(
+    node: t.ArrayExpression,
+    localArrays: Record<string, any[]>,
+    variableMap: Record<string, any>,
+    ast?: t.File,
+    visitedVariables: Set<string> = new Set(),
+): any {
+    const elements: any[] = []
+
+    node.elements.forEach((el) => {
+        if (!el) return
+
+        if (t.isSpreadElement(el)) {
+            const resolved = resolveSpreadValue(
+                el.argument,
+                localArrays,
+                variableMap,
+                ast,
+                visitedVariables,
+            )
+            if (Array.isArray(resolved)) {
+                elements.push(...resolved)
+            } else if (resolved !== null) {
+                elements.push(resolved)
+            } else if (t.isIdentifier(el.argument)) {
+                elements.push(`<spread:${el.argument.name}>`)
+            }
+        } else {
+            const value = extractValue(el, localArrays, variableMap, ast, visitedVariables)
+            if (value !== null) {
+                elements.push(value)
+            }
+        }
+    })
+
+    return elements.length > 0 ? elements : null
+}
+
+/**
+ * 식별자를 처리합니다
+ * @param node
+ * @param localArrays
+ * @param variableMap
+ * @param ast
+ * @param visitedVariables
+ */
+function extractIdentifierValue(
+    node: t.Identifier,
+    localArrays: Record<string, any[]>,
+    variableMap: Record<string, any>,
+    ast?: t.File,
+    visitedVariables: Set<string> = new Set(),
+): any {
+    const name = node.name
+
+    if (localArrays[name]) return localArrays[name]
+
+    if (variableMap[name]) {
+        const mapping = variableMap[name]
+        return mapping.sample || mapping
+    }
+
+    if (ast) {
+        return findVariableValue(name, ast, visitedVariables, localArrays, variableMap)
+    }
+
+    return null
+}
+
+/**
+ * 값 추출 함수
  * @param {t.Node} node - 추출할 AST 노드
  * @param {Record<string, any[]>} localArrays - 로컬에서 정의된 배열 변수 맵
  * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
@@ -67,110 +226,19 @@ export function extractValue(
     ast?: t.File,
     visitedVariables: Set<string> = new Set(),
 ): any {
-    if (t.isStringLiteral(node)) {
-        return node.value
-    }
-    if (t.isNumericLiteral(node) || t.isBooleanLiteral(node)) {
-        return node.value
-    }
-    if (t.isNullLiteral(node)) {
-        return null
-    }
+    const literalValue = extractLiteralValue(node)
+    if (literalValue !== undefined) return literalValue
 
     if (t.isObjectExpression(node)) {
-        const obj: Record<string, any> = {}
-        let hasActualValues = false
-
-        node.properties.forEach((prop) => {
-            if (
-                t.isObjectProperty(prop) &&
-                (t.isIdentifier(prop.key) || t.isStringLiteral(prop.key))
-            ) {
-                const key = t.isIdentifier(prop.key) ? prop.key.name : prop.key.value
-                const value = extractValue(
-                    prop.value as t.Node,
-                    localArrays,
-                    variableMap,
-                    ast,
-                    visitedVariables,
-                )
-
-                if (value !== null) {
-                    obj[key] = value
-                    hasActualValues = true
-                } else {
-                    obj[key] = null
-                }
-            } else if (t.isSpreadElement(prop)) {
-                const resolved = resolveSpreadValue(
-                    prop.argument,
-                    localArrays,
-                    variableMap,
-                    ast,
-                    visitedVariables,
-                )
-                if (resolved && typeof resolved === "object" && !Array.isArray(resolved)) {
-                    Object.assign(obj, resolved)
-                    hasActualValues = true
-                } else if (t.isIdentifier(prop.argument)) {
-                    obj[`...${prop.argument.name}`] = resolved || "<spread>"
-                    hasActualValues = true
-                } else {
-                    hasActualValues = true
-                }
-            }
-        })
-
-        return hasActualValues ? obj : null
+        return extractObjectValue(node, localArrays, variableMap, ast, visitedVariables)
     }
 
     if (t.isArrayExpression(node)) {
-        const elements: any[] = []
-
-        node.elements.forEach((el) => {
-            if (!el) return
-
-            if (t.isSpreadElement(el)) {
-                const resolved = resolveSpreadValue(
-                    el.argument,
-                    localArrays,
-                    variableMap,
-                    ast,
-                    visitedVariables,
-                )
-                if (Array.isArray(resolved)) {
-                    elements.push(...resolved)
-                } else if (resolved !== null) {
-                    elements.push(resolved)
-                } else if (t.isIdentifier(el.argument)) {
-                    elements.push(`<spread:${el.argument.name}>`)
-                }
-            } else {
-                const value = extractValue(el, localArrays, variableMap, ast, visitedVariables)
-                if (value !== null) {
-                    elements.push(value)
-                }
-            }
-        })
-
-        return elements.length > 0 ? elements : null
+        return extractArrayValue(node, localArrays, variableMap, ast, visitedVariables)
     }
 
     if (t.isIdentifier(node)) {
-        const name = node.name
-
-        if (localArrays[name]) return localArrays[name]
-
-        if (variableMap[name]) {
-            const mapping = variableMap[name]
-            return mapping.sample || mapping
-        }
-
-        if (ast) {
-            return findVariableValue(name, ast, visitedVariables, localArrays, variableMap)
-        }
-
-        return null
+        return extractIdentifierValue(node, localArrays, variableMap, ast, visitedVariables)
     }
 
     if (t.isCallExpression(node)) {
@@ -181,12 +249,13 @@ export function extractValue(
 }
 
 /**
- *
- * @param node
- * @param localArrays
- * @param variableMap
- * @param ast
- * @param visitedVariables
+ * 스프레드 연산자에서 참조하는 값을 해결합니다
+ * @param {t.Node} node - 스프레드 대상 노드
+ * @param {Record<string, any[]>} localArrays - 로컬 배열 맵
+ * @param {Record<string, any>} variableMap - 변수 맵
+ * @param {t.File} ast - 파일 AST
+ * @param {Set<string>} visitedVariables - 방문한 변수들
+ * @returns {any} 해결된 값 또는 null
  */
 function resolveSpreadValue(
     node: t.Node,
@@ -195,19 +264,76 @@ function resolveSpreadValue(
     ast?: t.File,
     visitedVariables: Set<string> = new Set(),
 ): any {
-    const direct = extractValue(node, localArrays, variableMap, ast, visitedVariables)
-    if (direct !== null) return direct
-
     if (t.isIdentifier(node)) {
         const name = node.name
-        return (
-            localArrays[name] ||
-            variableMap[name] ||
-            (ast ? findVariableValue(name, ast, visitedVariables, localArrays, variableMap) : null)
-        )
+        if (visitedVariables.has(name)) return null
+
+        visitedVariables.add(name)
+
+        if (localArrays[name]) {
+            visitedVariables.delete(name)
+            return localArrays[name]
+        }
+
+        if (variableMap[name]) {
+            visitedVariables.delete(name)
+            return variableMap[name]
+        }
+
+        if (ast) {
+            let result: any = null
+            traverse(ast, {
+                VariableDeclarator(varPath: NodePath<t.VariableDeclarator>) {
+                    if (result !== null) return
+
+                    if (
+                        t.isIdentifier(varPath.node.id) &&
+                        varPath.node.id.name === name &&
+                        varPath.node.init
+                    ) {
+                        if (t.isObjectExpression(varPath.node.init)) {
+                            const obj: Record<string, any> = {}
+                            varPath.node.init.properties.forEach((prop) => {
+                                if (
+                                    t.isObjectProperty(prop) &&
+                                    (t.isIdentifier(prop.key) || t.isStringLiteral(prop.key))
+                                ) {
+                                    const key = t.isIdentifier(prop.key)
+                                        ? prop.key.name
+                                        : prop.key.value
+                                    const value = extractValue(
+                                        prop.value as t.Node,
+                                        localArrays,
+                                        variableMap,
+                                        ast,
+                                        visitedVariables,
+                                    )
+                                    obj[key] = value
+                                }
+                            })
+                            result = obj
+                        } else {
+                            result = extractValue(
+                                varPath.node.init,
+                                localArrays,
+                                variableMap,
+                                ast,
+                                visitedVariables,
+                            )
+                        }
+                    }
+                },
+            })
+
+            visitedVariables.delete(name)
+            return result
+        }
+
+        visitedVariables.delete(name)
+        return null
     }
 
-    return null
+    return extractValue(node, localArrays, variableMap, ast, visitedVariables)
 }
 
 /**
