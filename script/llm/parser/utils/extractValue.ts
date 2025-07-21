@@ -78,7 +78,6 @@ function extractObjectValue(
     visitedVariables: Set<string> = new Set(),
 ): any {
     const obj: Record<string, any> = {}
-    let hasActualValues = false
 
     node.properties.forEach((prop) => {
         if (t.isObjectProperty(prop) && (t.isIdentifier(prop.key) || t.isStringLiteral(prop.key))) {
@@ -92,9 +91,7 @@ function extractObjectValue(
             )
 
             obj[key] = value !== null ? value : null
-            if (value !== null) hasActualValues = true
         } else if (t.isSpreadElement(prop)) {
-            hasActualValues = true
             const resolved = resolveSpreadValue(
                 prop.argument,
                 localArrays,
@@ -130,7 +127,7 @@ function extractObjectValue(
         }
     })
 
-    return hasActualValues ? obj : null
+    return obj
 }
 
 /**
@@ -176,7 +173,7 @@ function extractArrayValue(
         }
     })
 
-    return elements.length > 0 ? elements : null
+    return elements
 }
 
 /**
