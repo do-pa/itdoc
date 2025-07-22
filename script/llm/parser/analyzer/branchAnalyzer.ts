@@ -16,7 +16,7 @@
 
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
-import { BranchDetail } from "./interface"
+import { BranchDetail } from "../type/interface"
 
 /**
  * 조건문 브랜치 키를 결정합니다
