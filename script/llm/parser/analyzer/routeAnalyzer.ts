@@ -18,9 +18,13 @@ import traversePkg, { NodePath } from "@babel/traverse"
 // @ts-expect-error - CommonJS/ES modules 호환성 이슈로 인한 타입 에러 무시
 const traverse = traversePkg.default
 import * as t from "@babel/types"
-import { RouteResult, BranchDetail, RoutePrefix } from "./interface"
-import { parseFile } from "./fileParser"
-import { collectExportedRouters, determineRoutePrefix, buildFullPath } from "./routeCollector"
+import { RouteResult, BranchDetail, RoutePrefix } from "../type/interface"
+import { parseFile } from "../utils/fileParser"
+import {
+    collectExportedRouters,
+    determineRoutePrefix,
+    buildFullPath,
+} from "../collector/routeCollector"
 import { analyzeVariableDeclarator, analyzeMemberExpression } from "./variableAnalyzer"
 import { analyzeResponseCall } from "./responseAnalyzer"
 
@@ -30,14 +34,14 @@ import { analyzeResponseCall } from "./responseAnalyzer"
  * @param {string} source - 소스 코드
  * @param {any} ret - 분석 결과 저장 객체
  * @param {NodePath<t.CallExpression>} parentPath - 부모 노드
- * @param {string} filePath - 현재 파일 경로
+ * @param {t.File} ast - 파일 AST
  */
 export function analyzeFunctionBody(
     functionNode: t.FunctionExpression | t.ArrowFunctionExpression,
     source: string,
     ret: any,
     parentPath: NodePath<t.CallExpression>,
-    filePath: string,
+    ast?: t.File,
 ) {
     const localArrays: Record<string, any[]> = {}
 
@@ -45,10 +49,10 @@ export function analyzeFunctionBody(
         functionNode.body as t.Node,
         {
             VariableDeclarator(varPath: NodePath<t.VariableDeclarator>) {
-                analyzeVariableDeclarator(varPath, ret, localArrays, filePath)
+                analyzeVariableDeclarator(varPath, ret, localArrays)
             },
             CallExpression(callPath: NodePath<t.CallExpression>) {
-                analyzeResponseCall(callPath, source, ret, localArrays)
+                analyzeResponseCall(callPath, source, ret, localArrays, ast)
             },
             MemberExpression(memPath: NodePath<t.MemberExpression>) {
                 analyzeMemberExpression(memPath, ret)
@@ -65,7 +69,7 @@ export function analyzeFunctionBody(
  * @param {string} source - 소스 코드
  * @param {Record<string, string>} exportedRouters - 내보낸 라우터 정보
  * @param {RoutePrefix[]} routePrefixes - 라우트 프리픽스 목록
- * @param {string} filePath - 현재 파일 경로
+ * @param {t.File} ast - 파일 AST
  * @returns {RouteResult[]} 라우트 분석 결과
  */
 export function analyzeRouteDefinition(
@@ -73,7 +77,7 @@ export function analyzeRouteDefinition(
     source: string,
     exportedRouters: Record<string, string>,
     routePrefixes: RoutePrefix[],
-    filePath: string,
+    ast?: t.File,
 ): RouteResult[] {
     const { node } = pathExpr
 
@@ -122,7 +126,7 @@ export function analyzeRouteDefinition(
             branchResponses: {} as Record<string, BranchDetail>,
         }
 
-        analyzeFunctionBody(arg, source, ret, pathExpr, filePath)
+        analyzeFunctionBody(arg, source, ret, pathExpr, ast)
 
         results.push({
             method: ret.method,
@@ -166,7 +170,7 @@ export function analyzeFileRoutes(filePath: string, routePrefixes: RoutePrefix[]
                 source,
                 exportedRouters,
                 routePrefixes,
-                filePath,
+                ast,
             )
             results.push(...routeResults)
         },
