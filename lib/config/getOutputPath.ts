@@ -19,7 +19,23 @@ import { readItdocConfig } from "./readPackageJson"
 import logger from "./logger"
 
 /**
+ * Returns the absolute output path for generated documentation files.
  *
+ * This function reads the output directory from the "itdoc.output" field
+ * in the project's package.json using the `readItdocConfig` utility.
+ * If the configured path is relative, it is resolved against the current working directory.
+ *
+ * It also logs the resolved path for developer visibility.
+ * @function
+ * @returns {string} The absolute path where output files should be saved.
+ * @example
+ * // In package.json:
+ * {
+ *   "itdoc": {
+ *     "output": "docs/generated"
+ *   }
+ * }
+ * // Returns: /absolute/path/to/project/docs/generated
  */
 export function getOutputPath(): string {
     let outputPath = readItdocConfig("output", "output")
@@ -29,10 +45,8 @@ export function getOutputPath(): string {
     }
 
     logger.info(
-        `
-        itdoc - output 경로는 다음과 같습니다. : ${outputPath}
-        output 경로는 package.json내의 itdoc - output을 수정해서 바꿀 수 있습니다.`,
-        `ex) {itdoc:{output : 'output'}}`,
+        `itdoc.output path is set to: ${outputPath} You can change this path by modifying the 'itdoc.output' field in package.json.`,
+        `ex) { "itdoc": { "output": "anotherPath" } }`,
     )
 
     return outputPath

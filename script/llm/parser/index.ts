@@ -18,6 +18,7 @@ import { RouteResult } from "./type/interface"
 import { getProjectFiles } from "./utils/fileParser"
 import { collectRoutePrefixes } from "./collector/routeCollector"
 import { analyzeFileRoutes } from "./analyzer/routeAnalyzer"
+import logger from "../../../lib/config/logger"
 
 /**
  * 주어진 Express 앱 파일을 시작점으로
@@ -27,13 +28,18 @@ import { analyzeFileRoutes } from "./analyzer/routeAnalyzer"
  */
 export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
     const files = getProjectFiles(appPath)
+    logger.info(`[analyzeRoutes] Found ${files.length} files for route analysis`)
+
     const routePrefixes = collectRoutePrefixes(files)
     const results: RouteResult[] = []
 
     for (const file of files) {
+        logger.debug(`[analyzeRoutes] Analyzing file: ${file}`)
         const fileResults = analyzeFileRoutes(file, routePrefixes)
         results.push(...fileResults)
     }
-
+    logger.info(
+        `[analyzeRoutes] Analyzed ${results.length} API endpoint${results.length !== 1 ? "s" : ""}`,
+    )
     return results
 }
