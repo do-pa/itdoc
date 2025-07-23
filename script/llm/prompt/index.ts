@@ -62,7 +62,9 @@ export function getItdocPrompt(
 - 모든 라우터에 대한 테스트를 포함해야 합니다.
 - field는 field("a", "b") 처럼 2개의 매개변수를 반드시 포함해야 합니다. field로만 나오면 안됩니다.
 - 중복되는 설명은 없어야 합니다.
-- HTTP 헤더와 같이 하이픈(-)이 포함된 키는 반드시 큰따옴표로 감싸야 합니다. 예: "Cache-Control", "Last-Modified" (✅) Cache-Control, Last-Modified (❌) 
+- HTTP 헤더와 같이 하이픈(-)이 포함된 키는 반드시 큰따옴표로 감싸야 합니다. 
+ 올바른 예시: "Cache-Control", "Last-Modified" 
+ 잘못된 예시: Cache-Control, Last-Modified (no) 
 - 코드 설명 없이 코드만 출력해야 하며, \`(1/10)\` 같은 자동 분할 제목은 넣지 마세요.
 - 출력은 ${codeMessage}로만 구성되어야 하며, 백틱 블록(\`\`\`)도 사용하지 않습니다.
 - ${partGuide}

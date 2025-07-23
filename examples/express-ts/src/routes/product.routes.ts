@@ -1,7 +1,6 @@
 import express from "express"
-import { ProductService } from "../services/productService"
-
 const router = express.Router()
+import { ProductService } from "../services/productService"
 
 router.get("/", async (req: express.Request, res: express.Response) => {
     try {
