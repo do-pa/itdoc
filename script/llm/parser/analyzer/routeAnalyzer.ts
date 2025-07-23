@@ -29,21 +29,13 @@ import {
 } from "../collector/routeCollector"
 import { analyzeVariableDeclarator, analyzeMemberExpression } from "./variableAnalyzer"
 import { analyzeResponseCall } from "./responseAnalyzer"
-
-/**
- * import 문에서 함수가 어느 파일에서 import되는지 찾습니다.
- * @param {string} functionName - 찾을 함수명
- * @param {t.File} ast - 파일 AST
- * @param {string} currentFilePath - 현재 파일 경로
- * @returns {string | null} import된 파일 경로 또는 null
- */
-
 const EXTENSIONS = [".ts", ".js", ".cjs", ".mjs"]
 /**
- *
- * @param functionName
- * @param ast
- * @param currentFilePath
+ * Finds the file path from which a specific function is imported within the given AST.
+ * @param {string} functionName - The name of the function to locate.
+ * @param {t.File} ast - The Babel-parsed AST of the current file.
+ * @param {string} currentFilePath - The file path of the currently parsed file.
+ * @returns {string | null} - The resolved absolute file path where the function is imported from, or null if not found.
  */
 function findImportedFilePath(
     functionName: string,
@@ -84,11 +76,12 @@ function findImportedFilePath(
 }
 
 /**
- * AST에서 함수 정의를 찾습니다.
- * @param {string} functionName - 찾을 함수명
- * @param {t.File} ast - 파일 AST
- * @param {string} currentFilePath - 현재 파일 경로 (import 추적용)
- * @returns {t.FunctionExpression | t.ArrowFunctionExpression | null} 함수 노드 또는 null
+ * Searches for the function definition of a given function name within an AST.
+ * It also follows import declarations if the function is imported from another file.
+ * @param {string} functionName - The name of the function to locate.
+ * @param {t.File} ast - The Babel-parsed AST of the file.
+ * @param {string} [currentFilePath] - The current file path (used for resolving imported functions).
+ * @returns {t.FunctionExpression | t.ArrowFunctionExpression | null} - The matched function expression or null if not found.
  */
 function findFunctionDefinition(
     functionName: string,
@@ -168,12 +161,12 @@ function findFunctionDefinition(
 }
 
 /**
- * 함수 내부를 순회하여 라우트 세부사항을 분석합니다.
- * @param {t.FunctionExpression | t.ArrowFunctionExpression} functionNode - 함수 노드
- * @param {string} source - 소스 코드
- * @param {any} ret - 분석 결과 저장 객체
- * @param {NodePath<t.CallExpression>} parentPath - 부모 노드
- * @param {t.File} ast - 파일 AST
+ * Analyzes the body of a given function node to collect request/response information.
+ * @param {t.FunctionExpression | t.ArrowFunctionExpression} functionNode - The function node to analyze.
+ * @param {string} source - The source code of the file.
+ * @param {any} ret - The object that collects analysis results.
+ * @param {NodePath<t.CallExpression>} parentPath - The parent call expression node.
+ * @param {t.File} [ast] - The full AST of the file, used for nested function analysis.
  */
 export function analyzeFunctionBody(
     functionNode: t.FunctionExpression | t.ArrowFunctionExpression,
@@ -203,14 +196,14 @@ export function analyzeFunctionBody(
 }
 
 /**
- * 라우트 정의를 분석합니다.
- * @param {NodePath<t.CallExpression>} pathExpr - 호출 표현식 노드
- * @param {string} source - 소스 코드
- * @param {Record<string, string>} exportedRouters - 내보낸 라우터 정보
- * @param {RoutePrefix[]} routePrefixes - 라우트 프리픽스 목록
- * @param {t.File} ast - 파일 AST
- * @param {string} filePath - 현재 파일 경로
- * @returns {RouteResult[]} 라우트 분석 결과
+ * Analyzes a call expression that represents an HTTP route definition (e.g., app.get).
+ * @param {NodePath<t.CallExpression>} pathExpr - The call expression node to analyze.
+ * @param {string} source - The source code of the file.
+ * @param {Record<string, string>} exportedRouters - A map of exported router variables and their identifiers.
+ * @param {RoutePrefix[]} routePrefixes - List of known route prefixes to resolve full paths.
+ * @param {t.File} [ast] - The AST of the current file.
+ * @param {string} [filePath] - The file path, used for resolving imported handlers.
+ * @returns {RouteResult[]} - An array of analyzed route definitions with metadata.
  */
 export function analyzeRouteDefinition(
     pathExpr: NodePath<t.CallExpression>,
@@ -299,10 +292,10 @@ export function analyzeRouteDefinition(
 }
 
 /**
- * 단일 파일에서 라우트를 분석합니다.
- * @param {string} filePath - 파일 경로
- * @param {RoutePrefix[]} routePrefixes - 라우트 프리픽스 목록
- * @returns {RouteResult[]} 라우트 분석 결과
+ * Analyzes all route definitions in a given file.
+ * @param {string} filePath - The path to the source file to be analyzed.
+ * @param {RoutePrefix[]} routePrefixes - List of known route prefixes to resolve full paths.
+ * @returns {RouteResult[]} - An array of route definitions found in the file.
  */
 export function analyzeFileRoutes(filePath: string, routePrefixes: RoutePrefix[]): RouteResult[] {
     const parsed = parseFile(filePath)
