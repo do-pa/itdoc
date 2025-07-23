@@ -26,15 +26,14 @@ if (isRootHelp) {
     logger.box("ITDOC CLI")
 }
 const program = new Command()
-
 program
     .command("generate")
-    .description("LLM 기반 ITDOC 테스트 코드를 생성합니다.")
-    .option("-p, --path <testspecPath>", "테스트 스펙 마크다운 경로가 설정됩니다.", undefined)
-    .option("-a, --app <appPath>", "express로 만들어진 root app 경로가 설정됩니다.", undefined)
-    .option("-e, --env <envPath>", ".env 파일 경로를 지정합니다", undefined)
+    .description("Generate ITDOC test code based on LLM.")
+    .option("-p, --path <testspecPath>", "Path to the markdown test spec file.", undefined)
+    .option("-a, --app <appPath>", "Path to the Express root app file.", undefined)
+    .option("-e, --env <envPath>", "Path to the .env file.", undefined)
     .action((options: { path?: string; env?: string; app?: string }) => {
-        // .env 로드
+        // Load .env
         const envPath = options.env
             ? path.isAbsolute(options.env)
                 ? options.env
@@ -42,22 +41,24 @@ program
             : path.resolve(process.cwd(), ".env")
 
         if (!options.path && !options.app) {
-            logger.error("테스트 스펙(-p) 또는 express app 경로(-a) 중 적어도 하나는 필수입니다.")
-            logger.info("ex) itdoc generate -p ../md/testspec.md")
-            logger.info("ex) itdoc generate --path ../md/testspec.md")
-            logger.info("ex) itdoc generate -a ../app.js")
-            logger.info("ex) itdoc generate --app ../app.js")
+            logger.error(
+                "Either a test spec path (-p) or an Express app path (-a) must be provided.",
+            )
+            logger.info("Example: itdoc generate -p ../md/testspec.md")
+            logger.info("Example: itdoc generate --path ../md/testspec.md")
+            logger.info("Example: itdoc generate -a ../app.js")
+            logger.info("Example: itdoc generate --app ../app.js")
             process.exit(1)
         }
 
-        logger.box(`ITDOC LLM START`)
+        logger.box("ITDOC LLM START")
         if (options.app) {
             const appPath = resolvePath(options.app)
-            logger.info(`express app 경로 기반으로 분석을 실행합니다. ${appPath}`)
+            logger.info(`Running analysis based on Express app path: ${appPath}`)
             generateByLLM("", appPath, envPath)
         } else if (options.path) {
             const specPath = resolvePath(options.path)
-            logger.info(`테스트명세서(MD) 경로 기반으로 분석을 실행합니다. ${specPath}`)
+            logger.info(`Running analysis based on test spec (MD) path: ${specPath}`)
             generateByLLM(specPath, "", envPath)
         }
     })

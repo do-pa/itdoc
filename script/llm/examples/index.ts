@@ -1,9 +1,4 @@
-export const itdocExampleJs = `
-const app = require("../expressApp.js")
-const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
-
-const targetApp = app
-
+export const itdocExampleJs = ` 
 describeAPI(
     HttpMethod.POST,
     "signup",
@@ -72,10 +67,7 @@ describeAPI(
     },
 )
 `
-export const itdocExampleTs = `
-import { app } from "../index"
-import { describeAPI, itDoc, HttpStatus, field, HttpMethod } from "itdoc"
-
+export const itdocExampleTs = ` 
 describeAPI(
     HttpMethod.GET,
     "/api/products/:id",
