@@ -45,9 +45,7 @@ export function getOutputPath(): string {
     }
 
     logger.info(
-        `
-        itdoc - The output path is set to: ${outputPath}
-        You can change this path by modifying the 'itdoc.output' field in package.json.`,
+        `itdoc - The output path is set to: ${outputPath} You can change this path by modifying the 'itdoc.output' field in package.json.`,
         `ex) { "itdoc": { "output": "output" } }`,
     )
 

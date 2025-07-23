@@ -31,17 +31,15 @@ export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
     logger.info(`[analyzeRoutes] Found ${files.length} files for route analysis`)
 
     const routePrefixes = collectRoutePrefixes(files)
-    logger.info(`[analyzeRoutes] Collected route prefixes: ${routePrefixes.join(", ")}`)
-
     const results: RouteResult[] = []
 
     for (const file of files) {
         logger.debug(`[analyzeRoutes] Analyzing file: ${file}`)
         const fileResults = analyzeFileRoutes(file, routePrefixes)
-        logger.debug(`[analyzeRoutes] Found ${fileResults.length} routes in ${file}`)
         results.push(...fileResults)
     }
-
-    logger.info(`[analyzeRoutes] Total routes analyzed: ${results.length}`)
+    logger.info(
+        `[analyzeRoutes] Analyzed ${results.length} API endpoint${results.length !== 1 ? "s" : ""}`,
+    )
     return results
 }

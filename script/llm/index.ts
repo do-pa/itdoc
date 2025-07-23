@@ -26,119 +26,128 @@ import { getOutputPath } from "../../lib/config/getOutputPath"
 import { analyzeRoutes } from "./parser/index"
 import { parseSpecFile } from "../../lib/utils/specParser"
 import { resolvePath } from "../../lib/utils/pathResolver"
-
 /**
- * MD 콘텐츠에서 정의된 API 엔드포인트 개수를 계산합니다.
- * @param {string} mdContent - MD 파일 내용
- * @returns {number} API 엔드포인트 개수
+ * Split raw Markdown into individual test blocks.
+ * Each block starts with an HTTP method line and includes subsequent bullet lines.
+ * @param {string} markdown - The raw Markdown string containing test definitions.
+ * @returns {string[]} Array of trimmed test block strings.
  */
-function countApiEndpointsInMD(mdContent: string): number {
-    const apiRegex = /^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+\//gm
-    const matches = mdContent.match(apiRegex)
-    return matches ? matches.length : 0
+function splitTestBlocks(markdown: string): string[] {
+    const blockRegex =
+        /(?:^|\n)(?:-?\s*(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+[^\n]+)(?:\n(?:- .+))*/g
+    const raw = markdown.match(blockRegex) || []
+    return raw.map((b) => b.trim())
 }
-
 /**
- * 생성된 TypeScript 코드에서 describeAPI 호출 개수를 계산합니다.
- * @param {string} tsContent - TypeScript 코드 내용
- * @returns {number} describeAPI 호출 개수
+ * Extract the API path prefix from a test block.
+ * Strips any leading dash, matches the HTTP method and path, then returns the top two segments.
+ * @param {string} mdBlock - A single test block string.
+ * @returns {string} The normalized prefix (e.g. "/api/products").
  */
-function countDescribeAPICalls(tsContent: string): number {
-    const describeAPIRegex = /describeAPI\s*\(/g
-    const matches = tsContent.match(describeAPIRegex)
-    return matches ? matches.length : 0
+function getMarkdownPrefix(mdBlock: string): string {
+    const firstLine = mdBlock.split("\n")[0].trim().replace(/^-\s*/, "") // remove leading “- ”
+    const m = firstLine.match(
+        /^(?:테스트 이름:\s*)?(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+([^\s]+)/i,
+    )
+    if (!m) return "/unknown"
+    const path = m[2]
+    const parts = path.split("/").filter(Boolean)
+    return "/" + parts.slice(0, 2).join("/")
 }
-
 /**
- * LLM을 호출해 itdoc 테스트스크립트를 작성합니다.
- * @param {OpenAI} openai - 초기화된 OpenAI 클라이언트 인스턴스
- * @param {string} content - 처리할 마크다운 콘텐츠
- * @param {boolean} isEn - 영어 출력을 원할 경우 true
- * @param {boolean} isTypeScript - TypeScript 형식으로 출력할 경우 true
- * @returns {Promise<string|null>} 생성된 문서 문자열, 오류 발생 시 null 반환
+ * Group test blocks by their path prefix and chunk each group into arrays of limited size.
+ * @param {string} markdown - The raw Markdown containing test blocks.
+ * @param {number} [chunkSize] - Maximum number of blocks per chunk.
+ * @returns {string[][]} Array of chunks, each a list of test block strings.
  */
-async function makedocByMD(
+function groupAndChunkMarkdownTests(markdown: string, chunkSize: number = 5): string[][] {
+    const blocks = splitTestBlocks(markdown)
+    const byPrefix: Record<string, string[]> = {}
+    for (const blk of blocks) {
+        const prefix = getMarkdownPrefix(blk)
+        ;(byPrefix[prefix] ||= []).push(blk)
+    }
+
+    const allChunks: string[][] = []
+    for (const group of Object.values(byPrefix)) {
+        const chunks = _.chunk(group, chunkSize)
+        for (const c of chunks) {
+            allChunks.push(c)
+        }
+    }
+
+    return allChunks
+}
+/**
+ * Convert grouped Markdown test definitions into itdoc-formatted TypeScript,
+ * calling the OpenAI API for each chunk.
+ * @param {OpenAI} openai - An initialized OpenAI client instance.
+ * @param {string} rawMarkdown - The raw Markdown test spec.
+ * @param {boolean} isEn - Whether to generate prompts/output in English.
+ * @param {boolean} [isTypeScript] - Whether output should use TypeScript syntax.
+ * @returns {Promise<string|null>} The concatenated itdoc output or null on error.
+ */
+async function makeitdocByMD(
     openai: OpenAI,
-    content: string,
+    rawMarkdown: string,
     isEn: boolean,
     isTypeScript: boolean = false,
 ): Promise<string | null> {
     try {
         const maxRetry = 5
         let result = ""
+        const chunks = groupAndChunkMarkdownTests(rawMarkdown, 5)
+        let gptCallCount = 0
 
-        const expectedApiCount = countApiEndpointsInMD(content)
-        for (let i = 0; i < maxRetry; i++) {
-            logger.info(`Attempting GPT API call (${i + 1}/${maxRetry})`)
-            const msg = getItdocPrompt(content, isEn, i + 1, isTypeScript)
-
-            const response: any = await openai.chat.completions.create({
-                model: "gpt-4o",
-                messages: [{ role: "user", content: msg }],
-                temperature: 0,
-                max_tokens: 10000,
-            })
-
-            const text = response.choices[0].message.content?.trim() ?? ""
-            const finishReason = response.choices[0].finish_reason
-
-            const cleaned = text
-                .replace(/```(?:json|javascript|typescript|markdown)?/g, "")
-                .replace(/```/g, "")
-                .replace(/\(.*?\/.*?\)/g, "")
-                .trim()
-            result += cleaned + "\n"
-
-            const generatedApiCount = countDescribeAPICalls(result)
-            const isComplete = generatedApiCount >= expectedApiCount
-            logger.info(
-                `Progress of itdoc test generation: ${generatedApiCount} out of ${expectedApiCount}`,
-            )
-
-            if (
-                finishReason === "stop" &&
-                !cleaned.endsWith("...") &&
-                !/\(\d+\/\d+\)\s*$/.test(cleaned) &&
-                isComplete
-            ) {
-                break
+        for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+            const chunk = chunks[chunkIndex]
+            const chunkContent = chunk.join("\n\n")
+            let chunkResult = ""
+            for (let retry = 0; retry < maxRetry; retry++) {
+                gptCallCount++
+                logger.info(`[makeitdocByMD] Attempting GPT call : ${gptCallCount} times`)
+                const msg = getItdocPrompt(chunkContent, isEn, retry + 1, isTypeScript)
+                const response: any = await openai.chat.completions.create({
+                    model: "gpt-4o",
+                    messages: [{ role: "user", content: msg }],
+                    temperature: 0,
+                    max_tokens: 10000,
+                })
+                const text = response.choices[0].message.content?.trim() ?? ""
+                const finishReason = response.choices[0].finish_reason
+                const cleaned = text
+                    .replace(/```(?:json|javascript|typescript|markdown)?/g, "")
+                    .replace(/```/g, "")
+                    .replace(/\(.*?\/.*?\)/g, "")
+                    .trim()
+                chunkResult += cleaned + "\n"
+                if (finishReason === "stop") break
+                await new Promise((res) => setTimeout(res, 500))
             }
-
-            if (finishReason === "stop" && !isComplete) {
-                continue
-            }
-
-            if (finishReason === "length") {
-                continue
-            }
-
+            result += chunkResult.trim() + "\n\n"
             await new Promise((res) => setTimeout(res, 500))
         }
+
         return result.trim()
     } catch (error: unknown) {
-        logger.error(`makedocByMD() ERROR : ${error}`)
+        logger.error(`makeitdocByMD() ERROR: ${error}`)
         return null
     }
 }
-
 /**
- * Extracts the path prefix from a given path string.
- * For example, '/api/products/123' → '/api/products'
- * @param {string} path - The full URL path.
- * @returns {string} The extracted prefix consisting of the first two non-empty segments.
+ * Extracts the top two segments of a URL path to use as a grouping prefix.
+ * @param {string} path - The full request path (e.g. "/api/products/123").
+ * @returns {string} The normalized prefix (e.g. "/api/products").
  */
 function getPathPrefix(path: string): string {
     const parts = path.split("/").filter(Boolean)
     return "/" + parts.slice(0, 2).join("/")
 }
-
 /**
- * Groups routes by their path prefix (e.g., '/api/products') and then chunks them into smaller arrays.
- *
- * This is useful for batching routes for processing, such as sending them in GPT prompt segments.
- * @param {any[]} content - An array of route objects that contain a 'path' property.
- * @param {number} [chunkSize=5] - The desired size of each chunk after flattening the grouped routes.
- * @returns {any[][]} An array of chunks, where each chunk is an array of route objects.
+ * Groups an array of route objects by their path prefix and then chunks each group.
+ * @param {{ path: string }[]} content - Array of route objects with a `path` property.
+ * @param {number} [chunkSize=5] - Maximum number of routes per chunk.
+ * @returns {any[][]} A list of route chunks, each chunk is an array of route objects.
  */
 
 /**
@@ -147,11 +156,20 @@ function getPathPrefix(path: string): string {
  * @param chunkSize
  */
 function groupAndChunkRoutes(content: any[], chunkSize: number = 5): any[][] {
-    const grouped = _.groupBy(content, (item) => getPathPrefix(item.path))
-    const flatRoutes = Object.values(grouped).flat()
-    const chunks = _.chunk(flatRoutes, chunkSize)
-    return chunks
+    const grouped = _.groupBy(content, (item: { path: string }) => getPathPrefix(item.path))
+    const chunkedGroups: any[][] = []
+    for (const groupItems of Object.values(grouped)) {
+        const chunks = _.chunk(groupItems, chunkSize)
+        chunkedGroups.push(...chunks)
+    }
+    return chunkedGroups
 }
+/**
+ * Generates a Markdown specification by batching routes into chunks and querying the LLM.
+ * @param {OpenAI} openai - An initialized OpenAI client.
+ * @param {any[]} content - Array of route definitions to generate spec for.
+ * @returns {Promise<string|null>} The concatenated Markdown spec, or null if an error occurred.
+ */
 
 /**
  *
@@ -160,26 +178,22 @@ function groupAndChunkRoutes(content: any[], chunkSize: number = 5): any[][] {
  */
 async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null> {
     try {
+        let cnt = 0
         const chunks = groupAndChunkRoutes(content, 4)
-        const maxRetry = 30
+        const maxRetry = 5
         let result = ""
         for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
             const chunk = chunks[chunkIndex]
             let chunkResult = ""
-            console.log(chunk)
             for (let retry = 0; retry < maxRetry; retry++) {
-                logger.info(
-                    `Attempting GPT API call for chunk ${chunkIndex + 1}/${chunks.length} (Retry ${retry + 1}/${maxRetry})`,
-                )
+                logger.info(`[makeMDByApp] Attempting GPT API call : ${++cnt} times`)
                 const msg = getMDPrompt(chunk, retry + 1)
-
                 const response: any = await openai.chat.completions.create({
                     model: "gpt-4o",
                     messages: [{ role: "user", content: msg }],
                     temperature: 0,
                     max_tokens: 10000,
                 })
-
                 const text = response.choices[0].message.content?.trim() ?? ""
                 const finishReason = response.choices[0].finish_reason
                 const cleaned = text
@@ -190,15 +204,7 @@ async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null>
                     .trim()
 
                 chunkResult += cleaned + "\n"
-
-                if (
-                    finishReason === "stop" &&
-                    !cleaned.endsWith("...") &&
-                    !/\(\d+\/\d+\)\s*$/.test(cleaned)
-                ) {
-                    break
-                }
-
+                if (finishReason === "stop") break
                 await new Promise((res) => setTimeout(res, 500))
             }
             result += chunkResult.trim() + "\n\n"
@@ -210,14 +216,14 @@ async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null>
         return null
     }
 }
-
 /**
- * 테스트 코드 생성 메인 함수
- * .env 파일, 테스트 스펙 마크다운 파일, package.json을 읽고 출력 디렉토리 결정 후 makedocLLM()를 호출합니다.
- * @param {string} [testspecPath] - 테스트 스펙 마크다운 파일 경로(절대/상대)
- * @param {string} [appPath] - 앱 루트파일 경로 (절대/상대)
- * @param {string} [envPath] - 환경 변수 파일(.env) 경로(절대/상대)
- * @returns {Promise<void>}
+ * Main entry point to generate both Markdown specs and itdoc TypeScript tests.
+ * - If `testspecPath` is provided, reads and processes that file.
+ * - Otherwise analyzes an Express app's routes to build the spec.
+ * @param {string} [testspecPath] - Optional path to an existing Markdown test spec file.
+ * @param {string} [appPath] - Path to the Express app entry file (overrides spec metadata).
+ * @param {string} [envPath] - Path to the .env file containing OPENAI_API_KEY.
+ * @returns {Promise<void>} Exits the process on error, otherwise writes output files.
  */
 export default async function generateByLLM(
     testspecPath?: string,
@@ -253,11 +259,10 @@ export default async function generateByLLM(
 
         if (metadata.app) {
             appPath = resolvePath(metadata.app)
-            logger.info(`App path found in test spec: ${metadata.app} -> ${appPath}`)
+            logger.info(`[generateByLLM] App path found in : ${metadata.app} -> ${appPath}`)
         } else {
             logger.error(`
-                App path is not defined in the test spec file.
-                Please define it at the top of the test spec file like below:
+                [generateByLLM] App path is not defined in the test spec file. Please define it at the top of the test spec file like below:
                 ---
                 app:@/path/to/your/app.js
                 ---
@@ -278,12 +283,6 @@ export default async function generateByLLM(
     appImportPath = relativePath.startsWith(".") ? relativePath : `./${relativePath}`
 
     if (!testspecPath) {
-        logger.info(`
-            appPath: ${appPath}
-            AST Analysis → Markdown Spec Generation → Test Script Generation via GPT API
-            * GPT API will be called up to 10 times.
-        `)
-
         let analyzedRoutes = await analyzeRoutes(resolvedAppPath)
 
         if (!analyzedRoutes) {
@@ -294,10 +293,6 @@ export default async function generateByLLM(
         }
         analyzedRoutes = analyzedRoutes.sort((a, b) => a.path.localeCompare(b.path))
 
-        const routesDumpPath = path.join(outputDir, "analyzedRoutes.json")
-        fs.writeFileSync(routesDumpPath, JSON.stringify(analyzedRoutes, null, 2), "utf8")
-        logger.info(`Analyzed route info saved to: ${routesDumpPath}`)
-
         const specFromApp = await makeMDByApp(openai, analyzedRoutes)
 
         if (!specFromApp) {
@@ -307,9 +302,9 @@ export default async function generateByLLM(
 
         const mdPath = path.join(outputDir, "output.md")
         fs.writeFileSync(mdPath, specFromApp, "utf8")
-        logger.info(`Markdown spec from app analysis saved: ${mdPath}`)
+        logger.info(`Your APP Markdown spec analysis completed: ${mdPath}`)
 
-        const doc = await makedocByMD(openai, specFromApp, false, isTypeScript)
+        const doc = await makeitdocByMD(openai, specFromApp, false, isTypeScript)
         if (!doc) {
             logger.error("Failed to generate itdoc from markdown spec.")
             process.exit(1)
@@ -323,7 +318,7 @@ export default async function generateByLLM(
             specContent = loadFile("spec", testspecPath, true)
         }
 
-        const doc = await makedocByMD(openai, specContent, false, isTypeScript)
+        const doc = await makeitdocByMD(openai, specContent, false, isTypeScript)
         if (!doc) {
             logger.error("Failed to generate test code from markdown spec.")
             process.exit(1)
@@ -356,5 +351,5 @@ const targetApp = app
     result = importStatement + "\n\n" + result.trim()
 
     fs.writeFileSync(outPath, result, "utf8")
-    logger.info(`itdoc 문서생성이 완료되었습니다.`)
+    logger.info(`[generateByLLM] itdoc LLM SCRIPT completed.`)
 }
