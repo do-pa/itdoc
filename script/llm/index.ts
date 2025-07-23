@@ -146,14 +146,8 @@ function getPathPrefix(path: string): string {
 /**
  * Groups an array of route objects by their path prefix and then chunks each group.
  * @param {{ path: string }[]} content - Array of route objects with a `path` property.
- * @param {number} [chunkSize=5] - Maximum number of routes per chunk.
+ * @param {number} [chunkSize] - Maximum number of routes per chunk. Defaults to 5.
  * @returns {any[][]} A list of route chunks, each chunk is an array of route objects.
- */
-
-/**
- *
- * @param content
- * @param chunkSize
  */
 function groupAndChunkRoutes(content: any[], chunkSize: number = 5): any[][] {
     const grouped = _.groupBy(content, (item: { path: string }) => getPathPrefix(item.path))

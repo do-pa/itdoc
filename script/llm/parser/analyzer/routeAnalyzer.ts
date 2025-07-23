@@ -37,6 +37,14 @@ import { analyzeResponseCall } from "./responseAnalyzer"
  * @param {string} currentFilePath - 현재 파일 경로
  * @returns {string | null} import된 파일 경로 또는 null
  */
+
+const EXTENSIONS = [".ts", ".js", ".cjs", ".mjs"]
+/**
+ *
+ * @param functionName
+ * @param ast
+ * @param currentFilePath
+ */
 function findImportedFilePath(
     functionName: string,
     ast: t.File,
@@ -56,10 +64,11 @@ function findImportedFilePath(
                         let resolvedPath = path.resolve(currentDir, source)
 
                         if (!path.extname(resolvedPath)) {
-                            if (fs.existsSync(resolvedPath + ".ts")) {
-                                resolvedPath += ".ts"
-                            } else if (fs.existsSync(resolvedPath + ".js")) {
-                                resolvedPath += ".js"
+                            for (const ext of EXTENSIONS) {
+                                if (fs.existsSync(resolvedPath + ext)) {
+                                    resolvedPath += ext
+                                    break
+                                }
                             }
                         }
 
