@@ -18,6 +18,7 @@ import * as fs from "fs"
 import * as path from "path"
 import { IOpenAPIGenerator } from "./types/TestResult"
 import logger from "../../config/logger"
+import _ from "lodash"
 /**
  * 테스트 결과를 기반으로 OpenAPI Specification을 JSON 파일로 내보냅니다.
  * @param {IOpenAPIGenerator} generator OAS 생성기 인스턴스
@@ -40,8 +41,30 @@ export const exportOASToJSON = (generator: IOpenAPIGenerator, outputPath: string
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true })
         }
-        const specJson = JSON.stringify(spec, null, 2)
-        fs.writeFileSync(path.resolve(outputPath), specJson, "utf8")
+        const filePath = path.resolve(outputPath)
+
+        let finalSpec = spec
+        if (fs.existsSync(filePath)) {
+            try {
+                const existingSpec: any = JSON.parse(fs.readFileSync(filePath, "utf8"))
+                const { paths: oldPaths = {}, ...oldRest } = existingSpec
+                const { paths: newPaths = {}, ...newRest } = spec
+                const mergedRest = _.merge({}, oldRest, newRest)
+                const allPathKeys = new Set([...Object.keys(oldPaths), ...Object.keys(newPaths)])
+                const mergedPaths: Record<string, any> = {}
+                for (const p of allPathKeys) {
+                    mergedPaths[p] = _.merge({}, oldPaths[p] || {}, newPaths[p] || {})
+                }
+
+                finalSpec = {
+                    ...mergedRest,
+                    paths: mergedPaths,
+                }
+            } catch {
+                finalSpec = spec
+            }
+        }
+        fs.writeFileSync(filePath, JSON.stringify(finalSpec, null, 2), "utf8")
         logger.debug(`OpenAPI Specification exported to ${outputPath}`)
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류 발생"
