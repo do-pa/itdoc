@@ -166,9 +166,10 @@ function groupAndChunkRoutes(content: any[], chunkSize: number = 5): any[][] {
  */
 
 /**
- *
- * @param openai
- * @param content
+ * Generates a Markdown specification by analyzing app routes using OpenAI.
+ * @param {OpenAI} openai - An initialized OpenAI client instance.
+ * @param {any[]} content - Array of route definitions to generate spec for.
+ * @returns {Promise<string|null>} The concatenated Markdown spec, or null if an error occurred.
  */
 async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null> {
     try {
