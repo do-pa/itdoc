@@ -19,14 +19,14 @@ import { SchemaFactory } from "../interfaces"
 import { DSLField, FIELD_TYPES } from "../../../../interface/field"
 
 /**
- * DSL 필드로부터 스키마를 생성하는 제너레이터
+ * Generator that creates schema from DSL fields
  */
 export class DSLFieldSchemaGenerator extends BaseSchemaGenerator {
     private factory: SchemaFactory
 
     /**
-     * 생성자
-     * @param factory 스키마 팩토리 인스턴스
+     * Constructor
+     * @param factory Schema factory instance
      */
     public constructor(factory: SchemaFactory) {
         super()
@@ -34,10 +34,10 @@ export class DSLFieldSchemaGenerator extends BaseSchemaGenerator {
     }
 
     /**
-     * DSL 필드로부터 스키마를 생성합니다.
-     * @param value DSL 필드 객체
-     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
-     * @returns 생성된 스키마
+     * Generates schema from DSL fields.
+     * @param value DSL field object
+     * @param includeExample Whether to include example in schema (default: true)
+     * @returns Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         const field = value as DSLField<FIELD_TYPES>
@@ -50,10 +50,10 @@ export class DSLFieldSchemaGenerator extends BaseSchemaGenerator {
     }
 
     /**
-     * 필드의 메타데이터로 스키마를 보강합니다.
-     * @param schema 보강할 스키마
-     * @param field DSL 필드
-     * @param includeExample example 필드 포함 여부
+     * Enriches schema with field metadata.
+     * @param schema Schema to enrich
+     * @param field DSL field
+     * @param includeExample Whether to include example field
      */
     private enrichSchemaWithMetadata(
         schema: Record<string, unknown>,

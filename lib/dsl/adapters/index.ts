@@ -19,7 +19,7 @@ import { TestFramework } from "./TestFramework"
 import type { UserTestInterface } from "./UserTestInterface"
 
 /**
- * 테스트 프레임워크를 감지하는 동기 함수
+ * Synchronous function that detects test framework
  */
 function detectTestFramework(): TestFramework {
     const isJest =
@@ -44,7 +44,7 @@ function detectTestFramework(): TestFramework {
 }
 
 /**
- * 동기 방식으로 어댑터를 초기화하는 함수
+ * Function that initializes adapter synchronously
  */
 function initializeAdapterSync(): UserTestInterface {
     const framework = detectTestFramework()
@@ -52,9 +52,9 @@ function initializeAdapterSync(): UserTestInterface {
     switch (framework) {
         case TestFramework.Jest: {
             /*
-      참고: Jest의 경우, 반드시 사용할 때만 동적으로 import 해야 합니다.
-      그렇지 않으면 "Do not import `@jest/globals` outside of the Jest test environment"
-      에러가 발생하게 됩니다.
+      Note: For Jest, dynamic imports must only be used when needed.
+      Otherwise, "Do not import `@jest/globals` outside of the Jest test environment"
+      error will occur.
       */
             const { JestAdapter } = require("./JestAdapter")
             return new JestAdapter()
@@ -73,15 +73,15 @@ function initializeAdapterSync(): UserTestInterface {
 }
 
 /**
- * 어댑터를 초기화하고 필요한 테스트 메서드들을 반환하는 함수
- * 동기 방식으로 동작합니다.
- * @returns {object} 테스트 프레임워크의 공통 메서드들
- * @property {Function} describeCommon 테스트 스위트를 정의하는 함수
- * @property {Function} itCommon 테스트 케이스를 정의하는 함수
- * @property {Function} beforeAllCommon 전체 테스트 전에 실행되는 함수
- * @property {Function} afterAllCommon 전체 테스트 후에 실행되는 함수
- * @property {Function} beforeEachCommon 각 테스트 전에 실행되는 함수
- * @property {Function} afterEachCommon 각 테스트 후에 실행되는 함수
+ * Function that initializes adapter and returns necessary test methods
+ * Operates synchronously.
+ * @returns {object} Common methods of test framework
+ * @property {Function} describeCommon Function that defines test suite
+ * @property {Function} itCommon Function that defines test case
+ * @property {Function} beforeAllCommon Function executed before all tests
+ * @property {Function} afterAllCommon Function executed after all tests
+ * @property {Function} beforeEachCommon Function executed before each test
+ * @property {Function} afterEachCommon Function executed after each test
  */
 export function getTestAdapterExports(): {
     describeCommon: (name: string, fn: () => void) => void

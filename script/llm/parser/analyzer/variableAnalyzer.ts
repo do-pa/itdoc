@@ -19,10 +19,10 @@ import * as t from "@babel/types"
 import { createFunctionIdentifier } from "../utils/extractValue"
 
 /**
- * 변수 선언에서 요청 매개변수와 함수 호출 결과를 분석합니다.
- * @param {NodePath<t.VariableDeclarator>} varPath - 변수 선언 노드
- * @param {any} ret - 분석 결과 저장 객체
- * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
+ * Analyzes request parameters and function call results from variable declarations.
+ * @param {NodePath<t.VariableDeclarator>} varPath - Variable declaration node
+ * @param {any} ret - Analysis result storage object
+ * @param {Record<string, any[]>} localArrays - Local array storage object
  */
 export function analyzeVariableDeclarator(
     varPath: NodePath<t.VariableDeclarator>,
@@ -84,9 +84,9 @@ export function analyzeVariableDeclarator(
 }
 
 /**
- * 멤버 표현식에서 요청 매개변수를 분석합니다.
- * @param {NodePath<t.MemberExpression>} memPath - 멤버 표현식 노드
- * @param {any} ret - 분석 결과 저장 객체
+ * Analyzes request parameters from member expressions.
+ * @param {NodePath<t.MemberExpression>} memPath - Member expression node
+ * @param {any} ret - Analysis result storage object
  */
 export function analyzeMemberExpression(memPath: NodePath<t.MemberExpression>, ret: any) {
     const mm = memPath.node

@@ -19,10 +19,10 @@ import * as t from "@babel/types"
 import { BranchDetail } from "../type/interface"
 
 /**
- * 조건문 브랜치 키를 결정합니다
- * @param {NodePath<t.CallExpression>} callPath - 호출 표현식 노드
- * @param {string} source - 소스 코드
- * @returns {string} 브랜치 키
+ * Determines the conditional branch key
+ * @param {NodePath<t.CallExpression>} callPath - Call expression node
+ * @param {string} source - Source code
+ * @returns {string} Branch key
  */
 export function determineBranchKey(callPath: NodePath<t.CallExpression>, source: string): string {
     const ifParent = callPath.findParent((p: any) => p.isIfStatement())
@@ -48,10 +48,10 @@ export function determineBranchKey(callPath: NodePath<t.CallExpression>, source:
 }
 
 /**
- * 응답 브랜치 세부사항을 가져오거나 생성합니다.
- * @param {string} branchKey - 브랜치 키
- * @param {any} ret - 분석 결과 저장 객체
- * @returns {BranchDetail} 브랜치 세부사항
+ * Gets or creates response branch details.
+ * @param {string} branchKey - Branch key
+ * @param {any} ret - Analysis result storage object
+ * @returns {BranchDetail} Branch details
  */
 export function getBranchDetail(branchKey: string, ret: any): BranchDetail {
     if (branchKey === "default") {

@@ -18,36 +18,36 @@ import { TestResult } from "../../types/TestResult"
 import { ParameterObject, RequestBodyObject, ResponseObject } from "../../types/OpenAPITypes"
 
 /**
- * OpenAPI Operation 객체 생성을 위한 인터페이스
+ * Interface for creating OpenAPI Operation objects
  */
 export interface OperationBuilderInterface {
     /**
-     * 테스트 결과로부터 OpenAPI Operation 객체를 생성합니다.
-     * @param result 테스트 결과
-     * @returns OpenAPI Operation 객체
+     * Creates OpenAPI Operation object from test results.
+     * @param result Test result
+     * @returns OpenAPI Operation object
      */
     generateOperation(result: TestResult): Record<string, unknown>
 }
 
 /**
- * 파라미터 생성을 위한 인터페이스
+ * Interface for parameter generation
  */
 export interface ParameterBuilderInterface {
     /**
-     * 테스트 결과에서 파라미터를 추출합니다.
-     * @param result 테스트 결과
-     * @returns 파라미터 객체 배열
+     * Extracts parameters from test results.
+     * @param result Test result
+     * @returns Array of parameter objects
      */
     extractParameters(result: TestResult): ParameterObject[]
 }
 
 /**
- * 보안 요구사항 처리를 위한 인터페이스
+ * Interface for handling security requirements
  */
 export interface SecurityBuilderInterface {
     /**
-     * 테스트 결과에서 보안 요구사항을 추출합니다.
-     * @param result 테스트 결과
+     * Extracts security requirements from test results.
+     * @param result Test result
      * @returns 보안 요구사항 배열
      */
     extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>>

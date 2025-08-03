@@ -19,7 +19,7 @@ import { TestCaseConfig } from "../test-builders/TestCaseConfig"
 import { RootBuilder } from "../test-builders/RootBuilder"
 
 /**
- * Describe API에 넘길 옵션 인터페이스
+ * Option interface to pass to Describe API
  */
 export class ItdocBuilderEntry {
     public readonly method: HttpMethod
@@ -44,10 +44,10 @@ export class ItdocBuilderEntry {
 }
 
 /**
- * Describe API에 넘길 옵션 인터페이스
- * @param name API 이름 (한줄 설명)
- * @param tag API 태그
- * @param description API 상세 설명
+ * Option interface to pass to Describe API
+ * @param name API name (one-line description)
+ * @param tag API tag
+ * @param description API detailed description
  */
 export interface ApiDocOptions {
     summary?: string

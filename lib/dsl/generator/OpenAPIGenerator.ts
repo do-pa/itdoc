@@ -34,7 +34,7 @@ interface OpenAPIInfo {
 }
 
 /**
- * OpenAPI Specification 생성기
+ * OpenAPI Specification generator
  */
 export class OpenAPIGenerator implements IOpenAPIGenerator {
     private testResults: TestResult[] = []
@@ -47,7 +47,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     private utilityBuilder = new UtilityBuilder()
 
     /**
-     * 생성자 - 싱글톤 패턴을 위해 private으로 설정
+     * Constructor - set as private for singleton pattern
      */
     private constructor() {
         this.servers.push({
@@ -57,8 +57,8 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 싱글톤 인스턴스를 반환합니다.
-     * @returns {OpenAPIGenerator} OpenAPIGenerator의 싱글톤 인스턴스
+     * Returns the singleton instance.
+     * @returns {OpenAPIGenerator} Singleton instance of OpenAPIGenerator
      */
     public static getInstance(): OpenAPIGenerator {
         if (!instance) {
@@ -68,16 +68,16 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 테스트가 통과했을 때 결과를 수집합니다.
-     * @param {TestResult} result 테스트 결과 객체
+     * Collects results when tests pass.
+     * @param {TestResult} result Test result object
      */
     public collectTestResult(result: TestResult): void {
         this.testResults.push(result)
     }
 
     /**
-     * 수집된 테스트 결과를 OpenAPI Specification으로 변환합니다.
-     * @returns {object} OpenAPI Specification 객체
+     * Converts collected test results to OpenAPI Specification.
+     * @returns {object} OpenAPI Specification object
      */
     public generateOpenAPISpec(): Record<string, unknown> {
         // 테스트 결과를 그룹화
@@ -94,7 +94,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 테스트 결과를 경로, 메서드, 상태 코드별로 그룹화합니다.
+     * Groups test results by path, method, and status code.
      */
     private groupTestResults(): Map<string, Map<string, Map<string, TestResult[]>>> {
         const groupedResults: Map<string, Map<string, Map<string, TestResult[]>>> = new Map()
@@ -124,7 +124,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 그룹화된 테스트 결과로부터 경로 객체를 생성합니다.
+     * Generates path objects from grouped test results.
      * @param groupedResults
      */
     private generatePaths(
@@ -145,7 +145,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 특정 경로와 메서드에 대한 작업 객체를 생성합니다.
+     * Generates an operation object for a specific path and method.
      * @param path
      * @param method
      * @param statusCodes

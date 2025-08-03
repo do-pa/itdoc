@@ -21,9 +21,9 @@ const traverse = traversePkg.default
 import { NodePath } from "@babel/traverse"
 
 /**
- * 함수 호출에 대한 식별자 정보를 생성합니다.
- * @param {t.CallExpression} callExpression - 함수 호출 표현식
- * @returns {object} 식별자 정보
+ * Creates identifier information for function calls.
+ * @param {t.CallExpression} callExpression - Function call expression
+ * @returns {object} Identifier information
  */
 export function createFunctionIdentifier(callExpression: t.CallExpression): object {
     if (t.isMemberExpression(callExpression.callee)) {
@@ -52,7 +52,7 @@ export function createFunctionIdentifier(callExpression: t.CallExpression): obje
 }
 
 /**
- * 기본 리터럴 값들을 처리합니다
+ * Handles basic literal values
  * @param node
  */
 function extractLiteralValue(node: t.Node): any {
@@ -63,7 +63,7 @@ function extractLiteralValue(node: t.Node): any {
 }
 
 /**
- * 객체 표현식을 처리합니다
+ * Handles object expressions
  * @param node
  * @param localArrays
  * @param variableMap
@@ -131,7 +131,7 @@ function extractObjectValue(
 }
 
 /**
- * 배열 표현식을 처리합니다
+ * Handles array expressions
  * @param node
  * @param localArrays
  * @param variableMap
@@ -177,7 +177,7 @@ function extractArrayValue(
 }
 
 /**
- * 식별자를 처리합니다
+ * Handles identifiers
  * @param node
  * @param localArrays
  * @param variableMap
@@ -208,13 +208,13 @@ function extractIdentifierValue(
 }
 
 /**
- * 값 추출 함수
- * @param {t.Node} node - 추출할 AST 노드
- * @param {Record<string, any[]>} localArrays - 로컬에서 정의된 배열 변수 맵
- * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
- * @param {t.File} ast - 전체 파일 AST (변수 추적용)
- * @param {Set<string>} visitedVariables - 순환 참조 방지용
- * @returns {any} 추출된 실제 값 또는 식별자 정보
+ * Value extraction function
+ * @param {t.Node} node - AST node to extract
+ * @param {Record<string, any[]>} localArrays - Map of locally defined array variables
+ * @param {Record<string, any>} variableMap - Variable name to data structure mapping
+ * @param {t.File} ast - Complete file AST (for variable tracking)
+ * @param {Set<string>} visitedVariables - For preventing circular references
+ * @returns {any} Extracted actual value or identifier information
  */
 export function extractValue(
     node: t.Node,
@@ -246,13 +246,13 @@ export function extractValue(
 }
 
 /**
- * 스프레드 연산자에서 참조하는 값을 해결합니다
- * @param {t.Node} node - 스프레드 대상 노드
- * @param {Record<string, any[]>} localArrays - 로컬 배열 맵
- * @param {Record<string, any>} variableMap - 변수 맵
- * @param {t.File} ast - 파일 AST
- * @param {Set<string>} visitedVariables - 방문한 변수들
- * @returns {any} 해결된 값 또는 null
+ * Resolves values referenced by spread operators
+ * @param {t.Node} node - Spread target node
+ * @param {Record<string, any[]>} localArrays - Local array map
+ * @param {Record<string, any>} variableMap - Variable map
+ * @param {t.File} ast - File AST
+ * @param {Set<string>} visitedVariables - Visited variables
+ * @returns {any} Resolved value or null
  */
 function resolveSpreadValue(
     node: t.Node,
@@ -334,13 +334,13 @@ function resolveSpreadValue(
 }
 
 /**
- * AST에서 변수의 실제 값을 찾습니다
- * @param {string} variableName - 찾을 변수명
- * @param {t.File} ast - 파일 AST
- * @param {Set<string>} visitedVariables - 방문한 변수들 (순환 참조 방지)
- * @param {Record<string, any[]>} localArrays - 로컬 배열
- * @param {Record<string, any>} variableMap - 변수 맵
- * @returns {any} 변수의 실제 값 또는 null
+ * Finds the actual value of a variable from AST
+ * @param {string} variableName - Variable name to find
+ * @param {t.File} ast - File AST
+ * @param {Set<string>} visitedVariables - Visited variables (to prevent circular references)
+ * @param {Record<string, any[]>} localArrays - Local arrays
+ * @param {Record<string, any>} variableMap - Variable map
+ * @returns {any} Actual value of the variable or null
  */
 function findVariableValue(
     variableName: string,

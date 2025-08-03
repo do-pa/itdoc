@@ -24,22 +24,22 @@ import { DSLFieldSchemaGenerator } from "./generators/DSLFieldSchemaGenerator"
 import { isDSLField } from "../../../interface/field"
 
 /**
- * 스키마 제너레이터 팩토리 클래스
- * 타입에 따라 적절한 스키마 제너레이터를 선택하여 스키마를 생성합니다.
+ * Schema generator factory class
+ * Selects appropriate schema generator based on type to generate schema.
  */
 export class SchemaFactory implements ISchemaFactory {
     private generators: Record<string, SchemaGenerator> = {}
 
     /**
-     * 팩토리 생성자
-     * 기본 스키마 제너레이터들을 등록합니다.
+     * Factory constructor
+     * Registers default schema generators.
      */
     public constructor() {
         this.registerDefaultGenerators()
     }
 
     /**
-     * 기본 스키마 제너레이터들을 등록합니다.
+     * Registers default schema generators.
      */
     private registerDefaultGenerators(): void {
         this.generators["string"] = new StringSchemaGenerator()
@@ -51,19 +51,19 @@ export class SchemaFactory implements ISchemaFactory {
     }
 
     /**
-     * 스키마 타입에 따른 제너레이터를 등록합니다.
-     * @param type 값의 타입
-     * @param generator 스키마 제너레이터 인스턴스
+     * Registers generator according to schema type.
+     * @param type Value type
+     * @param generator Schema generator instance
      */
     public registerGenerator(type: string, generator: SchemaGenerator): void {
         this.generators[type] = generator
     }
 
     /**
-     * 값의 타입에 따라 적절한 스키마 제너레이터를 선택하여 스키마를 생성합니다.
-     * @param value 스키마를 생성할 값
-     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
-     * @returns 생성된 OpenAPI 스키마
+     * Selects appropriate schema generator based on value type and generates schema.
+     * @param value Value to generate schema from
+     * @param includeExample Whether to include example in schema (default: true)
+     * @returns Generated OpenAPI schema
      */
     public createSchema(value: unknown, includeExample: boolean = true): unknown {
         if (value === undefined || value === null) {

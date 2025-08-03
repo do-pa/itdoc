@@ -18,18 +18,18 @@ import { HttpMethod } from "../enums"
 import { getTestAdapterExports } from "../adapters"
 import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
 /**
- * API 명세를 위한 describe 함수
- * @param method {HttpMethod} HTTP 메서드
+ * Describe function for API specification
+ * @param method {HttpMethod} HTTP method
  * @param url {string} API URL
- * @param options {ApiDocOptions} API 문서 옵션
- * @param app Express 앱 인스턴스 (supertest 생성에 사용)
- * @param callback API 테스트 함수
+ * @param options {ApiDocOptions} API documentation options
+ * @param app Express app instance (used for supertest creation)
+ * @param callback API test function
  */
 export const describeAPI = (
     method: HttpMethod,
     url: string,
     options: ApiDocOptions,
-    app: unknown, // TODO: 이거 타입지정
+    app: unknown, // TODO: Type specification for this
     callback: (apiDoc: ItdocBuilderEntry) => void,
 ): void => {
     if (!options.summary) {

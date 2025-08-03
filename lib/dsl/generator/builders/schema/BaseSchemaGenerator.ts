@@ -18,20 +18,20 @@ import { SchemaGenerator } from "./interfaces"
 import { FORMAT_PATTERNS } from "./constants"
 
 /**
- * 스키마 생성기의 기본 기능을 제공하는 추상 클래스
+ * Abstract class that provides basic functionality for schema generators
  */
 export abstract class BaseSchemaGenerator implements SchemaGenerator {
     /**
-     * 값으로부터 스키마를 생성합니다.
-     * @param value 스키마를 생성할 값
-     * @returns 생성된 OpenAPI 스키마 객체
+     * Generates schema from value.
+     * @param value Value to generate schema from
+     * @returns Generated OpenAPI schema object
      */
     public abstract generateSchema(value: unknown): Record<string, unknown>
 
     /**
-     * 문자열 값의 포맷을 감지합니다.
-     * @param value 검사할 문자열 값
-     * @returns 감지된 포맷 또는 undefined
+     * Detects the format of string values.
+     * @param value String value to check
+     * @returns Detected format or undefined
      */
     protected detectStringFormat(value: string): string | undefined {
         if (FORMAT_PATTERNS.UUID.test(value)) {

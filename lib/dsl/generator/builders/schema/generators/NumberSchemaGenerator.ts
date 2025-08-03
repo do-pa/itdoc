@@ -17,14 +17,14 @@
 import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 
 /**
- * 숫자 값의 스키마를 생성하는 클래스
+ * Class that generates schema for number values
  */
 export class NumberSchemaGenerator extends BaseSchemaGenerator {
     /**
-     * 숫자 값으로부터 스키마를 생성합니다.
-     * @param value 숫자 값
-     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
-     * @returns 생성된 스키마
+     * Generates schema from number values.
+     * @param value Number value
+     * @param includeExample Whether to include example in schema (default: true)
+     * @returns Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         if (typeof value !== "number") {

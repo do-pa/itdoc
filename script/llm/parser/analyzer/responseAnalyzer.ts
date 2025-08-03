@@ -21,9 +21,9 @@ import { extractValue } from "../utils/extractValue"
 import { BranchDetail } from "../type/interface"
 
 /**
- * 응답 상태 코드를 처리합니다.
- * @param {t.CallExpression} call - 호출 표현식 노드
- * @param {BranchDetail} target - 브랜치 세부사항
+ * Handles response status codes.
+ * @param {t.CallExpression} call - Call expression node
+ * @param {BranchDetail} target - Branch details
  */
 function handleResponseStatus(call: t.CallExpression, target: BranchDetail) {
     if (t.isNumericLiteral(call.arguments[0])) {
@@ -32,12 +32,12 @@ function handleResponseStatus(call: t.CallExpression, target: BranchDetail) {
 }
 
 /**
- * JSON 응답을 처리합니다.
- * @param {t.CallExpression} call - 호출 표현식 노드
- * @param {BranchDetail} target - 브랜치 세부사항
- * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
- * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
- * @param {t.File} ast - 파일 AST
+ * Handles JSON responses.
+ * @param {t.CallExpression} call - Call expression node
+ * @param {BranchDetail} target - Branch details
+ * @param {Record<string, any[]>} localArrays - Local array storage object
+ * @param {Record<string, any>} variableMap - Variable name to data structure mapping
+ * @param {t.File} ast - File AST
  */
 function handleJsonResponse(
     call: t.CallExpression,
@@ -57,12 +57,12 @@ function handleJsonResponse(
 }
 
 /**
- * 헤더 설정을 처리합니다.
- * @param {t.CallExpression} call - 호출 표현식 노드
- * @param {BranchDetail} target - 브랜치 세부사항
- * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
- * @param {Record<string, any>} variableMap - 변수명과 데이터 구조 매핑
- * @param {t.File} ast - 파일 AST
+ * Handles header settings.
+ * @param {t.CallExpression} call - Call expression node
+ * @param {BranchDetail} target - Branch details
+ * @param {Record<string, any[]>} localArrays - Local array storage object
+ * @param {Record<string, any>} variableMap - Variable name to data structure mapping
+ * @param {t.File} ast - File AST
  */
 function handleHeaderResponse(
     call: t.CallExpression,
@@ -98,12 +98,12 @@ function handleHeaderResponse(
 }
 
 /**
- * 응답 호출을 분석합니다.
- * @param {NodePath<t.CallExpression>} callPath - 호출 표현식 노드
- * @param {string} source - 소스 코드
- * @param {any} ret - 분석 결과 저장 객체
- * @param {Record<string, any[]>} localArrays - 로컬 배열 저장 객체
- * @param {t.File} ast - 파일 AST
+ * Analyzes response calls.
+ * @param {NodePath<t.CallExpression>} callPath - Call expression node
+ * @param {string} source - Source code
+ * @param {any} ret - Analysis result storage object
+ * @param {Record<string, any[]>} localArrays - Local array storage object
+ * @param {t.File} ast - File AST
  */
 export function analyzeResponseCall(
     callPath: NodePath<t.CallExpression>,

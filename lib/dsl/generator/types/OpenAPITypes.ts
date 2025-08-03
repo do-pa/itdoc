@@ -15,27 +15,27 @@
  */
 
 /**
- * OpenAPI 타입 정의
+ * OpenAPI type definitions
  */
 
-// 미디어 타입 객체
+// Media type object
 export interface MediaTypeObject {
     schema?: Record<string, any>
     example?: any
     examples?: ExamplesObject
 }
 
-// 예제 객체
+// Example object
 export interface ExamplesObject {
     [name: string]: any
 }
 
-// 콘텐트 객체
+// Content object
 export interface Content {
     [mediaType: string]: MediaTypeObject
 }
 
-// 파라미터 객체
+// Parameter object
 export interface ParameterObject {
     name: string
     in: string // "query", "header", "path", "cookie"
@@ -45,31 +45,31 @@ export interface ParameterObject {
     example?: any
 }
 
-// 헤더 객체
+// Header object
 export interface HeaderObject {
     description?: string
     schema?: Record<string, any>
     example?: any
 }
 
-// 요청 본문 객체
+// Request body object
 export interface RequestBodyObject {
     description?: string
     content: Content
     required?: boolean
 }
 
-// 응답 객체
+// Response object
 export interface ResponseObject {
     description?: string
     headers?: Record<string, HeaderObject>
     content?: Content
 }
 
-// 보안 스키마 타입
+// Security scheme type
 export type SecuritySchemeType = "apiKey" | "http" | "oauth2" | "openIdConnect"
 
-// 보안 스키마 객체
+// Security scheme object
 export interface SecuritySchemeObject {
     type: SecuritySchemeType
     description?: string

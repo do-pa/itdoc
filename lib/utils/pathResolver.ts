@@ -18,10 +18,10 @@ import path from "path"
 import fs from "fs"
 
 /**
- * "@/..." 형식의 경로를 프로젝트 루트경로를 기준으로 절대 경로로 변환합니다.
- * @param inputPath - 해석할 경로 (@/path/to/file 형식)
- * @param baseDir - 기준 디렉토리 (기본값: process.cwd())
- * @returns 해석된 절대 경로
+ * Converts "@/..." format paths to absolute paths based on the project root path.
+ * @param inputPath - Path to resolve (@/path/to/file format)
+ * @param baseDir - Base directory (default: process.cwd())
+ * @returns Resolved absolute path
  */
 export function resolvePath(inputPath: string, baseDir: string = process.cwd()): string {
     if (inputPath.startsWith("@/")) {
@@ -37,9 +37,9 @@ export function resolvePath(inputPath: string, baseDir: string = process.cwd()):
 }
 
 /**
- * 프로젝트 루트 디렉토리를 찾습니다 (package.json이 있는 곳)
- * @param startDir - 검색을 시작할 디렉토리
- * @returns 프로젝트 루트 디렉토리 경로
+ * Finds the project root directory (where package.json exists)
+ * @param startDir - Directory to start the search from
+ * @returns Project root directory path
  */
 function findProjectRoot(startDir: string): string {
     let currentDir = startDir

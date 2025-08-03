@@ -17,26 +17,26 @@
 import { TestResult, IOpenAPIGenerator } from "./types/TestResult"
 import { OpenAPIGenerator } from "./OpenAPIGenerator"
 
-// 싱글톤 인스턴스를 저장할 변수
+// Variable to store singleton instance
 let instance: TestResultCollector | null = null
 
 /**
- * 테스트 결과 수집기 클래스
+ * Test result collector class
  */
 export class TestResultCollector {
     private generator: IOpenAPIGenerator
 
     /**
-     * 생성자 - 싱글톤 패턴을 위해 private으로 설정
-     * @param {IOpenAPIGenerator} generator OpenAPI 생성기
+     * Constructor - set as private for singleton pattern
+     * @param {IOpenAPIGenerator} generator OpenAPI generator
      */
     private constructor(generator: IOpenAPIGenerator) {
         this.generator = generator
     }
 
     /**
-     * 싱글톤 인스턴스를 반환합니다.
-     * @returns {TestResultCollector} TestResultCollector의 싱글톤 인스턴스
+     * Returns the singleton instance.
+     * @returns {TestResultCollector} Singleton instance of TestResultCollector
      */
     public static getInstance(): TestResultCollector {
         if (!instance) {
@@ -47,8 +47,8 @@ export class TestResultCollector {
     }
 
     /**
-     * 테스트 결과를 수집합니다
-     * @param {TestResult} result 테스트 결과
+     * Collects test results
+     * @param {TestResult} result Test result
      */
     public collectResult(result: TestResult): void {
         this.generator.collectTestResult(result)

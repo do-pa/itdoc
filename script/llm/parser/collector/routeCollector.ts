@@ -22,9 +22,9 @@ import { RoutePrefix } from "../type/interface"
 import { parseFile } from "../utils/fileParser"
 
 /**
- * app.use() 호출을 찾아 라우트 프리픽스를 수집합니다.
- * @param {string[]} files - 분석할 파일 목록
- * @returns {RoutePrefix[]} 라우트 프리픽스 목록
+ * Finds app.use() calls and collects route prefixes.
+ * @param {string[]} files - List of files to analyze
+ * @returns {RoutePrefix[]} List of route prefixes
  */
 export function collectRoutePrefixes(files: string[]): RoutePrefix[] {
     const routePrefixes: RoutePrefix[] = []
@@ -73,9 +73,9 @@ export function collectRoutePrefixes(files: string[]): RoutePrefix[] {
 }
 
 /**
- * 파일에서 내보낸 라우터 정보를 수집합니다.
- * @param {t.File} ast - 파일 AST
- * @returns {Record<string, string>} 내보낸 라우터 정보
+ * Collects exported router information from a file.
+ * @param {t.File} ast - File AST
+ * @returns {Record<string, string>} Exported router information
  */
 export function collectExportedRouters(ast: t.File): Record<string, string> {
     const exportedRouters: Record<string, string> = {}
@@ -97,11 +97,11 @@ export function collectExportedRouters(ast: t.File): Record<string, string> {
 }
 
 /**
- * 라우트 프리픽스를 결정합니다.
- * @param {string} obj - 객체 이름
- * @param {Record<string, string>} exportedRouters - 내보낸 라우터 정보
- * @param {RoutePrefix[]} routePrefixes - 라우트 프리픽스 목록
- * @returns {string} 라우트 프리픽스
+ * Determines the route prefix.
+ * @param {string} obj - Object name
+ * @param {Record<string, string>} exportedRouters - Exported router information
+ * @param {RoutePrefix[]} routePrefixes - List of route prefixes
+ * @returns {string} Route prefix
  */
 export function determineRoutePrefix(
     obj: string,
@@ -125,10 +125,10 @@ export function determineRoutePrefix(
 }
 
 /**
- * 전체 경로를 구성합니다.
- * @param {string} prefix - 라우트 프리픽스
- * @param {string} routePath - 라우트 경로
- * @returns {string} 전체 경로
+ * Builds the full path.
+ * @param {string} prefix - Route prefix
+ * @param {string} routePath - Route path
+ * @returns {string} Full path
  */
 export function buildFullPath(prefix: string, routePath: string): string {
     if (!prefix) return routePath

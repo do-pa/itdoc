@@ -15,34 +15,34 @@
  */
 
 /**
- * 스키마 생성 인터페이스
+ * Schema generation interface
  */
 export interface SchemaGenerator {
     /**
-     * 값으로부터 스키마를 생성합니다.
-     * @param value 스키마를 생성할 값
-     * @param includeExample 스키마에 example 필드 포함 여부
-     * @returns 생성된 스키마
+     * Generates schema from value.
+     * @param value Value to generate schema from
+     * @param includeExample Whether to include example field in schema
+     * @returns Generated schema
      */
     generateSchema(value: unknown, includeExample?: boolean): Record<string, unknown>
 }
 
 /**
- * 스키마 팩토리 인터페이스
+ * Schema factory interface
  */
 export interface SchemaFactory {
     /**
-     * 값의 타입에 따라 적절한 스키마 제너레이터를 선택하여 스키마를 생성합니다.
-     * @param value 스키마를 생성할 값
-     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
-     * @returns 생성된 스키마
+     * Selects appropriate schema generator based on value type and generates schema.
+     * @param value Value to generate schema from
+     * @param includeExample Whether to include example in schema (default: true)
+     * @returns Generated schema
      */
     createSchema(value: unknown, includeExample?: boolean): unknown
 
     /**
-     * 스키마 타입에 따른 제너레이터를 등록합니다.
-     * @param type 값의 타입
-     * @param generator 스키마 제너레이터 인스턴스
+     * Registers generator according to schema type.
+     * @param type Value type
+     * @param generator Schema generator instance
      */
     registerGenerator(type: string, generator: SchemaGenerator): void
 }

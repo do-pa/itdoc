@@ -20,22 +20,22 @@ import { IOpenAPIGenerator } from "./types/TestResult"
 import logger from "../../config/logger"
 import _ from "lodash"
 /**
- * 테스트 결과를 기반으로 OpenAPI Specification을 JSON 파일로 내보냅니다.
- * @param {IOpenAPIGenerator} generator OAS 생성기 인스턴스
- * @param {string} outputPath 출력 파일 경로
+ * Exports OpenAPI Specification to JSON file based on test results.
+ * @param {IOpenAPIGenerator} generator OAS generator instance
+ * @param {string} outputPath Output file path
  */
 export const exportOASToJSON = (generator: IOpenAPIGenerator, outputPath: string): void => {
     try {
         if (!generator) {
-            throw new Error("유효한 OpenAPI 생성기가 제공되지 않았습니다.")
+            throw new Error("A valid OpenAPI generator was not provided.")
         }
 
         if (!outputPath) {
-            throw new Error("유효한 출력 경로가 제공되지 않았습니다.")
+            throw new Error("A valid output path was not provided.")
         }
         const spec = generator.generateOpenAPISpec()
         if (!spec) {
-            throw new Error("OpenAPI 스펙 생성에 실패했습니다.")
+            throw new Error("Failed to generate OpenAPI specification.")
         }
         const outputDir = path.dirname(path.resolve(outputPath))
         if (!fs.existsSync(outputDir)) {
@@ -67,7 +67,7 @@ export const exportOASToJSON = (generator: IOpenAPIGenerator, outputPath: string
         fs.writeFileSync(filePath, JSON.stringify(finalSpec, null, 2), "utf8")
         logger.debug(`OpenAPI Specification exported to ${outputPath}`)
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류 발생"
-        logger.error(`OpenAPI Specification 내보내기 실패: ${errorMessage}`)
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+        logger.error(`Failed to export OpenAPI Specification: ${errorMessage}`)
     }
 }

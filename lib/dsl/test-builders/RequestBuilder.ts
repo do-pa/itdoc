@@ -21,11 +21,11 @@ import { FIELD_TYPES } from "../interface/field"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
 
 /**
- * API 요청 정보를 설정하는 빌더 클래스입니다.
+ * Builder class for setting API request information.
  */
 export class RequestBuilder extends AbstractTestBuilder {
     /**
-     * 요청시 사용할 헤더를 설정합니다.
+     * Sets headers to be used in requests.
      * @param headers
      */
     public header(headers: Record<string, DSLField<string>>): this {
@@ -34,7 +34,7 @@ export class RequestBuilder extends AbstractTestBuilder {
     }
 
     /**
-     * 요청 바디를 설정합니다.
+     * Sets the request body.
      * @param body
      */
     public body(body: Record<string, DSLField<FIELD_TYPES> | FIELD_TYPES>): this {
@@ -43,7 +43,7 @@ export class RequestBuilder extends AbstractTestBuilder {
     }
 
     /**
-     * 요청시 사용할 쿼리 파라미터를 설정합니다.
+     * Sets query parameters to be used in requests.
      * @param params
      */
     public queryParam(params: Record<string, any>): this {
