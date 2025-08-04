@@ -179,12 +179,13 @@ Currently, source code-based automatic test generation is only supported for the
 :::
 
 ```bash
+itdoc generate -a {YOUR_APP_FILE_PATH}
 itdoc generate --app {YOUR_APP_FILE_PATH}
 ```
 
-| Option                                                                  | Description           |
-|-------------------------------------------------------------------------|-----------------------|
-| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>-app (-a)</span> | Root app source code file path |
+| Option                                                                 | Description                    |
+|------------------------------------------------------------------------|--------------------------------|
+| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>--app (-a)</span> | Root app source code file path |
 
 When you run this command, it analyzes the Express application defined in `{YOUR_APP_FILE_PATH}` and automatically generates tests for the API endpoints in that application.
 
@@ -198,12 +199,13 @@ Therefore, you can use it with confidence as your source code is not sent to ext
 You can automatically generate tests based on an `API Spec Markdown` file with the following command:
 
 ```bash
+itdoc generate --p {API_Spec_Markdown_FILE_PATH}
 itdoc generate --path {API_Spec_Markdown_FILE_PATH}
 ```
 
-| Option                                                                 | Description                   |
-|------------------------------------------------------------------------|-------------------------------|
-| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>-path (-p)</span> | `API Spec Markdown` file path |
+| Option                                                                  | Description                   |
+|-------------------------------------------------------------------------|-------------------------------|
+| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>--path (-p)</span> | `API Spec Markdown` file path |
 
 The document format should follow this structure:
 
@@ -216,7 +218,7 @@ The document format should follow this structure:
 
 Here are examples for various API cases:
 
-<Tabs>ㅈㅈㅈ
+<Tabs>
     <TabItem value="auth" label="🔐 Authentication API" default>
 
         ```markdown title="Authentication API Example"
