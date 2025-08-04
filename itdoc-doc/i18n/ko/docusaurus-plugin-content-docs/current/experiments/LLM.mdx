@@ -12,7 +12,7 @@ import TabItem from '@theme/TabItem';
 
 ## 기능 설명
 
-**프로젝트에 Itdoc을 적용하려는데 문서화할 API가 너무 많아 수작업으로 테스트를 명세하기 힘든가요?**
+**프로젝트에 Itdoc을 적용하려는데 문서화할 API가 너무 많아 수작업으로 테스트를 작성하기 힘든가요?**
 
 ```js
 const app = require("./expressApp")
@@ -146,7 +146,7 @@ LLM 기능을 사용하기 전과 후를 비교해보겠습니다.
     </TabItem>
 </Tabs>
 
-## 기능 사용을 위한 사전 준비
+## 기능 사용을 위한 요구 사항
 
 - CLI 명령어를 사용하기 위해 `itdoc`이 설치되어 있어야 합니다.
 
@@ -168,6 +168,7 @@ LLM 기능을 사용하기 전과 후를 비교해보겠습니다.
 - `.env` 파일은 기본적으로 현재 작업 디렉토리에서 찾습니다. 다른 위치에 있다면 `-e` 옵션을 사용하여 지정할 수 있습니다.
 - OpenAI API 키는 [OpenAI 계정](https://platform.openai.com/signup)에서 발급받을 수 있습니다.
 - API 사용량에 따라 비용이 발생하니 [OpenAI 요금표](https://openai.com/pricing)를 확인하세요.
+  - 보통의 작은 크기의 앱의 경우 1달러 이하로 충분히 모든 테스트를 생성할 수 있습니다.
 :::
 
 
@@ -211,10 +212,10 @@ itdoc generate --path {API_Spec_Markdown_FILE_PATH}
 이때 문서의 형식은 다음과 같은 형식이어야 합니다.
 
 ```markdown title="api-specs.md" {1-4}
-`HTTP메서드` `엔드포인트`
+`HTTP 메서드` `엔드포인트`
 - Test Case: 테스트 케이스 제목
   - Request: 요청에 대한 설명
-  - Expected Response: 예상 응답에 대한 설명
+  - Response: 응답에 대한 설명
 ```
 
 여러 API 케이스에 대해서 작성 예시를 보여드리겠습니다.
@@ -225,11 +226,11 @@ itdoc generate --path {API_Spec_Markdown_FILE_PATH}
         ```markdown title="인증 API 예시"
         GET /secret
         - Test Case: 올바른 인증으로 비밀 메시지에 접근
-        - Request: 올바른 인증 헤더와 함께 GET 요청을 보낸다.
-        - Expected Response: 상태 코드 200, 비밀 메시지를 담은 JSON 응답과 특정 헤더 포함
+          - Request: 올바른 인증 헤더와 함께 GET 요청을 보낸다.
+          - Response: 상태 코드 200, 비밀 메시지를 담은 JSON 응답과 특정 헤더 포함
         - Test Case: 인증되지 않은 접근
-        - Request: 잘못된 인증 헤더와 함께 GET 요청을 보낸다.
-        - Expected Response: 상태 코드 401를 반환한다.
+          - Request: 잘못된 인증 헤더와 함께 GET 요청을 보낸다.
+          - Response: 상태 코드 401를 반환한다.
         ```
 
     </TabItem>
@@ -238,11 +239,11 @@ itdoc generate --path {API_Spec_Markdown_FILE_PATH}
         ```markdown title="파일 업로드 API 예시"
         POST /users/:userId/profile-image
         - Test Case: 프로필 이미지를 성공적으로 업로드
-        - Request: 유효한 이미지 파일과 "multipart/form-data" 콘텐츠 타입으로 POST 요청을 보낸다.
-        - Expected: 상태 코드 200, 이미지 URL이 담긴 JSON 응답
+          - Request: 유효한 이미지 파일과 "multipart/form-data" 콘텐츠 타입으로 POST 요청을 보낸다.
+          - Response: 상태 코드 200, 이미지 URL이 담긴 JSON 응답
         - Test Case: 잘못된 콘텐츠 타입
-        - Request: "multipart/form-data" 콘텐츠 타입 없이 POST 요청을 보낸다.
-        - Expected Response: 상태 코드 400, 에러 메시지를 담은 JSON 응답
+          - Request: "multipart/form-data" 콘텐츠 타입 없이 POST 요청을 보낸다.
+          - Response: 상태 코드 400, 에러 메시지를 담은 JSON 응답
         ```
 
     </TabItem>

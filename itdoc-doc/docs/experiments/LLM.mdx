@@ -12,7 +12,7 @@ import TabItem from '@theme/TabItem';
 
 ## Feature Overview
 
-**Do you have too many APIs to document in your project, making it difficult to manually specify tests for Itdoc?**
+**Is your project overloaded with APIs, making it hard to manually write test specs for each one using Itdoc?**
 
 ```js
 const app = require("./expressApp")
@@ -145,7 +145,7 @@ Let's compare before and after using the LLM feature.
     </TabItem>
 </Tabs>
 
-## Prerequisites
+## Requirements
 
 - `itdoc` must be installed to use the CLI commands.
 
@@ -167,6 +167,7 @@ Let's compare before and after using the LLM feature.
 - The `.env` file is searched in the current working directory by default. If it's in a different location, use the `-e` option to specify it.
 - You can get an OpenAI API key from your [OpenAI account](https://platform.openai.com/signup).
 - API usage incurs costs, so check the [OpenAI pricing](https://openai.com/pricing).
+  - Usually, a small-sized app costs a one dollar.
 :::
 
 ## Usage
@@ -200,8 +201,8 @@ You can automatically generate tests based on an `API Spec Markdown` file with t
 itdoc generate --path {API_Spec_Markdown_FILE_PATH}
 ```
 
-| Option                                                                   | Description                    |
-|--------------------------------------------------------------------------|--------------------------------|
+| Option                                                                 | Description                   |
+|------------------------------------------------------------------------|-------------------------------|
 | <span style={{color: '#0d6efd', fontWeight: 'bold'}}>-path (-p)</span> | `API Spec Markdown` file path |
 
 The document format should follow this structure:
@@ -210,22 +211,22 @@ The document format should follow this structure:
 `HTTP_METHOD` `ENDPOINT`
 - Test Case: Test case title
   - Request: Description of the request
-  - Expected Response: Description of the expected response
+  - Response: Description of the response
 ```
 
 Here are examples for various API cases:
 
-<Tabs>
+<Tabs>ㅈㅈㅈ
     <TabItem value="auth" label="🔐 Authentication API" default>
 
         ```markdown title="Authentication API Example"
         GET /secret
         - Test Case: Access secret message with proper authentication
-        - Request: Send GET request with valid authentication header
-        - Expected Response: Status code 200, JSON response with secret message and specific headers
+          - Request: Send GET request with valid authentication header
+          - Response: Status code 200, JSON response with secret message and specific headers
         - Test Case: Unauthorized access
-        - Request: Send GET request with invalid authentication header
-        - Expected Response: Returns status code 401
+          - Request: Send GET request with invalid authentication header
+          - Response: Returns status code 401
         ```
 
     </TabItem>
@@ -234,11 +235,11 @@ Here are examples for various API cases:
         ```markdown title="File Upload API Example"
         POST /users/:userId/profile-image
         - Test Case: Successfully upload profile image
-        - Request: Send POST request with valid image file and "multipart/form-data" content type
-        - Expected Response: Status code 200, JSON response with image URL
+          - Request: Send POST request with valid image file and "multipart/form-data" content type
+          - Response: Status code 200, JSON response with image URL
         - Test Case: Wrong content type
-        - Request: Send POST request without "multipart/form-data" content type
-        - Expected Response: Status code 400, JSON response with error message
+          - Request: Send POST request without "multipart/form-data" content type
+          - Response: Status code 400, JSON response with error message
         ```
 
     </TabItem>
