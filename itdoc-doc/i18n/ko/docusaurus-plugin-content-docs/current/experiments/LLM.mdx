@@ -154,7 +154,14 @@ LLM 기능을 사용하기 전과 후를 비교해보겠습니다.
 
   ```bash title="아래 처럼 .env 파일에 키를 입력하세요"
   echo OPENAI_API_KEY={ENTER_YOUR_GPT_KEY} > .env
-    ```
+  ```
+
+  > 아니면, 아래와 같이 원하는 경로에 `.env` 파일을 생성하고 API 키를 입력할 수도 있습니다.
+  > ```bash
+  > itdoc --e {YOUR_ENV_FILE_PATH}
+  > itdoc --env {YOUR_ENV_FILE_PATH}
+  > ```
+
 
 :::danger[API 키 보안 주의사항]
 **`.env` 파일을 `.gitignore`에 추가하여 Git 저장소에 업로드되지 않도록 하세요**

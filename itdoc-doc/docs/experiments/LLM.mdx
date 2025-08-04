@@ -153,7 +153,14 @@ Let's compare before and after using the LLM feature.
 
   ```bash title="Add your key to the .env file like this"
   echo OPENAI_API_KEY={ENTER_YOUR_GPT_KEY} > .env
-    ```
+  ```
+
+  > Or you can specify the path to your `.env` file using the `-e` or `--env` option when running the command:
+  > ```bash
+  > itdoc --e {YOUR_ENV_FILE_PATH}
+  > itdoc --env {YOUR_ENV_FILE_PATH}
+  > ```
+
 
 :::danger[API Key Security Warning]
 **Add the `.env` file to `.gitignore` to prevent it from being uploaded to your Git repository**
