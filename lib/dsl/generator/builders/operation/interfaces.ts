@@ -48,56 +48,56 @@ export interface SecurityBuilderInterface {
     /**
      * Extracts security requirements from test results.
      * @param result Test result
-     * @returns 보안 요구사항 배열
+     * @returns Array of security requirements
      */
     extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>>
 
     /**
-     * 보안 스키마를 가져옵니다.
-     * @returns 현재 등록된 보안 스키마 맵
+     * Gets the security schemas.
+     * @returns Currently registered security schema map
      */
     getSecuritySchemes(): Record<string, any>
 }
 
 /**
- * 요청 본문 생성을 위한 인터페이스
+ * Interface for request body generation
  */
 export interface RequestBodyBuilderInterface {
     /**
-     * 요청 본문을 생성합니다.
-     * @param result 테스트 결과
-     * @returns 요청 본문 객체 또는 undefined
+     * Generates the request body.
+     * @param result Test result
+     * @returns Request body object or undefined
      */
     generateRequestBody(result: TestResult): RequestBodyObject | undefined
 }
 
 /**
- * 응답 객체 생성을 위한 인터페이스
+ * Interface for response object generation
  */
 export interface ResponseBuilderInterface {
     /**
-     * 응답을 생성합니다.
-     * @param result 테스트 결과
-     * @returns 응답 객체 맵
+     * Generates responses.
+     * @param result Test result
+     * @returns Response object map
      */
     generateResponses(result: TestResult): Record<string, ResponseObject>
 }
 
 /**
- * 유틸리티 함수를 위한 인터페이스
+ * Interface for utility functions
  */
 export interface UtilityBuilderInterface {
     /**
-     * 테스트 결과로부터 operationId를 생성합니다.
-     * @param result 테스트 결과
-     * @returns 생성된 operationId
+     * Generates operationId from test results.
+     * @param result Test result
+     * @returns Generated operationId
      */
     generateOperationId(result: TestResult): string
 
     /**
-     * 경로에서 기본 태그를 생성합니다.
-     * @param path API 경로
-     * @returns 기본 태그
+     * Generates default tag from path.
+     * @param path API path
+     * @returns Default tag
      */
     generateDefaultTag(path: string): string
 }
