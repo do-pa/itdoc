@@ -19,15 +19,15 @@ import { SecurityBuilderInterface } from "./interfaces"
 import { isDSLField } from "../../../interface/field"
 
 /**
- * OpenAPI Security 요구사항 생성을 담당하는 빌더 클래스
+ * Builder class responsible for generating OpenAPI Security requirements
  */
 export class SecurityBuilder implements SecurityBuilderInterface {
     private securitySchemes: Record<string, any> = {}
 
     /**
-     * 테스트 결과에서 보안 요구사항을 추출합니다.
-     * @param result 테스트 결과
-     * @returns 보안 요구사항 배열
+     * Extracts security requirements from test results.
+     * @param {TestResult} result Test result
+     * @returns {Array<Record<string, string[]>>} Array of security requirements
      */
     public extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>> {
         const security: Array<Record<string, string[]>> = []
@@ -85,8 +85,8 @@ export class SecurityBuilder implements SecurityBuilderInterface {
     }
 
     /**
-     * 보안 스키마를 가져옵니다.
-     * @returns 현재 등록된 보안 스키마 맵
+     * Gets security schemas.
+     * @returns {Record<string, any>} Currently registered security schema map
      */
     public getSecuritySchemes(): Record<string, any> {
         return this.securitySchemes

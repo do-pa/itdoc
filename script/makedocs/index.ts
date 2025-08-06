@@ -21,35 +21,35 @@ import { join } from "path"
 import logger from "../../lib/config/logger"
 
 /**
- * OpenAPI 파일을 Markdown 및 HTML 문서로 변환합니다.
- * @param {string} oasOutputPath 변환할 OpenAPI 파일 경로 (YAML 또는 JSON)
- * @param {string} outputDir 생성된 문서를 저장할 출력 디렉터리 경로
- * @returns {Promise<void>} 변환 작업이 완료되면 해결되는 Promise
+ * Converts OpenAPI files to Markdown and HTML documents.
+ * @param {string} oasOutputPath Path to the OpenAPI file to convert (YAML or JSON)
+ * @param {string} outputDir Path to the output directory where generated documents will be saved
+ * @returns {Promise<void>} Promise that resolves when the conversion operation is completed
  */
 export async function generateDocs(oasOutputPath: string, outputDir: string): Promise<void> {
     if (!outputDir) {
-        throw new Error("유효한 출력 경로가 제공되지 않았습니다.")
+        throw new Error("A valid output path was not provided.")
     }
 
     try {
         const markdownPath = join(outputDir, "api.md")
         const htmlPath = join(outputDir, "redoc.html")
 
-        logger.info(`OAS 파일 경로: ${oasOutputPath}`)
-        logger.info(`Markdown 경로: ${markdownPath}`)
-        logger.info(`HTML 경로: ${htmlPath}`)
+        logger.info(`OAS file path: ${oasOutputPath}`)
+        logger.info(`Markdown path: ${markdownPath}`)
+        logger.info(`HTML path: ${htmlPath}`)
 
         const config = await loadConfig({})
-        logger.info("Step 1: Redocly 구성 로드 완료")
+        logger.info("Step 1: Redocly configuration loaded")
 
         const bundleResult = await bundle({ ref: oasOutputPath, config })
         const api = bundleResult.bundle.parsed
-        logger.info("Step 2: OpenAPI 번들링 완료")
+        logger.info("Step 2: OpenAPI bundling completed")
         const widdershinsOpts = { headings: 2, summary: true }
         console.log = () => {}
         const markdown = await widdershins.convert(api, widdershinsOpts)
         await fs.writeFile(markdownPath, markdown, "utf-8")
-        logger.info("Step 3: Markdown 생성 완료")
+        logger.info("Step 3: Markdown generation completed")
 
         const safeSpec = JSON.stringify(api).replace(/</g, "\\u003c")
         const htmlContent = `<!DOCTYPE html>
@@ -69,9 +69,9 @@ export async function generateDocs(oasOutputPath: string, outputDir: string): Pr
 </body>
 </html>`
         await fs.writeFile(htmlPath, htmlContent, "utf-8")
-        logger.info("Step 4: HTML 생성 완료")
+        logger.info("Step 4: HTML generation completed")
     } catch (error: unknown) {
-        logger.error("문서 생성 중 오류 발생:", error)
+        logger.error("Error occurred during document generation:", error)
         process.exit(1)
     }
 }

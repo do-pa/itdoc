@@ -23,11 +23,11 @@ export const itDoc = (
     testFn: () => Promise<void> | Promise<TestResult> | void | TestResult,
 ): void => {
     if (!description) {
-        throw new Error("테스트 설명이 itDoc에 필요합니다.")
+        throw new Error("Test description is required for itDoc.")
     }
 
     if (!testFn) {
-        throw new Error("테스트 함수가 itDoc에 필요합니다.")
+        throw new Error("Test function is required for itDoc.")
     }
 
     testEventManager.registerTest()

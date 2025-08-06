@@ -407,7 +407,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "friendName 파라미터"
+                        "description": "friendName parameter"
                     }
                 ],
                 "security": [{}],

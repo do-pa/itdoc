@@ -23,8 +23,8 @@ export type FIELD_TYPES =
     | FIELD_TYPES[]
 
 /**
- * DSL Field 인터페이스
- * - example은 값 또는 값 검증 함수일 수 있습니다.
+ * DSL Field interface
+ * - example can be a value or value validation function.
  */
 export interface DSLField<T extends FIELD_TYPES = FIELD_TYPES> {
     readonly description: string
@@ -34,11 +34,11 @@ export interface DSLField<T extends FIELD_TYPES = FIELD_TYPES> {
 
 /**
  * DSL Helper Functions
- * - DSLField 생성 함수
- * @param description {string} 문서에 표시될 필드 설명
- * @param example {object | function} 필드의 예시 값 또는 검증 함수
- * @param required {boolean} 필드가 필수인지 여부
- * @returns {DSLField} DSL Field 인터페이스
+ * - DSL Field creation function
+ * @param {string} description  Field description to be displayed in documentation
+ * @param {T | (value: T) => void} example  Example value, or a validator that receives the value
+ * @param {boolean} required Whether the field is required
+ * @returns {DSLField<FIELD_TYPES>} DSL Field interface
  */
 export function field<T extends FIELD_TYPES>(
     description: string,
@@ -49,11 +49,11 @@ export function field<T extends FIELD_TYPES>(
 }
 
 /**
- * DSL Field 타입 가드
+ * DSL Field type guard
  * @description
  * @param obj
- * 값이 DSL Field 타입인지 확인합니다.
- * @returns {boolean} DSL Field 여부
+ * Checks if the value is of DSL Field type.
+ * @returns {boolean} Whether it is a DSL Field
  */
 export const isDSLField = (obj: any): obj is DSLField<any> =>
     obj && typeof obj === "object" && "example" in obj && "description" in obj

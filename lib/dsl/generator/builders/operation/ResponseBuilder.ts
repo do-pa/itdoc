@@ -21,15 +21,15 @@ import { SchemaBuilder } from "../schema"
 import { UtilityBuilder } from "./UtilityBuilder"
 
 /**
- * OpenAPI Response 객체 생성을 담당하는 빌더 클래스
+ * Builder class responsible for creating OpenAPI Response objects
  */
 export class ResponseBuilder implements ResponseBuilderInterface {
     private utilityBuilder = new UtilityBuilder()
 
     /**
-     * 응답을 생성합니다.
-     * @param result 테스트 결과
-     * @returns 응답 객체 맵
+     * Generates responses.
+     * @param {TestResult} result Test result
+     * @returns {Record<string, ResponseObject>} Response object map
      */
     public generateResponses(result: TestResult): Record<string, ResponseObject> {
         const responses: Record<string, ResponseObject> = {}
@@ -44,7 +44,7 @@ export class ResponseBuilder implements ResponseBuilderInterface {
             if (result.response.headers && Object.keys(result.response.headers).length > 0) {
                 const headers: Record<string, HeaderObject> = {}
 
-                // 필터링할 기본 HTTP 헤더 목록
+                // List of default HTTP headers to filter
                 const skipHeaders = [
                     "x-powered-by",
                     "content-type",
@@ -62,7 +62,7 @@ export class ResponseBuilder implements ResponseBuilderInterface {
                 ]
 
                 for (const [name, value] of Object.entries(result.response.headers)) {
-                    // 기본 헤더는 스킵
+                    // Skip default headers
                     if (skipHeaders.includes(name.toLowerCase())) {
                         continue
                     }
@@ -72,7 +72,7 @@ export class ResponseBuilder implements ResponseBuilderInterface {
                     }
                 }
 
-                // 헤더가 하나라도 있는 경우에만 추가
+                // Add only when there is at least one header
                 if (Object.keys(headers).length > 0) {
                     responses[statusCode].headers = headers
                 }
@@ -106,9 +106,9 @@ export class ResponseBuilder implements ResponseBuilderInterface {
     }
 
     /**
-     * 요청 메서드에 따라 적절한 기본 응답을 추가합니다.
-     * @param responses 현재 응답 맵
-     * @param method HTTP 메서드
+     * Adds appropriate default responses based on request method.
+     * @param {Record<string, ResponseObject>} responses Current response map
+     * @param {string} method HTTP method
      */
     private addDefaultResponses(responses: Record<string, ResponseObject>, method: string): void {
         const has4xx = Object.keys(responses).some((status) => status.startsWith("4"))

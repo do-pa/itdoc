@@ -18,11 +18,11 @@ import { RequestBuilder } from "./RequestBuilder"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
 
 /**
- * RootBuilder 클래스는 API 테스트의 시작점입니다.
+ * The RootBuilder class is the starting point for API testing.
  */
 export class RootBuilder extends AbstractTestBuilder {
     /**
-     * prettyPrint 설정값을 true로 설정합니다.
+     * Sets the prettyPrint configuration value to true.
      */
     public prettyPrint(): this {
         this.config.prettyPrint = true

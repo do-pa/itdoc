@@ -19,9 +19,9 @@ import { AsyncLocalStorage } from "async_hooks"
 const asyncLocalStorage = new AsyncLocalStorage<{ description: string }>()
 
 /**
- * itDoc("패스워드가 8자 미만이면 에러가 발생한다", () => {
+ * itDoc("Error occurs when password is less than 8 characters", () => {
  *
- * 에서 "패스워드가 8자 미만이면 에러가 발생한다" 같은 테스트 설명을 기록/공유하기 위한 유틸입니다.
+ * Utility for recording/sharing test descriptions like "Error occurs when password is less than 8 characters".
  */
 export const testContext = {
     run<T>(description: string, fn: () => Promise<T> | T): Promise<T> | T {

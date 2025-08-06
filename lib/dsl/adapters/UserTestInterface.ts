@@ -17,8 +17,8 @@
 import { TestFramework } from "./TestFramework"
 
 /**
- * 공통 DSL 인터페이스를 정의합니다.
- * 실제 테스트 프레임워크의 함수들을 감싸서 동일한 인터페이스를 제공할 수 있도록 합니다.
+ * Defines common DSL interface.
+ * Wraps actual test framework functions to provide a unified interface.
  */
 export interface UserTestInterface {
     name: TestFramework

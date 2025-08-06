@@ -23,10 +23,10 @@ import traversePkg from "@babel/traverse"
 const traverse = traversePkg.default
 
 /**
- * 프로젝트 전체에서 관련 서비스 메서드를 동적으로 찾아 실제 리턴값을 추출합니다.
- * @param {string} methodName - 찾을 메서드명 (예: getAllProducts)
- * @param {string} projectRoot - 프로젝트 루트 경로
- * @returns {any} 추출된 실제 리턴값 또는 null
+ * Dynamically finds related service methods across the project and extracts actual return values.
+ * @param {string} methodName - Method name to find (e.g., getAllProducts)
+ * @param {string} projectRoot - Project root path
+ * @returns {any} Extracted actual return value or null
  */
 export function extractActualReturnValue(methodName: string, projectRoot: string): any {
     try {
@@ -48,9 +48,9 @@ export function extractActualReturnValue(methodName: string, projectRoot: string
 }
 
 /**
- * 객체에 null 값이 포함되어 있는지 확인합니다.
- * @param {any} obj - 확인할 객체
- * @returns {boolean} null 값 포함 여부
+ * Checks if an object contains null values.
+ * @param {any} obj - Object to check
+ * @returns {boolean} Whether null values are included
  */
 export function hasPartialNullValues(obj: any): boolean {
     if (obj === null || obj === undefined) return true
@@ -62,10 +62,10 @@ export function hasPartialNullValues(obj: any): boolean {
 }
 
 /**
- * AST에서 특정 메서드의 리턴값을 동적으로 추출합니다.
- * @param {t.File} ast - 파일 AST
- * @param {string} methodName - 메서드명
- * @returns {any} 리턴값 구조
+ * Dynamically extracts return values of specific methods from AST.
+ * @param {t.File} ast - File AST
+ * @param {string} methodName - Method name
+ * @returns {any} Return value structure
  */
 export function extractReturnValueFromAST(ast: t.File, methodName: string): any {
     let returnValue: any = null
@@ -116,18 +116,19 @@ export function extractReturnValueFromAST(ast: t.File, methodName: string): any 
 }
 
 /**
- * 함수/메서드에서 리턴 구조를 추출합니다
- * @param {t.Function} func - 함수 노드
- * @param {t.File} ast - 전체 파일 AST (변수 찾기용)
- * @returns {any} 리턴값 구조
+ * Extracts return structure from function/method
+ * @param {t.Function} func - Function node
+ * @param {t.File} ast - Complete file AST (for variable finding)
+ * @returns {any} Return value structure
  */
 export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
     let returnValue: any = null
     const visitedVariables = new Set<string>()
 
     /**
-     * 재귀적으로 노드를 탐색하여 모든 ReturnStatement를 찾습니다.
-     * @param node
+     * Recursively traverses nodes to find all ReturnStatements.
+     * @param {t.Node} node Node to traverse
+     * @returns {t.ReturnStatement[]} All ReturnStatements
      */
     function findAllReturnStatements(node: t.Node): t.ReturnStatement[] {
         const returns: t.ReturnStatement[] = []
@@ -153,9 +154,10 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
     }
 
     /**
-     * 가장 의미있는 ReturnStatement를 선택합니다.
-     * undefined나 null보다는 실제 값을 우선적으로 선택합니다.
-     * @param returnStatements
+     * Selects the most meaningful ReturnStatement.
+     * Prioritizes actual values over undefined or null.
+     * @param {t.ReturnStatement[]} returnStatements Return statements
+     * @returns {t.ReturnStatement | null} The most meaningful ReturnStatement
      */
     function selectBestReturnStatement(
         returnStatements: t.ReturnStatement[],

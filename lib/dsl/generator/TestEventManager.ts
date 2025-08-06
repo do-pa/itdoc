@@ -21,13 +21,13 @@ import { getOutputPath } from "../../config/getOutputPath"
 import * as path from "path"
 import { generateDocs } from "../../../script/makedocs"
 /**
- * TestEventManager는 테스트 이벤트를 관리하고 테스트 상태를 추적하는 싱글톤 클래스입니다.
+ * TestEventManager is a singleton class that manages test events and tracks test status.
  *
- * 이 클래스는 다음과 같은 역할을 합니다:
- * - 테스트 등록: 새로운 테스트가 시작될 때 테스트 개수를 증가시킵니다.
- * - 테스트 완료 추적: 테스트가 성공 또는 실패할 때마다 완료된 테스트 수를 업데이트합니다.
- * - 모든 테스트가 완료되면, 실패한 테스트가 없는 경우 자동으로 OpenAPI 스펙(OAS)을 생성합니다.
- *   OAS는 JSON 형식으로 파일에 저장되며, 이후 문서(Markdown, HTML) 생성 작업이 실행됩니다.
+ * This class performs the following roles:
+ * - Test registration: Increases test count when new tests start.
+ * - Test completion tracking: Updates completed test count whenever tests succeed or fail.
+ * - When all tests are completed, automatically generates OpenAPI spec (OAS) if there are no failed tests.
+ *   OAS is saved to a file in JSON format, followed by document (Markdown, HTML) generation tasks.
  * @class TestEventManager
  * @singleton
  */
@@ -48,13 +48,13 @@ export class TestEventManager {
 
     public registerTest(): void {
         this.testCount++
-        logger.debug(`테스트 등록: 현재 총 ${this.testCount}개 테스트`)
+        logger.debug(`Test registered: Currently ${this.testCount} tests total`)
     }
 
     public completeTestSuccess(): void {
         this.completedTests++
         logger.debug(
-            `테스트 완료: ${this.completedTests}/${this.testCount} (실패: ${this.failedTests})`,
+            `Test completed: ${this.completedTests}/${this.testCount} (failed: ${this.failedTests})`,
         )
         this.checkAllTestsCompleted()
     }
@@ -62,9 +62,9 @@ export class TestEventManager {
     public completeTestFailure(): void {
         this.completedTests++
         this.failedTests++
-        logger.debug(`테스트 실패: 현재 ${this.failedTests}개 실패`)
+        logger.debug(`Test failed: Currently ${this.failedTests} failures`)
         logger.debug(
-            `테스트 완료: ${this.completedTests}/${this.testCount} (실패: ${this.failedTests})`,
+            `Test completed: ${this.completedTests}/${this.testCount} (failed: ${this.failedTests})`,
         )
         this.checkAllTestsCompleted()
     }
@@ -80,13 +80,13 @@ export class TestEventManager {
     }
     private onAllTestsCompleted(): void {
         if (this.failedTests > 0) {
-            logger.error(`[OAS_GENERATION_SKIPPED] 실패한 테스트 수: ${this.failedTests}`)
+            logger.error(`[OAS_GENERATION_SKIPPED] Number of failed tests: ${this.failedTests}`)
             return
         }
         try {
             this.generateOAS()
         } catch (error) {
-            logger.error("OAS 생성 중 오류 발생:", error)
+            logger.error("Error occurred during OAS generation:", error)
         }
     }
 
@@ -100,7 +100,7 @@ export class TestEventManager {
         const oasGenerator = OpenAPIGenerator.getInstance()
         exportOASToJSON(oasGenerator, oasPath)
         this.oasAlreadyGenerated = true
-        logger.info(`OAS 생성 완료: ${oasPath}`)
+        logger.info(`OAS generation completed: ${oasPath}`)
         generateDocs(oasPath, outputPath)
     }
 }

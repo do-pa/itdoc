@@ -18,23 +18,23 @@ import { HttpMethod } from "../../enums"
 import { ApiDocOptions } from "../../interface"
 
 /**
- * 테스트 결과 인터페이스
+ * Test result interface
  *
- * 이 인터페이스는 API 테스트 결과를 캡처하기 위한 정보를 담습니다.
- * @property {HttpMethod} method - HTTP 메소드 (예: GET, POST 등).
- * @property {string} url - 요청 URL.
- * @property {ApiDocOptions} options - API 문서 생성 옵션.
- * @property {object} request - 요청 관련 정보.
- * @property {unknown} [request.body] - 요청 바디 (선택 사항).
- * @property {Record<string, string | unknown>} [request.headers] - 요청 헤더 (선택 사항).
- * @property {Record<string, string | unknown>} [request.queryParams] - URL 쿼리 파라미터 (선택 사항).
- * @property {Record<string, string | unknown>} [request.pathParams] - URL 경로 파라미터 (선택 사항).
- * @property {object} response - 응답 관련 정보.
- * @property {number} response.status - HTTP 응답 상태 코드.
- * @property {unknown} [response.body] - 응답 바디 (선택 사항).
- * @property {Record<string, string | unknown>} [response.headers] - 응답 헤더 (선택 사항).
- * @property {string} [testSuiteDescription] - 테스트 컨텍스트 설명. 예를 들어,
- *                                             itDoc("테스트 컨텍스트", () => { ... })에서 "테스트 컨텍스트"에 해당하는 부분.
+ * This interface contains information for capturing API test results.
+ * @property {HttpMethod} method - HTTP method (e.g., GET, POST, etc.).
+ * @property {string} url - Request URL.
+ * @property {ApiDocOptions} options - API documentation generation options.
+ * @property {object} request - Request-related information.
+ * @property {unknown} [request.body] - Request body (optional).
+ * @property {Record<string, string | unknown>} [request.headers] - Request headers (optional).
+ * @property {Record<string, string | unknown>} [request.queryParams] - URL query parameters (optional).
+ * @property {Record<string, string | unknown>} [request.pathParams] - URL path parameters (optional).
+ * @property {object} response - Response-related information.
+ * @property {number} response.status - HTTP response status code.
+ * @property {unknown} [response.body] - Response body (optional).
+ * @property {Record<string, string | unknown>} [response.headers] - Response headers (optional).
+ * @property {string} [testSuiteDescription] - Test context description. For example,
+ *                                             the "test context" part in itDoc("test context", () => { ... }).
  */
 export interface TestResult {
     method: HttpMethod
@@ -55,9 +55,9 @@ export interface TestResult {
 }
 
 /**
- * OpenAPI Specification 생성기 인터페이스
+ * OpenAPI Specification generator interface
  *
- * 이 인터페이스는 테스트 결과를 기반으로 OpenAPI 문서를 생성하는 부분을 담당합니다.
+ * This interface is responsible for generating OpenAPI documents based on test results.
  * @interface IOpenAPIGenerator
  */
 export interface IOpenAPIGenerator {

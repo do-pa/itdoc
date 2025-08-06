@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-// 기본 인터페이스 및 상수 내보내기
 export * from "./interfaces"
 
-// 각 빌더 클래스 내보내기
 export * from "./UtilityBuilder"
 export * from "./ParameterBuilder"
 export * from "./SecurityBuilder"
 export * from "./RequestBodyBuilder"
 export * from "./ResponseBuilder"
 
-// 주요 클래스들 가져오기
 import { TestResult } from "../../types/TestResult"
 import { OperationBuilderInterface } from "./interfaces"
 import { ParameterBuilder } from "./ParameterBuilder"
@@ -34,7 +31,7 @@ import { ResponseBuilder } from "./ResponseBuilder"
 import { UtilityBuilder } from "./UtilityBuilder"
 
 /**
- * OpenAPI Operation 객체 생성을 담당하는 빌더 클래스
+ * Builder class responsible for creating OpenAPI Operation objects
  */
 export class OperationBuilder implements OperationBuilderInterface {
     private parameterBuilder = new ParameterBuilder()
@@ -44,41 +41,36 @@ export class OperationBuilder implements OperationBuilderInterface {
     private utilityBuilder = new UtilityBuilder()
 
     /**
-     * 테스트 결과로부터 OpenAPI Operation 객체를 생성합니다.
-     * @param result 테스트 결과
-     * @returns OpenAPI Operation 객체
+     * Generates an OpenAPI Operation object from test results.
+     * @param {TestResult} result Test result
+     * @returns {Record<string, unknown>} OpenAPI Operation object
      */
     public generateOperation(result: TestResult): Record<string, unknown> {
         const operation: Record<string, unknown> = {
             tags: [result.options.tag || this.utilityBuilder.generateDefaultTag(result.url)],
         }
 
-        // operationId 생성 및 추가
         operation.operationId = this.utilityBuilder.generateOperationId(result)
 
         if (result.options.description) {
             operation.description = result.options.description
         }
 
-        // 파라미터 추출 및 설정
         const parameters = this.parameterBuilder.extractParameters(result)
         if (parameters.length > 0) {
             operation.parameters = parameters
         }
 
-        // 보안 요구사항 추출
         const security = this.securityBuilder.extractSecurityRequirements(result)
         if (security.length > 0) {
             operation.security = security
         }
 
-        // 요청 본문 생성
         const requestBody = this.requestBodyBuilder.generateRequestBody(result)
         if (requestBody) {
             operation.requestBody = requestBody
         }
 
-        // 응답 생성
         const responses = this.responseBuilder.generateResponses(result)
         operation.responses = responses
 
@@ -86,8 +78,8 @@ export class OperationBuilder implements OperationBuilderInterface {
     }
 
     /**
-     * 보안 스키마를 가져옵니다.
-     * @returns 현재 등록된 보안 스키마 맵
+     * Gets the security schemes.
+     * @returns {Record<string, any>} Currently registered security schema map
      */
     public getSecuritySchemes(): Record<string, any> {
         return this.securityBuilder.getSecuritySchemes()
