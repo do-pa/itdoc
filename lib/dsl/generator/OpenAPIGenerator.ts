@@ -159,7 +159,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         )
 
         operationObj.summary =
-            representativeResult.options?.summary || `${method.toUpperCase()} ${path} 요청`
+            representativeResult.options?.summary || `${method.toUpperCase()} ${path} request`
 
         if (representativeResult.options?.tag) {
             operationObj.tags = [representativeResult.options.tag]
@@ -357,7 +357,8 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             }
 
             const exampleKey =
-                result.testSuiteDescription || (isErrorStatus ? "에러 응답" : "성공 응답")
+                result.testSuiteDescription ||
+                (isErrorStatus ? "Error Response" : "Success Response")
             const exampleValue = contentObj.example || result.response.body || null
 
             if (isErrorStatus && exampleValue) {
@@ -561,7 +562,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
                             schema: {
                                 type: "string",
                             },
-                            description: `${param} 파라미터`,
+                            description: `${param} parameter`,
                         })
                     }
                 }
