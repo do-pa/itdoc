@@ -19,11 +19,11 @@ import * as path from "path"
 import logger from "./logger"
 
 /**
- * package.json의 "itdoc" 항목 내에서 특정 인자를 읽어옵니다.
- * 만약 해당 인자가 존재하지 않으면, 기본값을 반환합니다.
- * @param key 조회할 인자명 (.으로 depth 추가 가능)
- * @param defaultValue 기본값
- * @returns itdoc[key] 값 또는 defaultValue
+ * Reads a specific argument from the "itdoc" section in package.json.
+ * If the argument does not exist, returns the default value.
+ * @param key Argument name to query (depth can be added with .)
+ * @param defaultValue Default value
+ * @returns itdoc[key] value or defaultValue
  */
 export function readItdocConfig(key: string, defaultValue: string): string {
     const packageJson = readPackageJson()
@@ -51,10 +51,10 @@ export function readItdocConfig(key: string, defaultValue: string): string {
 }
 
 /**
- * 현재 작업 디렉토리의 `package.json`을 읽어 파싱된 객체를 반환합니다.
+ * Reads and returns the parsed object of `package.json` from the current working directory.
  *
- * 읽기 또는 파싱 중 오류가 발생하면 null을 반환하며, 에러 로그를 출력합니다.
- * @returns {object | null} 파싱된 package.json 객체 또는 null
+ * Returns null and outputs error logs if an error occurs during reading or parsing.
+ * @returns {object | null} Parsed package.json object or null
  */
 function readPackageJson(): any {
     const packageJsonPath = path.resolve(process.cwd(), "package.json")
@@ -62,7 +62,7 @@ function readPackageJson(): any {
         const packageJsonData = fs.readFileSync(packageJsonPath, "utf8")
         return JSON.parse(packageJsonData)
     } catch (error) {
-        logger.error("package.json을 읽는 중 오류 발생.", error)
+        logger.error("Error occurred while reading package.json.", error)
         return null
     }
 }

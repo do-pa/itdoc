@@ -15,7 +15,7 @@
  */
 
 /**
- * 포맷 검출을 위한 정규식 패턴
+ * Regular expression patterns for format detection
  */
 export const FORMAT_PATTERNS = {
     UUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,

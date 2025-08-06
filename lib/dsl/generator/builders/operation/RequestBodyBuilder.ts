@@ -22,15 +22,15 @@ import { UtilityBuilder } from "./UtilityBuilder"
 import { isDSLField } from "../../../interface/field"
 
 /**
- * OpenAPI RequestBody 객체 생성을 담당하는 빌더 클래스
+ * Builder class responsible for creating OpenAPI RequestBody objects
  */
 export class RequestBodyBuilder implements RequestBodyBuilderInterface {
     private utilityBuilder = new UtilityBuilder()
 
     /**
-     * 요청 본문을 생성합니다.
-     * @param result 테스트 결과
-     * @returns 요청 본문 객체 또는 undefined
+     * Generates request body.
+     * @param result Test result
+     * @returns Request body object or undefined
      */
     public generateRequestBody(result: TestResult): RequestBodyObject | undefined {
         if (!result.request.body) {
@@ -58,9 +58,9 @@ export class RequestBodyBuilder implements RequestBodyBuilderInterface {
     }
 
     /**
-     * 요청의 Content-Type을 가져옵니다.
-     * @param request 요청 객체
-     * @returns Content-Type 값
+     * Gets the Content-Type of the request.
+     * @param request Request object
+     * @returns Content-Type value
      */
     private getContentType(request: TestResult["request"]): string {
         if (request.headers && "content-type" in request.headers) {

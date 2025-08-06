@@ -18,7 +18,7 @@ import { TestCaseConfig } from "./TestCaseConfig"
 import { HttpMethod } from "../enums"
 
 /**
- * test-builders 하위 빌더 클래스들의 공통 설정이 포함된 추상 클래스입니다.
+ * Abstract class containing common settings for builder classes under test-builders.
  * @see https://github.com/do-pa/itdoc/issues/10
  */
 export abstract class AbstractTestBuilder {

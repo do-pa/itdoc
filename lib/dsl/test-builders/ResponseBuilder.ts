@@ -25,7 +25,7 @@ import logger from "../../config/logger"
 import { testContext } from "../interface/testContext"
 
 /**
- * API 응답을 검증하기 위한 결과값을 설정하는 빌더 클래스입니다.
+ * Builder class for setting result values to validate API responses.
  */
 export class ResponseBuilder extends AbstractTestBuilder {
     public status(status: HttpStatus | number): this {

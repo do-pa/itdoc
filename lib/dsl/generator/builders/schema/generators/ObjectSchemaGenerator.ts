@@ -19,14 +19,14 @@ import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 import { SchemaFactory } from "../interfaces"
 
 /**
- * 객체 값의 스키마를 생성하는 클래스
+ * Class that generates schema for object values
  */
 export class ObjectSchemaGenerator extends BaseSchemaGenerator {
     private factory: SchemaFactory
 
     /**
-     * 생성자
-     * @param factory 스키마 팩토리
+     * Constructor
+     * @param {SchemaFactory} factory Schema factory
      */
     public constructor(factory: SchemaFactory) {
         super()
@@ -34,10 +34,10 @@ export class ObjectSchemaGenerator extends BaseSchemaGenerator {
     }
 
     /**
-     * 객체 값으로부터 스키마를 생성합니다.
-     * @param value 객체 값
-     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
-     * @returns 생성된 스키마
+     * Generates schema from object values.
+     * @param {unknown} value Object value
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {Record<string, unknown>} Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         const obj = value as Record<string, unknown>

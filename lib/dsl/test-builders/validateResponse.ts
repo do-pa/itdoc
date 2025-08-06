@@ -17,11 +17,11 @@
 import { isDSLField } from "../interface/field"
 
 /**
- * 응답에 대한 expect가 field일 경우 검증을 수행하는 함수입니다.
- * @param expectedDSL - 예상되는 DSL 필드
- * @param actualVal - 실제 응답 값
- * @param path - 현재 검증 중인 경로 (재귀 호출 시 사용)
- * @throws {Error} 검증 실패 시 에러를 발생시킵니다.
+ * Function that performs validation when the expected response is a field.
+ * @param {any} expectedDSL Expected DSL field
+ * @param {any} actualVal Actual response value
+ * @param {string} path Current path being validated (used in recursive calls)
+ * @throws {Error} Throws an error when validation fails.
  * @see {@link import('../interface/field.ts').field}
  */
 const validateDSLField = (expectedDSL: any, actualVal: any, path: string): void => {
@@ -56,10 +56,11 @@ const validateDSLField = (expectedDSL: any, actualVal: any, path: string): void 
 }
 
 /**
- * 배열 타입의 응답을 검증하는 함수
- * @param {Array} expectedArr - 예상한 응답 값 (배열)
- * @param {Array} actualArr - 실제 응답 값 (배열)
- * @param {string} path - 현재 검증 중인 경로 (재귀 호출 시 사용)
+ * Function that validates array-type responses
+ * @param {any[]} expectedArr Expected response value (array)
+ * @param {any[]} actualArr Actual response value (array)
+ * @param {string} path Current path being validated (used in recursive calls)
+ * @throws {Error} Throws an error when validation fails.
  */
 const validateArray = (expectedArr: any[], actualArr: any[], path: string): void => {
     if (!Array.isArray(actualArr)) {
@@ -76,11 +77,12 @@ const validateArray = (expectedArr: any[], actualArr: any[], path: string): void
 }
 
 /**
- * `ResponseBuilder`에서 정의한 API 응답 값의 **실질적인 검증**을 수행하는 함수입니다.
- * 배열, 객체 등등 다양한 타입에 대해 분기하여 검증을 수행합니다.
- * @param expected - 예상되는 응답 값
- * @param actual - 실제 응답 값
- * @param path - 현재 검증 중인 경로 (재귀 호출 시 사용)
+ * Function that performs **actual validation** of API response values defined in `ResponseBuilder`.
+ * Performs validation by branching for various types such as arrays, objects, etc.
+ * @param {any} expected Expected response value
+ * @param {any} actual Actual response value
+ * @param {string} path Current path being validated (used in recursive calls)
+ * @throws {Error} Throws an error when validation fails.
  * @see {ResponseBuilder}
  */
 export const validateResponse = (expected: any, actual: any, path: string = ""): void => {

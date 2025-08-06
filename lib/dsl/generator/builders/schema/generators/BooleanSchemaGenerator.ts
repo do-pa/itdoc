@@ -17,17 +17,17 @@
 import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 
 /**
- * 불리언 값의 스키마를 생성하는 클래스
+ * Class that generates schema for boolean values
  */
 export class BooleanSchemaGenerator extends BaseSchemaGenerator {
     /**
-     * 불리언 값으로부터 스키마를 생성합니다.
-     * @param value 불리언 값
-     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
-     * @returns 생성된 스키마
+     * Generates schema from boolean values.
+     * @param {unknown} value Boolean value
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {Record<string, unknown>} Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
-        // 불리언 값이 아닌 경우 기본 불리언 스키마 반환
+        // Return default boolean schema if not a boolean value
         if (typeof value !== "boolean") {
             return { type: "boolean" }
         }
@@ -36,7 +36,7 @@ export class BooleanSchemaGenerator extends BaseSchemaGenerator {
             type: "boolean",
         }
 
-        // 예제 값 설정 (선택적)
+        // Set example value (optional)
         if (includeExample) {
             schema.example = value
         }

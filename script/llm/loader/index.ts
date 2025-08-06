@@ -21,11 +21,11 @@ import logger from "../../../lib/config/logger"
 type FileType = "spec" | "app" | "env"
 
 /**
- * 주어진 타입에 따라 경로를 확인하고 파일 경로 또는 내용을 반환합니다.
- * @param type "spec" | "app" | "env"
- * @param filePath 입력된 경로 (상대 또는 절대)
- * @param readContent true일 경우 파일 내용을 string으로 반환, false면 경로만 반환
- * @returns string (파일 내용 또는 경로)
+ * Checks the path according to the given type and returns the file path or content.
+ * @param {FileType} type "spec" | "app" | "env"
+ * @param {string} filePath Input path (relative or absolute)
+ * @param {boolean} readContent If true, returns file content as string; if false, returns only the path
+ * @returns {string} (file content or path)
  */
 export function loadFile(type: FileType, filePath?: string, readContent: boolean = false): string {
     const defaultPaths: Record<FileType, string[]> = {

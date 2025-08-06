@@ -18,14 +18,14 @@ import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 import { SchemaFactory } from "../interfaces"
 
 /**
- * 배열 값의 스키마를 생성하는 클래스
+ * Class that generates schema for array values
  */
 export class ArraySchemaGenerator extends BaseSchemaGenerator {
     private schemaFactory: SchemaFactory
 
     /**
-     * 생성자
-     * @param schemaFactory 스키마 팩토리
+     * Constructor
+     * @param {SchemaFactory} schemaFactory Schema factory
      */
     public constructor(schemaFactory: SchemaFactory) {
         super()
@@ -33,10 +33,10 @@ export class ArraySchemaGenerator extends BaseSchemaGenerator {
     }
 
     /**
-     * 배열 값으로부터 스키마를 생성합니다.
-     * @param value 배열 값
-     * @param includeExample 스키마에 example 포함 여부 (기본값: true)
-     * @returns 생성된 스키마
+     * Generates schema from array values.
+     * @param {unknown} value Array value
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {Record<string, unknown>} Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         const array = value as unknown[]

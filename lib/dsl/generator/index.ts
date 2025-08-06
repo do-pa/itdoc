@@ -30,10 +30,10 @@ export const resultCollector = TestResultCollector.getInstance()
 export const testEventManager = TestEventManager.getInstance()
 
 /**
- * 테스트 실패를 기록합니다.
- * 한 번이라도 호출되면 OAS 자동 생성을 건너뜁니다.
+ * Records test failure.
+ * If called even once, automatic OAS generation will be skipped.
  */
 export const recordTestFailure = (): void => {
     testEventManager.completeTestFailure()
-    logger.debug("테스트 실패가 기록되어 OAS 생성이 건너뛰어집니다.")
+    logger.debug("Test failure recorded, OAS generation will be skipped.")
 }

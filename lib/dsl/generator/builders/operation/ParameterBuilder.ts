@@ -22,15 +22,15 @@ import { SchemaBuilder } from "../schema"
 import { UtilityBuilder } from "./UtilityBuilder"
 
 /**
- * OpenAPI Parameter 객체 생성을 담당하는 빌더 클래스
+ * Builder class responsible for creating OpenAPI Parameter objects
  */
 export class ParameterBuilder implements ParameterBuilderInterface {
     private utilityBuilder = new UtilityBuilder()
 
     /**
-     * 테스트 결과에서 파라미터를 추출합니다.
-     * @param result 테스트 결과
-     * @returns 파라미터 객체 배열
+     * Extracts parameters from test results.
+     * @param {TestResult} result Test result
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     public extractParameters(result: TestResult): ParameterObject[] {
         const parameters: ParameterObject[] = []
@@ -51,15 +51,15 @@ export class ParameterBuilder implements ParameterBuilderInterface {
     }
 
     /**
-     * 경로 파라미터를 추출합니다.
-     * @param pathParams 경로 파라미터 객체
-     * @returns 파라미터 객체 배열
+     * Extracts path parameters.
+     * @param {Record<string, any>} pathParams Path parameter object
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     private extractPathParameters(pathParams: Record<string, any>): ParameterObject[] {
         const parameters: ParameterObject[] = []
 
         for (const [name, value] of Object.entries(pathParams)) {
-            // 기본 파라미터 객체 생성
+            // Create basic parameter object
             const parameter: ParameterObject = {
                 name,
                 in: "path",
@@ -69,16 +69,16 @@ export class ParameterBuilder implements ParameterBuilderInterface {
                 },
             }
 
-            // DSL 필드인 경우 메타데이터 추출 (description 및 example)
+            // Extract metadata for DSL fields (description and example)
             if (isDSLField(value)) {
                 if (value.description) {
                     parameter.description = value.description
                 }
 
-                // example 값 직접 설정 (DSL 필드의 example 값 자체가 필요)
+                // Set example value directly (the example value of DSL field itself is needed)
                 if (value.example !== undefined && value.example !== null) {
                     if (isDSLField(value.example)) {
-                        // example이 다시 DSL 필드인 경우 재귀적으로 처리
+                        // Process recursively if example is again a DSL field
                         parameter.example = this.utilityBuilder.extractSimpleExampleValue(
                             value.example,
                         )
@@ -87,13 +87,13 @@ export class ParameterBuilder implements ParameterBuilderInterface {
                     }
                 }
 
-                // 스키마 생성 시 example 제외하고 생성
+                // Generate schema excluding example when creating schema
                 parameter.schema = SchemaBuilder.inferSchema(value.example, false) as Record<
                     string,
                     any
                 >
             } else {
-                // 일반 값인 경우
+                // For regular values
                 parameter.schema = SchemaBuilder.inferSchema(value, false) as Record<string, any>
                 parameter.example = value
             }
@@ -105,9 +105,9 @@ export class ParameterBuilder implements ParameterBuilderInterface {
     }
 
     /**
-     * 쿼리 파라미터를 추출합니다.
-     * @param queryParams 쿼리 파라미터 객체
-     * @returns 파라미터 객체 배열
+     * Extracts query parameters.
+     * @param {Record<string, any>} queryParams Query parameter object
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     private extractQueryParameters(queryParams: Record<string, any>): ParameterObject[] {
         const parameters: ParameterObject[] = []
@@ -142,9 +142,9 @@ export class ParameterBuilder implements ParameterBuilderInterface {
     }
 
     /**
-     * 헤더 파라미터를 추출합니다.
-     * @param headers 헤더 객체
-     * @returns 파라미터 객체 배열
+     * Extracts header parameters.
+     * @param {Record<string, any>} headers Header object
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     private extractHeaderParameters(headers: Record<string, any>): ParameterObject[] {
         const parameters: ParameterObject[] = []

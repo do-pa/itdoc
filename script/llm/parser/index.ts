@@ -21,10 +21,10 @@ import { analyzeFileRoutes } from "./analyzer/routeAnalyzer"
 import logger from "../../../lib/config/logger"
 
 /**
- * 주어진 Express 앱 파일을 시작점으로
- * 전체 라우트를 분석해 JSON으로 반환합니다.
- * @param {string} appPath - 분석할 Express 앱 파일 경로
- * @returns {Promise<RouteResult[]>} 라우트 분석 결과
+ * Analyzes all routes starting from the given Express app file
+ * and returns the results as JSON.
+ * @param {string} appPath - Path to the Express app file to analyze
+ * @returns {Promise<RouteResult[]>} Route analysis results
  */
 export async function analyzeRoutes(appPath: string): Promise<RouteResult[]> {
     const files = getProjectFiles(appPath)

@@ -18,86 +18,86 @@ import { TestResult } from "../../types/TestResult"
 import { ParameterObject, RequestBodyObject, ResponseObject } from "../../types/OpenAPITypes"
 
 /**
- * OpenAPI Operation 객체 생성을 위한 인터페이스
+ * Interface for creating OpenAPI Operation objects
  */
 export interface OperationBuilderInterface {
     /**
-     * 테스트 결과로부터 OpenAPI Operation 객체를 생성합니다.
-     * @param result 테스트 결과
-     * @returns OpenAPI Operation 객체
+     * Creates OpenAPI Operation object from test results.
+     * @param {TestResult} result Test result
+     * @returns {Record<string, unknown>} OpenAPI Operation object
      */
     generateOperation(result: TestResult): Record<string, unknown>
 }
 
 /**
- * 파라미터 생성을 위한 인터페이스
+ * Interface for parameter generation
  */
 export interface ParameterBuilderInterface {
     /**
-     * 테스트 결과에서 파라미터를 추출합니다.
-     * @param result 테스트 결과
-     * @returns 파라미터 객체 배열
+     * Extracts parameters from test results.
+     * @param {TestResult} result Test result
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     extractParameters(result: TestResult): ParameterObject[]
 }
 
 /**
- * 보안 요구사항 처리를 위한 인터페이스
+ * Interface for handling security requirements
  */
 export interface SecurityBuilderInterface {
     /**
-     * 테스트 결과에서 보안 요구사항을 추출합니다.
-     * @param result 테스트 결과
-     * @returns 보안 요구사항 배열
+     * Extracts security requirements from test results.
+     * @param {TestResult} result Test result
+     * @returns {Array<Record<string, string[]>>} Array of security requirements
      */
     extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>>
 
     /**
-     * 보안 스키마를 가져옵니다.
-     * @returns 현재 등록된 보안 스키마 맵
+     * Gets the security schemes.
+     * @returns {Record<string, any>} Currently registered security schema map
      */
     getSecuritySchemes(): Record<string, any>
 }
 
 /**
- * 요청 본문 생성을 위한 인터페이스
+ * Interface for request body generation
  */
 export interface RequestBodyBuilderInterface {
     /**
-     * 요청 본문을 생성합니다.
-     * @param result 테스트 결과
-     * @returns 요청 본문 객체 또는 undefined
+     * Generates the request body.
+     * @param {TestResult} result Test result
+     * @returns {RequestBodyObject | undefined} Request body object or undefined
      */
     generateRequestBody(result: TestResult): RequestBodyObject | undefined
 }
 
 /**
- * 응답 객체 생성을 위한 인터페이스
+ * Interface for response object generation
  */
 export interface ResponseBuilderInterface {
     /**
-     * 응답을 생성합니다.
-     * @param result 테스트 결과
-     * @returns 응답 객체 맵
+     * Generates responses.
+     * @param {TestResult} result Test result
+     * @returns {Record<string, ResponseObject>} Response object map
      */
     generateResponses(result: TestResult): Record<string, ResponseObject>
 }
 
 /**
- * 유틸리티 함수를 위한 인터페이스
+ * Interface for utility functions
  */
 export interface UtilityBuilderInterface {
     /**
-     * 테스트 결과로부터 operationId를 생성합니다.
-     * @param result 테스트 결과
-     * @returns 생성된 operationId
+     * Generates operationId from test results.
+     * @param {TestResult} result Test result
+     * @returns {string} Generated operationId
      */
     generateOperationId(result: TestResult): string
 
     /**
-     * 경로에서 기본 태그를 생성합니다.
-     * @param path API 경로
-     * @returns 기본 태그
+     * Generates default tag from path.
+     * @param {string} path API path
+     * @returns {string} Default tag
      */
     generateDefaultTag(path: string): string
 }
