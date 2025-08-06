@@ -20,8 +20,8 @@ import { BranchDetail } from "../type/interface"
 
 /**
  * Determines the conditional branch key
- * @param {NodePath<t.CallExpression>} callPath - Call expression node
- * @param {string} source - Source code
+ * @param {NodePath<t.CallExpression>} callPath Call expression node
+ * @param {string} source Source code
  * @returns {string} Branch key
  */
 export function determineBranchKey(callPath: NodePath<t.CallExpression>, source: string): string {
@@ -49,8 +49,8 @@ export function determineBranchKey(callPath: NodePath<t.CallExpression>, source:
 
 /**
  * Gets or creates response branch details.
- * @param {string} branchKey - Branch key
- * @param {any} ret - Analysis result storage object
+ * @param {string} branchKey Branch key
+ * @param {any} ret Analysis result storage object
  * @returns {BranchDetail} Branch details
  */
 export function getBranchDetail(branchKey: string, ret: any): BranchDetail {

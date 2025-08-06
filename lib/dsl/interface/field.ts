@@ -35,10 +35,10 @@ export interface DSLField<T extends FIELD_TYPES = FIELD_TYPES> {
 /**
  * DSL Helper Functions
  * - DSL Field creation function
- * @param description {string} Field description to be displayed in documentation
- * @param example {object | function} Example value or validation function for the field
- * @param required {boolean} Whether the field is required
- * @returns {DSLField} DSL Field interface
+ * @param {string} description  Field description to be displayed in documentation
+ * @param {T | (value: T) => void} example  Example value, or a validator that receives the value
+ * @param {boolean} required Whether the field is required
+ * @returns {DSLField<FIELD_TYPES>} DSL Field interface
  */
 export function field<T extends FIELD_TYPES>(
     description: string,

@@ -24,8 +24,8 @@ import { isDSLField } from "../../../interface/field"
 export class UtilityBuilder implements UtilityBuilderInterface {
     /**
      * Generates operationId from test results.
-     * @param result Test result
-     * @returns Generated operationId
+     * @param {TestResult} result Test result
+     * @returns {string} Generated operationId
      */
     public generateOperationId(result: TestResult): string {
         const method = result.method.toLowerCase()
@@ -56,8 +56,8 @@ export class UtilityBuilder implements UtilityBuilderInterface {
 
     /**
      * Generates default tag from path.
-     * @param path API path
-     * @returns Default tag
+     * @param {string} path API path
+     * @returns {string} Default tag
      */
     public generateDefaultTag(path: string): string {
         const firstSegment = path.split("/").filter(Boolean)[0]
@@ -68,8 +68,8 @@ export class UtilityBuilder implements UtilityBuilderInterface {
 
     /**
      * Extracts actual example values from nested DSL fields.
-     * @param value Value
-     * @returns Extracted simple example value
+     * @param {any} value Value
+     * @returns {any} Extracted simple example value
      */
     public extractSimpleExampleValue(value: any): any {
         if (isDSLField(value)) {

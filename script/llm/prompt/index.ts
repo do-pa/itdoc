@@ -93,7 +93,7 @@ header({
 /**
  * Returns a prompt for creating JSON-based API specifications in Markdown format.
  * @param {any} content - JSON object containing API definitions.
- * @param part
+ * @param {number} part - Current part number when output is divided into multiple parts
  * @returns {string} - Prompt message for Markdown generation.
  */
 export function getMDPrompt(content: any, part?: number): string {

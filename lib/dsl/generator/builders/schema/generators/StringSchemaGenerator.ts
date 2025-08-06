@@ -22,9 +22,9 @@ import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 export class StringSchemaGenerator extends BaseSchemaGenerator {
     /**
      * Generates schema from string values.
-     * @param value String value
-     * @param includeExample Whether to include example in schema (default: true)
-     * @returns Generated schema
+     * @param {unknown} value String value
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {Record<string, unknown>} Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         if (typeof value !== "string") {

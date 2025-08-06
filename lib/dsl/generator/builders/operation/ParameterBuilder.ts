@@ -29,8 +29,8 @@ export class ParameterBuilder implements ParameterBuilderInterface {
 
     /**
      * Extracts parameters from test results.
-     * @param result Test result
-     * @returns Array of parameter objects
+     * @param {TestResult} result Test result
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     public extractParameters(result: TestResult): ParameterObject[] {
         const parameters: ParameterObject[] = []
@@ -52,8 +52,8 @@ export class ParameterBuilder implements ParameterBuilderInterface {
 
     /**
      * Extracts path parameters.
-     * @param pathParams Path parameter object
-     * @returns Array of parameter objects
+     * @param {Record<string, any>} pathParams Path parameter object
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     private extractPathParameters(pathParams: Record<string, any>): ParameterObject[] {
         const parameters: ParameterObject[] = []
@@ -106,8 +106,8 @@ export class ParameterBuilder implements ParameterBuilderInterface {
 
     /**
      * Extracts query parameters.
-     * @param queryParams Query parameter object
-     * @returns Array of parameter objects
+     * @param {Record<string, any>} queryParams Query parameter object
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     private extractQueryParameters(queryParams: Record<string, any>): ParameterObject[] {
         const parameters: ParameterObject[] = []
@@ -143,8 +143,8 @@ export class ParameterBuilder implements ParameterBuilderInterface {
 
     /**
      * Extracts header parameters.
-     * @param headers Header object
-     * @returns Array of parameter objects
+     * @param {Record<string, any>} headers Header object
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     private extractHeaderParameters(headers: Record<string, any>): ParameterObject[] {
         const parameters: ParameterObject[] = []

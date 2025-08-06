@@ -19,11 +19,13 @@ import { getTestAdapterExports } from "../adapters"
 import { ItdocBuilderEntry, ApiDocOptions } from "./ItdocBuilderEntry"
 /**
  * Describe function for API specification
- * @param method {HttpMethod} HTTP method
- * @param url {string} API URL
- * @param options {ApiDocOptions} API documentation options
- * @param app Express app instance (used for supertest creation)
- * @param callback API test function
+ * @param {HttpMethod} method HTTP method
+ * @param {string} url API URL
+ * @param {ApiDocOptions} options API documentation options
+ * @param {unknown} app Express app instance (used for supertest creation)
+ * @param {Function} callback API test function
+ * @returns {void}
+ * @throws {Error} When required parameters are missing
  */
 export const describeAPI = (
     method: HttpMethod,

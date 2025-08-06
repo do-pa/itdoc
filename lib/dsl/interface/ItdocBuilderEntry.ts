@@ -45,9 +45,9 @@ export class ItdocBuilderEntry {
 
 /**
  * Option interface to pass to Describe API
- * @param name API name (one-line description)
- * @param tag API tag
- * @param description API detailed description
+ * @param summary One-line API summary
+ * @param tag     API tag
+ * @param description Detailed API description
  */
 export interface ApiDocOptions {
     summary?: string

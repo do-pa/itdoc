@@ -26,7 +26,7 @@ export class DSLFieldSchemaGenerator extends BaseSchemaGenerator {
 
     /**
      * Constructor
-     * @param factory Schema factory instance
+     * @param {SchemaFactory} factory Schema factory instance
      */
     public constructor(factory: SchemaFactory) {
         super()
@@ -35,9 +35,9 @@ export class DSLFieldSchemaGenerator extends BaseSchemaGenerator {
 
     /**
      * Generates schema from DSL fields.
-     * @param value DSL field object
-     * @param includeExample Whether to include example in schema (default: true)
-     * @returns Generated schema
+     * @param {unknown} value DSL field object
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {Record<string, unknown>} Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         const field = value as DSLField<FIELD_TYPES>
@@ -51,9 +51,9 @@ export class DSLFieldSchemaGenerator extends BaseSchemaGenerator {
 
     /**
      * Enriches schema with field metadata.
-     * @param schema Schema to enrich
-     * @param field DSL field
-     * @param includeExample Whether to include example field
+     * @param {Record<string, unknown>} schema Schema to enrich
+     * @param {DSLField<FIELD_TYPES>} field DSL field
+     * @param {boolean} includeExample Whether to include example field
      */
     private enrichSchemaWithMetadata(
         schema: Record<string, unknown>,

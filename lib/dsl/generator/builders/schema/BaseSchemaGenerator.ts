@@ -23,15 +23,15 @@ import { FORMAT_PATTERNS } from "./constants"
 export abstract class BaseSchemaGenerator implements SchemaGenerator {
     /**
      * Generates schema from value.
-     * @param value Value to generate schema from
-     * @returns Generated OpenAPI schema object
+     * @param {unknown} value Value to generate schema from
+     * @returns {Record<string, unknown>} Generated OpenAPI schema object
      */
     public abstract generateSchema(value: unknown): Record<string, unknown>
 
     /**
      * Detects the format of string values.
-     * @param value String value to check
-     * @returns Detected format or undefined
+     * @param {string} value String value to check
+     * @returns {string | undefined} Detected format or undefined
      */
     protected detectStringFormat(value: string): string | undefined {
         if (FORMAT_PATTERNS.UUID.test(value)) {

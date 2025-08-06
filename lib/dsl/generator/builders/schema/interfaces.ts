@@ -20,9 +20,9 @@
 export interface SchemaGenerator {
     /**
      * Generates schema from value.
-     * @param value Value to generate schema from
-     * @param includeExample Whether to include example field in schema
-     * @returns Generated schema
+     * @param {unknown} value Value to generate schema from
+     * @param {boolean} includeExample Whether to include example field in schema
+     * @returns {Record<string, unknown>} Generated schema
      */
     generateSchema(value: unknown, includeExample?: boolean): Record<string, unknown>
 }
@@ -33,16 +33,16 @@ export interface SchemaGenerator {
 export interface SchemaFactory {
     /**
      * Selects appropriate schema generator based on value type and generates schema.
-     * @param value Value to generate schema from
-     * @param includeExample Whether to include example in schema (default: true)
-     * @returns Generated schema
+     * @param {unknown} value Value to generate schema from
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {unknown} Generated schema
      */
     createSchema(value: unknown, includeExample?: boolean): unknown
 
     /**
      * Registers generator according to schema type.
-     * @param type Value type
-     * @param generator Schema generator instance
+     * @param {string} type Value type
+     * @param {SchemaGenerator} generator Schema generator instance
      */
     registerGenerator(type: string, generator: SchemaGenerator): void
 }

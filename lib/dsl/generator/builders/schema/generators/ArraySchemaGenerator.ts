@@ -25,7 +25,7 @@ export class ArraySchemaGenerator extends BaseSchemaGenerator {
 
     /**
      * Constructor
-     * @param schemaFactory Schema factory
+     * @param {SchemaFactory} schemaFactory Schema factory
      */
     public constructor(schemaFactory: SchemaFactory) {
         super()
@@ -34,9 +34,9 @@ export class ArraySchemaGenerator extends BaseSchemaGenerator {
 
     /**
      * Generates schema from array values.
-     * @param value Array value
-     * @param includeExample Whether to include example in schema (default: true)
-     * @returns Generated schema
+     * @param {unknown} value Array value
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {Record<string, unknown>} Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         const array = value as unknown[]

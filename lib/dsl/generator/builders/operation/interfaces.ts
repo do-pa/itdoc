@@ -23,8 +23,8 @@ import { ParameterObject, RequestBodyObject, ResponseObject } from "../../types/
 export interface OperationBuilderInterface {
     /**
      * Creates OpenAPI Operation object from test results.
-     * @param result Test result
-     * @returns OpenAPI Operation object
+     * @param {TestResult} result Test result
+     * @returns {Record<string, unknown>} OpenAPI Operation object
      */
     generateOperation(result: TestResult): Record<string, unknown>
 }
@@ -35,8 +35,8 @@ export interface OperationBuilderInterface {
 export interface ParameterBuilderInterface {
     /**
      * Extracts parameters from test results.
-     * @param result Test result
-     * @returns Array of parameter objects
+     * @param {TestResult} result Test result
+     * @returns {ParameterObject[]} Array of parameter objects
      */
     extractParameters(result: TestResult): ParameterObject[]
 }
@@ -47,14 +47,14 @@ export interface ParameterBuilderInterface {
 export interface SecurityBuilderInterface {
     /**
      * Extracts security requirements from test results.
-     * @param result Test result
-     * @returns Array of security requirements
+     * @param {TestResult} result Test result
+     * @returns {Array<Record<string, string[]>>} Array of security requirements
      */
     extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>>
 
     /**
      * Gets the security schemas.
-     * @returns Currently registered security schema map
+     * @returns {Record<string, any>} Currently registered security schema map
      */
     getSecuritySchemes(): Record<string, any>
 }
@@ -65,8 +65,8 @@ export interface SecurityBuilderInterface {
 export interface RequestBodyBuilderInterface {
     /**
      * Generates the request body.
-     * @param result Test result
-     * @returns Request body object or undefined
+     * @param {TestResult} result Test result
+     * @returns {RequestBodyObject | undefined} Request body object or undefined
      */
     generateRequestBody(result: TestResult): RequestBodyObject | undefined
 }
@@ -77,8 +77,8 @@ export interface RequestBodyBuilderInterface {
 export interface ResponseBuilderInterface {
     /**
      * Generates responses.
-     * @param result Test result
-     * @returns Response object map
+     * @param {TestResult} result Test result
+     * @returns {Record<string, ResponseObject>} Response object map
      */
     generateResponses(result: TestResult): Record<string, ResponseObject>
 }
@@ -89,15 +89,15 @@ export interface ResponseBuilderInterface {
 export interface UtilityBuilderInterface {
     /**
      * Generates operationId from test results.
-     * @param result Test result
-     * @returns Generated operationId
+     * @param {TestResult} result Test result
+     * @returns {string} Generated operationId
      */
     generateOperationId(result: TestResult): string
 
     /**
      * Generates default tag from path.
-     * @param path API path
-     * @returns Default tag
+     * @param {string} path API path
+     * @returns {string} Default tag
      */
     generateDefaultTag(path: string): string
 }

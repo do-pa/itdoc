@@ -26,8 +26,8 @@ export interface ParsedSpec {
 
 /**
  * Parses the YAML front matter of the testspec.md file.
- * @param specContent - Full content of the testspec.md file
- * @returns Parsed metadata and content
+ * @param {string} specContent Full content of the testspec.md file
+ * @returns {ParsedSpec} Parsed metadata and content
  */
 export function parseSpecFile(specContent: string): ParsedSpec {
     const frontMatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/
@@ -51,8 +51,8 @@ export function parseSpecFile(specContent: string): ParsedSpec {
 
 /**
  * Simple YAML parser (supports only key-value pairs)
- * @param yamlContent - YAML content
- * @returns Parsed object
+ * @param {string} yamlContent YAML content
+ * @returns {SpecMetadata} Parsed object
  */
 function parseYaml(yamlContent: string): SpecMetadata {
     const result: SpecMetadata = {}

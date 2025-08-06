@@ -19,9 +19,9 @@ import fs from "fs"
 
 /**
  * Converts "@/..." format paths to absolute paths based on the project root path.
- * @param inputPath - Path to resolve (@/path/to/file format)
- * @param baseDir - Base directory (default: process.cwd())
- * @returns Resolved absolute path
+ * @param {string} inputPath Path to resolve (@/path/to/file format)
+ * @param {string} baseDir Base directory (default: process.cwd())
+ * @returns {string} Resolved absolute path
  */
 export function resolvePath(inputPath: string, baseDir: string = process.cwd()): string {
     if (inputPath.startsWith("@/")) {
@@ -38,8 +38,8 @@ export function resolvePath(inputPath: string, baseDir: string = process.cwd()):
 
 /**
  * Finds the project root directory (where package.json exists)
- * @param startDir - Directory to start the search from
- * @returns Project root directory path
+ * @param {string} startDir Directory to start the search from
+ * @returns {string} Project root directory path
  */
 function findProjectRoot(startDir: string): string {
     let currentDir = startDir

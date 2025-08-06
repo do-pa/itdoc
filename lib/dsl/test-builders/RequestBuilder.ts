@@ -26,7 +26,8 @@ import { AbstractTestBuilder } from "./AbstractTestBuilder"
 export class RequestBuilder extends AbstractTestBuilder {
     /**
      * Sets headers to be used in requests.
-     * @param headers
+     * @param {Record<string, DSLField<string>>} headers Headers to be used in requests
+     * @returns {this} Request builder instance
      */
     public header(headers: Record<string, DSLField<string>>): this {
         this.config.requestHeaders = headers
@@ -35,7 +36,8 @@ export class RequestBuilder extends AbstractTestBuilder {
 
     /**
      * Sets the request body.
-     * @param body
+     * @param {Record<string, DSLField<FIELD_TYPES> | FIELD_TYPES>} body Request body
+     * @returns {this} Request builder instance
      */
     public body(body: Record<string, DSLField<FIELD_TYPES> | FIELD_TYPES>): this {
         this.config.requestBody = body
@@ -44,18 +46,28 @@ export class RequestBuilder extends AbstractTestBuilder {
 
     /**
      * Sets query parameters to be used in requests.
-     * @param params
+     * @param {Record<string, any>} params Query parameters to be used in requests
+     * @returns {this} Request builder instance
      */
     public queryParam(params: Record<string, any>): this {
         this.config.queryParams = params
         return this
     }
 
+    /**
+     * Sets path parameters to be used in requests.
+     * @param {Record<string, any>} params Path parameters to be used in requests
+     * @returns {this} Request builder instance
+     */
     public pathParam(params: Record<string, any>): this {
         this.config.pathParams = params
         return this
     }
 
+    /**
+     * Creates a ResponseBuilder instance.
+     * @returns {ResponseBuilder} Response builder instance
+     */
     public res(): ResponseBuilder {
         return new ResponseBuilder(this.config, this.method, this.url, this.app)
     }

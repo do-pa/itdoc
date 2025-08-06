@@ -26,7 +26,7 @@ export class ObjectSchemaGenerator extends BaseSchemaGenerator {
 
     /**
      * Constructor
-     * @param factory Schema factory
+     * @param {SchemaFactory} factory Schema factory
      */
     public constructor(factory: SchemaFactory) {
         super()
@@ -35,9 +35,9 @@ export class ObjectSchemaGenerator extends BaseSchemaGenerator {
 
     /**
      * Generates schema from object values.
-     * @param value Object value
-     * @param includeExample Whether to include example in schema (default: true)
-     * @returns Generated schema
+     * @param {unknown} value Object value
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {Record<string, unknown>} Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         const obj = value as Record<string, unknown>

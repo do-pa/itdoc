@@ -26,8 +26,8 @@ export class SecurityBuilder implements SecurityBuilderInterface {
 
     /**
      * Extracts security requirements from test results.
-     * @param result Test result
-     * @returns Array of security requirements
+     * @param {TestResult} result Test result
+     * @returns {Array<Record<string, string[]>>} Array of security requirements
      */
     public extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>> {
         const security: Array<Record<string, string[]>> = []
@@ -86,7 +86,7 @@ export class SecurityBuilder implements SecurityBuilderInterface {
 
     /**
      * Gets security schemas.
-     * @returns Currently registered security schema map
+     * @returns {Record<string, any>} Currently registered security schema map
      */
     public getSecuritySchemes(): Record<string, any> {
         return this.securitySchemes

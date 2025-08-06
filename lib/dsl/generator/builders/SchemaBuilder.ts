@@ -27,8 +27,8 @@ export class SchemaBuilder {
     /**
      * Generates OpenAPI Schema for the given value.
      * Selects and uses appropriate schema generator based on the value type.
-     * @param value Value to generate schema from (object, array, primitive values, etc.)
-     * @returns Generated OpenAPI Schema object
+     * @param {unknown} value Value to generate schema from (object, array, primitive values, etc.)
+     * @returns {Record<string, unknown>} Generated OpenAPI Schema object
      */
     public createSchema(value: unknown): Record<string, unknown> {
         try {

@@ -18,9 +18,9 @@ import { isDSLField } from "../interface/field"
 
 /**
  * Function that performs validation when the expected response is a field.
- * @param expectedDSL - Expected DSL field
- * @param actualVal - Actual response value
- * @param path - Current path being validated (used in recursive calls)
+ * @param {any} expectedDSL Expected DSL field
+ * @param {any} actualVal Actual response value
+ * @param {string} path Current path being validated (used in recursive calls)
  * @throws {Error} Throws an error when validation fails.
  * @see {@link import('../interface/field.ts').field}
  */
@@ -57,9 +57,10 @@ const validateDSLField = (expectedDSL: any, actualVal: any, path: string): void 
 
 /**
  * Function that validates array-type responses
- * @param {Array} expectedArr - Expected response value (array)
- * @param {Array} actualArr - Actual response value (array)
- * @param {string} path - Current path being validated (used in recursive calls)
+ * @param {any[]} expectedArr Expected response value (array)
+ * @param {any[]} actualArr Actual response value (array)
+ * @param {string} path Current path being validated (used in recursive calls)
+ * @throws {Error} Throws an error when validation fails.
  */
 const validateArray = (expectedArr: any[], actualArr: any[], path: string): void => {
     if (!Array.isArray(actualArr)) {
@@ -78,9 +79,10 @@ const validateArray = (expectedArr: any[], actualArr: any[], path: string): void
 /**
  * Function that performs **actual validation** of API response values defined in `ResponseBuilder`.
  * Performs validation by branching for various types such as arrays, objects, etc.
- * @param expected - Expected response value
- * @param actual - Actual response value
- * @param path - Current path being validated (used in recursive calls)
+ * @param {any} expected Expected response value
+ * @param {any} actual Actual response value
+ * @param {string} path Current path being validated (used in recursive calls)
+ * @throws {Error} Throws an error when validation fails.
  * @see {ResponseBuilder}
  */
 export const validateResponse = (expected: any, actual: any, path: string = ""): void => {

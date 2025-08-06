@@ -24,7 +24,6 @@ import {
     getOpenAPITitle,
 } from "../../config/getOpenAPIConfig"
 
-// 싱글톤 인스턴스를 저장할 변수
 let instance: OpenAPIGenerator | null = null
 
 interface OpenAPIInfo {
@@ -80,26 +79,22 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      * @returns {object} OpenAPI Specification object
      */
     public generateOpenAPISpec(): Record<string, unknown> {
-        // 테스트 결과를 그룹화
         const groupedResults = this.groupTestResults()
 
-        // 경로 객체 생성
         const paths = this.generatePaths(groupedResults)
 
-        // 경로 파라미터 검증 및 수정
         this.validatePathParameters(paths)
 
-        // 최종 OpenAPI 문서 생성
         return this.createFinalOpenAPIDocument(paths)
     }
 
     /**
      * Groups test results by path, method, and status code.
+     * @returns {Map<string, Map<string, Map<string, TestResult[]>>>} Grouped test results
      */
     private groupTestResults(): Map<string, Map<string, Map<string, TestResult[]>>> {
         const groupedResults: Map<string, Map<string, Map<string, TestResult[]>>> = new Map()
 
-        // 테스트 결과를 그룹화
         for (const result of this.testResults) {
             const path = result.url
             const method = result.method.toLowerCase()
@@ -125,14 +120,14 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
 
     /**
      * Generates path objects from grouped test results.
-     * @param groupedResults
+     * @param {Map<string, Map<string, Map<string, TestResult[]>>>} groupedResults Grouped test results
+     * @returns {Record<string, Record<string, unknown>>} Path objects
      */
     private generatePaths(
         groupedResults: Map<string, Map<string, Map<string, TestResult[]>>>,
     ): Record<string, Record<string, unknown>> {
         const paths: Record<string, Record<string, unknown>> = {}
 
-        // 그룹화된 테스트 결과를 처리
         for (const [path, methods] of groupedResults) {
             paths[path] = {}
 
@@ -146,26 +141,23 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
 
     /**
      * Generates an operation object for a specific path and method.
-     * @param path
-     * @param method
-     * @param statusCodes
+     * @param {string} path Path
+     * @param {string} method Method
+     * @param {Map<string, TestResult[]>} statusCodes Status codes
+     * @returns {Record<string, unknown>} Operation object
      */
     private generateOperationObject(
         path: string,
         method: string,
         statusCodes: Map<string, TestResult[]>,
     ): Record<string, unknown> {
-        // 각 경로/메서드에 대한 작업 생성
         const operationObj: Record<string, unknown> = {}
         const responses: Record<string, unknown> = {}
 
-        // 대표 테스트 결과 선택 (상태 코드 우선순위 무관)
-        // 이 결과는 기본 작업 정보(요약, 태그 등)를 위해 사용됨
         const representativeResult = this.selectRepresentativeResult(
             Array.from(statusCodes.values()).flat(),
         )
 
-        // 기본 작업 정보 설정
         operationObj.summary =
             representativeResult.options?.summary || `${method.toUpperCase()} ${path} 요청`
 
@@ -173,27 +165,20 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             operationObj.tags = [representativeResult.options.tag]
         }
 
-        // description 설정 추가
         if (representativeResult.options?.description) {
             operationObj.description = representativeResult.options.description
         }
 
         operationObj.operationId = this.utilityBuilder.generateOperationId(representativeResult)
 
-        // 요청 본문, 파라미터 등 공통 작업 정보
         this.setRequestInformation(operationObj, representativeResult)
 
-        // 각 상태 코드별 응답 처리
         this.processStatusCodes(statusCodes, responses)
 
-        // 응답 정보 설정
         operationObj.responses = responses
 
-        // 보안 요구사항 추출
         const security = this.operationBuilder.generateOperation(representativeResult).security
 
-        // Authorization 헤더가 있으면 보안 요구사항 적용, 없으면 기본값 사용
-        // security가 비어있거나 [{}]인 경우는 제외
         const hasBearerAuth =
             security &&
             Array.isArray(security) &&
@@ -206,9 +191,9 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 각 상태 코드별 응답 처리
-     * @param statusCodes 상태 코드별 테스트 결과 맵
-     * @param responses 응답 객체
+     * Processes responses for each status code.
+     * @param {Map<string, TestResult[]>} statusCodes Status codes
+     * @param {Record<string, unknown>} responses Response object
      */
     private processStatusCodes(
         statusCodes: Map<string, TestResult[]>,
@@ -239,10 +224,10 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 응답 본문이 없는 응답을 추가합니다.
-     * @param responses 응답 객체
-     * @param statusCode 상태 코드
-     * @param result 테스트 결과
+     * Adds a response without content.
+     * @param {Record<string, unknown>} responses Response object
+     * @param {string} statusCode Status code
+     * @param {TestResult} result Test result
      */
     private addResponseWithoutContent(
         responses: Record<string, unknown>,
@@ -255,11 +240,11 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 응답 본문이 있는 경우 처리합니다.
-     * @param responses 응답 객체
-     * @param statusCode 상태 코드
-     * @param results 테스트 결과 배열
-     * @param isErrorStatus 에러 상태 여부
+     * Processes responses with content.
+     * @param {Record<string, unknown>} responses Response object
+     * @param {string} statusCode Status code
+     * @param {TestResult[]} results Test results
+     * @param {boolean} isErrorStatus Whether the status code is an error status
      */
     private processResponsesWithContent(
         responses: Record<string, unknown>,
@@ -281,11 +266,11 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 통합된 응답 컨텐츠를 생성합니다.
-     * @param results 테스트 결과 배열
-     * @param statusCode 상태 코드
-     * @param isErrorStatus 에러 상태 여부
-     * @returns 통합된 응답 컨텐츠
+     * Creates combined content.
+     * @param {TestResult[]} results Test results
+     * @param {string} statusCode Status code
+     * @param {boolean} isErrorStatus Whether the status code is an error status
+     * @returns {Record<string, any>} Combined content
      */
     private createCombinedContent(
         results: TestResult[],
@@ -321,9 +306,9 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 기본 스키마를 생성합니다.
-     * @param isErrorStatus 에러 상태 여부
-     * @returns 기본 스키마 객체
+     * Creates a base schema.
+     * @param {boolean} isErrorStatus Whether the status code is an error status
+     * @returns {Record<string, any>} Base schema object
      */
     private createBaseSchema(isErrorStatus: boolean): Record<string, any> {
         return isErrorStatus
@@ -345,13 +330,13 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 각 컨텐츠 타입을 처리합니다.
-     * @param combinedContent 통합된 컨텐츠 객체
-     * @param resContent 응답 컨텐츠
-     * @param result 테스트 결과
-     * @param statusCode 상태 코드
-     * @param baseSchema 기본 스키마
-     * @param isErrorStatus 에러 상태 여부
+     * Processes each content type.
+     * @param {Record<string, any>} combinedContent Combined content object
+     * @param {Record<string, any>} resContent Response content
+     * @param {TestResult} result Test result
+     * @param {string} statusCode Status code
+     * @param {Record<string, any>} baseSchema Base schema
+     * @param {boolean} isErrorStatus Whether the status code is an error status
      */
     private processContentTypes(
         combinedContent: Record<string, any>,
@@ -393,18 +378,18 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 상태 코드가 No Content 응답인지 확인합니다.
-     * @param numericStatusCode 숫자 상태 코드
-     * @returns No Content 응답이면 true, 그렇지 않으면 false
+     * Checks if the status code is No Content response.
+     * @param {number} numericStatusCode Numeric status code
+     * @returns {boolean} Whether the status code is No Content response
      */
     private isNoContentStatusCode(numericStatusCode: number): boolean {
         return numericStatusCode === 204 || numericStatusCode === 304 || numericStatusCode === 100
     }
 
     /**
-     * 응답 본문이 비어있는지 확인합니다.
-     * @param result 테스트 결과 객체
-     * @returns {boolean} 응답 본문이 비어있으면 true, 그렇지 않으면 false
+     * Checks if the response body is empty.
+     * @param {TestResult} result Test result object
+     * @returns {boolean} Whether the response body is empty
      */
     private hasEmptyResponseBody(result: TestResult): boolean {
         if (!result.response) {
@@ -425,9 +410,9 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 테스트 케이스에서 응답 본문이 명시적으로 정의되었는지 확인합니다.
-     * @param result 테스트 결과 객체
-     * @returns {boolean} 응답 본문이 명시적으로 정의되었으면 true, 그렇지 않으면 false
+     * Checks if the response body is explicitly defined in the test case.
+     * @param {TestResult} result Test result object
+     * @returns {boolean} Whether the response body is explicitly defined
      */
     private hasResponseBodyExplicitlyDefined(result: TestResult): boolean {
         return (
@@ -446,8 +431,9 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 최종 OpenAPI 문서를 생성합니다.
-     * @param paths
+     * Creates the final OpenAPI document.
+     * @param {Record<string, Record<string, unknown>>} paths Paths
+     * @returns {Record<string, unknown>} Final OpenAPI document
      */
     private createFinalOpenAPIDocument(
         paths: Record<string, Record<string, unknown>>,
@@ -482,12 +468,12 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * Components 섹션을 생성합니다.
+     * Creates the Components section.
+     * @returns {Record<string, unknown>} Components section
      */
     private createComponentsSection(): Record<string, unknown> {
         const components: Record<string, unknown> = {}
 
-        // 보안 스키마가 있으면 추가
         const securitySchemes = this.operationBuilder.getSecuritySchemes()
         if (Object.keys(securitySchemes).length > 0) {
             components.securitySchemes = securitySchemes
@@ -497,23 +483,20 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 여러 테스트 결과 중에서 대표 결과를 선택합니다.
-     * @param results 테스트 결과 배열
-     * @returns 선택된 대표 테스트 결과
+     * Selects the representative result from multiple test results.
+     * @param {TestResult[]} results Test results array
+     * @returns {TestResult} Representative test result
      */
     private selectRepresentativeResult(results: TestResult[]): TestResult {
-        // 먼저 Authorization 헤더가 있는 테스트 케이스를 찾습니다
         const authTestCase = results.find(
             (result) => result.request.headers && "Authorization" in result.request.headers,
         )
 
-        // Authorization 헤더가 있는 테스트 케이스가 있으면 반환
         if (authTestCase) {
-            logger.debug(`선택된 대표 테스트 케이스: Authorization 헤더 있음`)
+            logger.debug(`Selected representative test case: Authorization header exists`)
             return authTestCase
         }
 
-        // 그렇지 않으면 옵션 정보가 가장 많은 결과 선택 (요약, 태그 등)
         return results.reduce((best, current) => {
             const bestOptionsCount = Object.keys(best.options || {}).length
             const currentOptionsCount = Object.keys(current.options || {}).length
@@ -522,12 +505,11 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 작업에 요청 정보를 설정합니다.
-     * @param operation 작업 객체
-     * @param result 테스트 결과
+     * Sets request information for an operation.
+     * @param {Record<string, unknown>} operation Operation object
+     * @param {TestResult} result Test result
      */
     private setRequestInformation(operation: Record<string, unknown>, result: TestResult): void {
-        // 요청 객체 생성 - OperationBuilder가 올바르게 파라미터를 처리하도록 함
         const requestObj = this.operationBuilder.generateOperation(result)
 
         if (requestObj.parameters) {
@@ -538,15 +520,14 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             operation.requestBody = requestObj.requestBody
         }
 
-        // 보안 요구사항이 있으면 설정
         if (requestObj.security) {
             operation.security = requestObj.security
         }
     }
 
     /**
-     * 경로 파라미터가 올바르게 정의되었는지 확인하고 수정합니다.
-     * @param {Record<string, Record<string, unknown>>} paths 경로 객체
+     * Validates and modifies path parameters.
+     * @param {Record<string, Record<string, unknown>>} paths Path object
      */
     private validatePathParameters(paths: Record<string, Record<string, unknown>>): void {
         for (const [path, pathItem] of Object.entries(paths)) {
@@ -589,10 +570,10 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     }
 
     /**
-     * 스키마에 맞게 예제를 정규화
-     * @param example 예제 값
-     * @param schema 스키마 정의
-     * @returns 정규화된 예제
+     * Normalizes examples according to the schema.
+     * @param {any} example Example value
+     * @param {Record<string, any>} schema Schema definition
+     * @returns {any} Normalized example
      */
     private normalizeExample(example: any, schema: Record<string, any>): any {
         if (example === null || example === undefined || !schema) {

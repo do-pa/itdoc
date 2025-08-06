@@ -22,9 +22,9 @@ import { BaseSchemaGenerator } from "../BaseSchemaGenerator"
 export class BooleanSchemaGenerator extends BaseSchemaGenerator {
     /**
      * Generates schema from boolean values.
-     * @param value Boolean value
-     * @param includeExample Whether to include example in schema (default: true)
-     * @returns Generated schema
+     * @param {unknown} value Boolean value
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {Record<string, unknown>} Generated schema
      */
     public generateSchema(value: unknown, includeExample: boolean = true): Record<string, unknown> {
         // Return default boolean schema if not a boolean value

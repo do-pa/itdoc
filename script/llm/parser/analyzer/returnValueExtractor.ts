@@ -127,7 +127,8 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
 
     /**
      * Recursively traverses nodes to find all ReturnStatements.
-     * @param node
+     * @param {t.Node} node Node to traverse
+     * @returns {t.ReturnStatement[]} All ReturnStatements
      */
     function findAllReturnStatements(node: t.Node): t.ReturnStatement[] {
         const returns: t.ReturnStatement[] = []
@@ -155,7 +156,8 @@ export function extractReturnFromFunction(func: t.Function, ast?: t.File): any {
     /**
      * Selects the most meaningful ReturnStatement.
      * Prioritizes actual values over undefined or null.
-     * @param returnStatements
+     * @param {t.ReturnStatement[]} returnStatements Return statements
+     * @returns {t.ReturnStatement | null} The most meaningful ReturnStatement
      */
     function selectBestReturnStatement(
         returnStatements: t.ReturnStatement[],

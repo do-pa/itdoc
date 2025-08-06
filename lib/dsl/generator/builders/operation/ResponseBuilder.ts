@@ -28,8 +28,8 @@ export class ResponseBuilder implements ResponseBuilderInterface {
 
     /**
      * Generates responses.
-     * @param result Test result
-     * @returns Response object map
+     * @param {TestResult} result Test result
+     * @returns {Record<string, ResponseObject>} Response object map
      */
     public generateResponses(result: TestResult): Record<string, ResponseObject> {
         const responses: Record<string, ResponseObject> = {}
@@ -107,8 +107,8 @@ export class ResponseBuilder implements ResponseBuilderInterface {
 
     /**
      * Adds appropriate default responses based on request method.
-     * @param responses Current response map
-     * @param method HTTP method
+     * @param {Record<string, ResponseObject>} responses Current response map
+     * @param {string} method HTTP method
      */
     private addDefaultResponses(responses: Record<string, ResponseObject>, method: string): void {
         const has4xx = Object.keys(responses).some((status) => status.startsWith("4"))

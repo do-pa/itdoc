@@ -41,9 +41,9 @@ export class SchemaBuilder {
 
     /**
      * Infers schema from value.
-     * @param value Value to generate schema from
-     * @param includeExample Whether to include example in schema (default: true)
-     * @returns Generated OpenAPI schema
+     * @param {unknown} value Value to generate schema from
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {unknown} Generated OpenAPI schema
      */
     public static inferSchema(value: unknown, includeExample: boolean = true): unknown {
         return this.schemaFactory.createSchema(value, includeExample)
@@ -51,8 +51,8 @@ export class SchemaBuilder {
 
     /**
      * Registers generator according to schema type.
-     * @param type Value type
-     * @param generator Schema generator instance
+     * @param {string} type Value type
+     * @param {SchemaGenerator} generator Schema generator instance
      */
     public static registerGenerator(type: string, generator: SchemaGenerator): void {
         this.schemaFactory.registerGenerator(type, generator)

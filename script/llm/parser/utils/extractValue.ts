@@ -53,7 +53,8 @@ export function createFunctionIdentifier(callExpression: t.CallExpression): obje
 
 /**
  * Handles basic literal values
- * @param node
+ * @param {t.Node} node Node to extract value from
+ * @returns {any} Extracted actual value or null
  */
 function extractLiteralValue(node: t.Node): any {
     if (t.isStringLiteral(node)) return node.value
@@ -64,11 +65,12 @@ function extractLiteralValue(node: t.Node): any {
 
 /**
  * Handles object expressions
- * @param node
- * @param localArrays
- * @param variableMap
- * @param ast
- * @param visitedVariables
+ * @param {t.ObjectExpression} node Object expression node
+ * @param {Record<string, any[]>} localArrays Local array map
+ * @param {Record<string, any>} variableMap Variable map
+ * @param {t.File} ast Complete file AST (for variable tracking)
+ * @param {Set<string>} visitedVariables Visited variables (to prevent circular references)
+ * @returns {any} Extracted actual value or null
  */
 function extractObjectValue(
     node: t.ObjectExpression,
@@ -132,11 +134,12 @@ function extractObjectValue(
 
 /**
  * Handles array expressions
- * @param node
- * @param localArrays
- * @param variableMap
- * @param ast
- * @param visitedVariables
+ * @param {t.ArrayExpression} node Array expression node
+ * @param {Record<string, any[]>} localArrays Local array map
+ * @param {Record<string, any>} variableMap Variable map
+ * @param {t.File} ast Complete file AST (for variable tracking)
+ * @param {Set<string>} visitedVariables Visited variables (to prevent circular references)
+ * @returns {any} Extracted actual value or null
  */
 function extractArrayValue(
     node: t.ArrayExpression,
@@ -178,11 +181,12 @@ function extractArrayValue(
 
 /**
  * Handles identifiers
- * @param node
- * @param localArrays
- * @param variableMap
- * @param ast
- * @param visitedVariables
+ * @param {t.Identifier} node Identifier node
+ * @param {Record<string, any[]>} localArrays Local array map
+ * @param {Record<string, any>} variableMap Variable map
+ * @param {t.File} ast Complete file AST (for variable tracking)
+ * @param {Set<string>} visitedVariables Visited variables (to prevent circular references)
+ * @returns {any} Extracted actual value or null
  */
 function extractIdentifierValue(
     node: t.Identifier,

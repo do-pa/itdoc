@@ -52,8 +52,8 @@ export class SchemaFactory implements ISchemaFactory {
 
     /**
      * Registers generator according to schema type.
-     * @param type Value type
-     * @param generator Schema generator instance
+     * @param {string} type Value type
+     * @param {SchemaGenerator} generator Schema generator instance
      */
     public registerGenerator(type: string, generator: SchemaGenerator): void {
         this.generators[type] = generator
@@ -61,9 +61,9 @@ export class SchemaFactory implements ISchemaFactory {
 
     /**
      * Selects appropriate schema generator based on value type and generates schema.
-     * @param value Value to generate schema from
-     * @param includeExample Whether to include example in schema (default: true)
-     * @returns Generated OpenAPI schema
+     * @param {unknown} value Value to generate schema from
+     * @param {boolean} includeExample Whether to include example in schema (default: true)
+     * @returns {unknown} Generated OpenAPI schema
      */
     public createSchema(value: unknown, includeExample: boolean = true): unknown {
         if (value === undefined || value === null) {
