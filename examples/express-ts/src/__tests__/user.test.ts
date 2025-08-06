@@ -123,6 +123,7 @@ describeAPI(
                     id: field("User ID", "123"),
                     username: field("Username", "exampleUser"),
                     email: field("Email", "user@example.com"),
+                    profilePicture: field("Profile picture URL (can be null)", null),
                 })
         })
     },

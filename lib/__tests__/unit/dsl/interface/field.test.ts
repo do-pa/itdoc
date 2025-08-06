@@ -33,4 +33,20 @@ describe("field() 는", () => {
             required: false,
         })
     })
+
+    it("null 값을 example로 사용할 수 있다.", () => {
+        expect(field("nullable field", null)).deep.equal({
+            description: "nullable field",
+            example: null,
+            required: true,
+        })
+    })
+
+    it("null 값을 example로 사용하고 required를 false로 설정할 수 있다.", () => {
+        expect(field("optional nullable field", null, false)).deep.equal({
+            description: "optional nullable field",
+            example: null,
+            required: false,
+        })
+    })
 })

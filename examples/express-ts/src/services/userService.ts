@@ -18,5 +18,10 @@ export const loginUser = (req: Request, res: Response) => {
 
 export const getUser = (req: Request, res: Response) => {
     const { id } = req.params
-    res.status(200).json({ id, username: "exampleUser", email: "user@example.com" })
+    res.status(200).json({
+        id,
+        username: "exampleUser",
+        email: "user@example.com",
+        profilePicture: null,
+    })
 }

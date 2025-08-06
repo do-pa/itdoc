@@ -133,6 +133,38 @@ describe("validateResponse 함수 검증", () => {
             const actual = { 값: -10 }
             expect(() => validateResponse(expected, actual)).to.throw("값이 42가 아닙니다")
         })
+
+        it("DSL 필드에서 null 값이 일치하면 에러가 발생하지 않아야 한다", () => {
+            const expected = {
+                값: field("null 값", null),
+            }
+            const actual = { 값: null }
+            expect(() => validateResponse(expected, actual)).to.not.throw()
+        })
+
+        it("DSL 필드에서 null 값이 불일치하면 에러가 발생해야 한다", () => {
+            const expected = {
+                값: field("null 값", null),
+            }
+            const actual = { 값: "not null" }
+            expect(() => validateResponse(expected, actual)).to.throw(
+                "Expected response body[값] to be null but got not null",
+            )
+        })
+
+        it("일반 객체에서 null 값이 일치하면 에러가 발생하지 않아야 한다", () => {
+            const expected = { 값: null }
+            const actual = { 값: null }
+            expect(() => validateResponse(expected, actual)).to.not.throw()
+        })
+
+        it("일반 객체에서 null 값이 불일치하면 에러가 발생해야 한다", () => {
+            const expected = { 값: null }
+            const actual = { 값: "not null" }
+            expect(() => validateResponse(expected, actual)).to.throw(
+                "Expected response body[값] to be null but got not null",
+            )
+        })
     })
 
     describe("중첩 데이터 구조의 경우", () => {
