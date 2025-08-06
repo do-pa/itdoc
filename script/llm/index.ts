@@ -26,6 +26,8 @@ import { getOutputPath } from "../../lib/config/getOutputPath"
 import { analyzeRoutes } from "./parser/index"
 import { parseSpecFile } from "../../lib/utils/specParser"
 import { resolvePath } from "../../lib/utils/pathResolver"
+import { RouteResult } from "./parser/type/interface"
+
 /**
  * Split raw Markdown into individual test blocks.
  * Each block starts with an HTTP method line and includes subsequent bullet lines.
@@ -166,11 +168,12 @@ function groupAndChunkRoutes(content: any[], chunkSize: number = 5): any[][] {
  */
 
 /**
- *
- * @param openai
- * @param content
+ * Generates a Markdown specification by analyzing app routes using OpenAI.
+ * @param {OpenAI} openai - An initialized OpenAI client instance.
+ * @param {RouteResult[]} content - Array of route definitions to generate spec for.
+ * @returns {Promise<string|null>} The concatenated Markdown spec, or null if an error occurred.
  */
-async function makeMDByApp(openai: OpenAI, content: any): Promise<string | null> {
+async function makeMDByApp(openai: OpenAI, content: RouteResult[]): Promise<string | null> {
     try {
         let cnt = 0
         const chunks = groupAndChunkRoutes(content, 4)
