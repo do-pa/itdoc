@@ -78,7 +78,7 @@ export class OperationBuilder implements OperationBuilderInterface {
     }
 
     /**
-     * Gets the security schemas.
+     * Gets the security schemes.
      * @returns {Record<string, any>} Currently registered security schema map
      */
     public getSecuritySchemes(): Record<string, any> {

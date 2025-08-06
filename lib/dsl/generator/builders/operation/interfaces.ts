@@ -53,7 +53,7 @@ export interface SecurityBuilderInterface {
     extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>>
 
     /**
-     * Gets the security schemas.
+     * Gets the security schemes.
      * @returns {Record<string, any>} Currently registered security schema map
      */
     getSecuritySchemes(): Record<string, any>
