@@ -19,7 +19,8 @@ export type FIELD_TYPES =
     | number
     | boolean
     | object
-    | Record<string, string | number | boolean | object | DSLField>
+    | null
+    | Record<string, string | number | boolean | object | null | DSLField>
     | FIELD_TYPES[]
 
 /**

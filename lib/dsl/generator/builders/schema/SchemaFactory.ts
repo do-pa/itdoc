@@ -66,8 +66,12 @@ export class SchemaFactory implements ISchemaFactory {
      * @returns {unknown} Generated OpenAPI schema
      */
     public createSchema(value: unknown, includeExample: boolean = true): unknown {
-        if (value === undefined || value === null) {
+        if (value === undefined) {
             return { type: "object" }
+        }
+
+        if (value === null) {
+            return { type: "null" }
         }
 
         // DSL 필드 처리
