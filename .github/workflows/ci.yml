@@ -1,4 +1,4 @@
-name: CI
+name: CI Pipeline
 
 on:
     push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
     test:
-        name: 테스트, 빌드, 린트
+        name: Test, Build, and Lint
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -18,32 +18,32 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: pnpm 설치
+            - name: Install pnpm
               uses: pnpm/action-setup@v3
               with:
                   version: 10.5.2
 
-            - name: Node.js ${{ matrix.node-version }} 설정
+            - name: Set up Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: "pnpm"
 
-            - name: 의존성 설치
+            - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
-            - name: 패키지 빌드
+            - name: Build package
               run: pnpm run build
 
-            - name: 린트 검사
+            - name: Run lint checks
               run: |
                   pnpm run prettier:check
                   pnpm run lint
 
-            - name: 테스트 실행
+            - name: Run tests
               run: pnpm run test
 
-            - name: 빌드 결과물 저장
+            - name: Upload build artifacts
               uses: actions/upload-artifact@v4
               with:
                 name: build-output
