@@ -32,7 +32,11 @@ const validateDSLField = (expectedDSL: any, actualVal: any, path: string): void 
     }
 
     // DSL Field의 example이 객체인 경우
-    if (expectedDSL.example && typeof expectedDSL.example === "object") {
+    if (
+        expectedDSL.example &&
+        typeof expectedDSL.example === "object" &&
+        expectedDSL.example !== null
+    ) {
         if (isDSLField(actualVal)) {
             validateResponse(expectedDSL.example, actualVal.example, path)
         } else {
@@ -92,8 +96,8 @@ export const validateResponse = (expected: any, actual: any, path: string = ""):
         return
     }
 
-    // 객체인 경우
-    if (expected && typeof expected === "object") {
+    // 객체인 경우 (null 제외)
+    if (expected && typeof expected === "object" && expected !== null) {
         for (const key in expected) {
             const currentPath = path ? `${path}.${key}` : key
             const expectedVal = expected[key]
@@ -103,8 +107,8 @@ export const validateResponse = (expected: any, actual: any, path: string = ""):
                 validateDSLField(expectedVal, actualVal, currentPath)
             } else if (Array.isArray(expectedVal)) {
                 validateArray(expectedVal, actualVal, currentPath)
-            } else if (expectedVal && typeof expectedVal === "object") {
-                if (!actualVal || typeof actualVal !== "object") {
+            } else if (expectedVal && typeof expectedVal === "object" && expectedVal !== null) {
+                if (!actualVal || typeof actualVal !== "object" || actualVal === null) {
                     throw new Error(
                         `Expected response body[${currentPath}] to be an object but got ${actualVal}`,
                     )
