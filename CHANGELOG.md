@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.4.0](https://github.com/do-pa/itdoc/compare/v0.3.0...v0.4.0) (2025-08-08)
+
+
+### 🌟 Features
+
+* add null type support to field() function with comprehensive va… ([#226](https://github.com/do-pa/itdoc/issues/226)) ([3847cbd](https://github.com/do-pa/itdoc/commit/3847cbd221edb79a2439d0f66a5520a5bfebbe8f))
+* improve CLI output ([#216](https://github.com/do-pa/itdoc/issues/216)) ([64869fe](https://github.com/do-pa/itdoc/commit/64869fe9a723337ea2ac8e02aac1fba43edf6af3)), closes [#177](https://github.com/do-pa/itdoc/issues/177)
+* Modularize Prompts to Strengthen LLM Script ([#214](https://github.com/do-pa/itdoc/issues/214)) ([2becfd7](https://github.com/do-pa/itdoc/commit/2becfd7c9fa25927288e43595b506a5af49b0163))
+* support generating TypeScript tests with LLM ([#203](https://github.com/do-pa/itdoc/issues/203)) ([c20a894](https://github.com/do-pa/itdoc/commit/c20a894b4c5d1575ecf3801ec66cee12820dca7a))
+
+
+### 🩹 Fixes
+
+* Documentation generation fails when running multiple tests ([#217](https://github.com/do-pa/itdoc/issues/217)) ([b86fb15](https://github.com/do-pa/itdoc/commit/b86fb15239734542e5c57608b102607e7b7ed655))
+* resolve OAS generation issue with multiple test files in jest ([8b5b87c](https://github.com/do-pa/itdoc/commit/8b5b87c43d8b2a8fdbddfd07e291bd444dd18acd))
+
+
+### 📚 Documentation
+
+* add how to use itdoc in a nestjs environment ([#182](https://github.com/do-pa/itdoc/issues/182)) ([d6c95c8](https://github.com/do-pa/itdoc/commit/d6c95c898b310c651642c2bd0b4ed705657b50cd))
+* add LLM-powered test generation documentation ([#221](https://github.com/do-pa/itdoc/issues/221)) ([023046a](https://github.com/do-pa/itdoc/commit/023046a74c81d4c8bd64fa48755bbe478ae4ed3e))
+* **express-ts:** simplify README to focus on itdoc usage example ([#227](https://github.com/do-pa/itdoc/issues/227)) ([df40fe6](https://github.com/do-pa/itdoc/commit/df40fe679c0821ad4a2d9bba227a675b394b0b9f))
+* modify Docusaurus config for itdoc homepage updates ([#190](https://github.com/do-pa/itdoc/issues/190)) ([cecd509](https://github.com/do-pa/itdoc/commit/cecd509b7996edce1a6e3c1025f0e3237111d951))
+* translate Korean JSDoc to English ([#223](https://github.com/do-pa/itdoc/issues/223)) ([9fbe0a8](https://github.com/do-pa/itdoc/commit/9fbe0a89c98a03d375842f2a33674baeeae5cce3))
+* update readme more charming ([#193](https://github.com/do-pa/itdoc/issues/193)) ([7f563cf](https://github.com/do-pa/itdoc/commit/7f563cfebaf5c1f1cb30fb95c3a51ec61e080b8c))
+* write "how to use itdoc documentation" for developers using fastify ([#186](https://github.com/do-pa/itdoc/issues/186)) ([f19f943](https://github.com/do-pa/itdoc/commit/f19f943016980b59812f3a36aba20b0092454df0))
+* 문서 전체 다듬기  및 이미지 수정 ([#194](https://github.com/do-pa/itdoc/issues/194)) ([398a69c](https://github.com/do-pa/itdoc/commit/398a69c97048e1571be3ceac80fd7e149795bbf3))
+
+
+### 🧹 Chores
+
+* add missing JSDoc description for makeMDByApp function ([#222](https://github.com/do-pa/itdoc/issues/222)) ([d3a2844](https://github.com/do-pa/itdoc/commit/d3a284427b95e9b4d624fc468e4691071fdd4278))
+* Delete the examples path in the deployment dists. ([#198](https://github.com/do-pa/itdoc/issues/198)) ([41e9db8](https://github.com/do-pa/itdoc/commit/41e9db8001c9355741d529571b8fa59cb79cd94d)), closes [#195](https://github.com/do-pa/itdoc/issues/195)
+* rename CI workflow names to english ([#224](https://github.com/do-pa/itdoc/issues/224)) ([95c8d03](https://github.com/do-pa/itdoc/commit/95c8d038540cf403bbfa3690272690e65133336e))
+* 이슈템플릿 간소화 및 영어로 변경 ([#206](https://github.com/do-pa/itdoc/issues/206)) ([e4e7a67](https://github.com/do-pa/itdoc/commit/e4e7a67a269a645ddc22c08d9b80ce771d949942))
+
 ## [0.3.0](https://github.com/do-pa/itdoc/compare/v0.2.1...v0.3.0) (2025-05-08)
 
 
