@@ -59,7 +59,7 @@ const config: Config = {
         ],
     ],
     themeConfig: {
-        image: "img/logo.jpg",
+        image: "img/logo.png",
         navbar: {
             title: "itdoc",
             logo: {
