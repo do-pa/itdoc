@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/do-pa/itdoc/compare/v0.4.0...v0.4.1) (2025-08-09)
+
+
+### 🩹 Fixes
+
+* og_image is not working ([#231](https://github.com/do-pa/itdoc/issues/231)) ([d1070ec](https://github.com/do-pa/itdoc/commit/d1070ec1064cf914b576e2eb9153378903ccaf89)), closes [#230](https://github.com/do-pa/itdoc/issues/230)
+
 ## [0.4.0](https://github.com/do-pa/itdoc/compare/v0.3.0...v0.4.0) (2025-08-08)
 
 
