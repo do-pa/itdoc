@@ -163,12 +163,6 @@ export default async function generateByLLM(appPath?: string, envPath?: string):
         process.exit(1)
     }
 
-    fs.writeFileSync(
-        path.join(outputDir, "analyzeRoutes.json"),
-        JSON.stringify(analyzedRoutes),
-        "utf8",
-    )
-
     const doc = await makeitdoc(openai, analyzedRoutes, false, isTypeScript)
     if (!doc) {
         logger.error("Failed to generate itdoc from markdown spec.")
