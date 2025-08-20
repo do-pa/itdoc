@@ -1179,7 +1179,7 @@
                 "operationId": "getCached-data",
                 "parameters": [
                     {
-                        "name": "If-None-Match",
+                        "name": "if-none-match",
                         "in": "header",
                         "schema": {
                             "type": "string",
@@ -1257,127 +1257,6 @@
                     },
                     "304": {
                         "description": "If-None-Match 헤더로 캐시 활용"
-                    }
-                }
-            }
-        },
-        "/validate": {
-            "post": {
-                "summary": "데이터 유효성 검증 API",
-                "tags": ["Validation"],
-                "description": "다양한 형태의 데이터 유효성을 검증하고 상세한 오류 정보를 제공합니다.",
-                "operationId": "postValidate",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "username": {
-                                        "type": "string",
-                                        "example": "a",
-                                        "description": "잘못된 사용자명"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "example": "not-an-email",
-                                        "description": "잘못된 이메일"
-                                    },
-                                    "age": {
-                                        "type": "integer",
-                                        "example": -5,
-                                        "description": "잘못된 나이"
-                                    },
-                                    "registrationDate": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2023-13-45",
-                                        "description": "잘못된 날짜"
-                                    }
-                                },
-                                "required": ["username", "email", "age", "registrationDate"]
-                            },
-                            "example": {
-                                "username": "a",
-                                "email": "not-an-email",
-                                "age": -5,
-                                "registrationDate": "2023-13-45"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "security": [{}],
-                "responses": {
-                    "400": {
-                        "description": "다양한 필드 유효성 오류",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "field": {
-                                                        "type": "string",
-                                                        "example": "username"
-                                                    },
-                                                    "message": {
-                                                        "type": "string",
-                                                        "example": "Username must be at least 3 characters"
-                                                    },
-                                                    "code": {
-                                                        "type": "string",
-                                                        "example": "MIN_LENGTH"
-                                                    }
-                                                }
-                                            },
-                                            "description": "오류 목록",
-                                            "example": [
-                                                {
-                                                    "field": "username",
-                                                    "message": "Username must be at least 3 characters",
-                                                    "code": "MIN_LENGTH"
-                                                },
-                                                {
-                                                    "field": "email",
-                                                    "message": "Invalid email format",
-                                                    "code": "INVALID_FORMAT"
-                                                },
-                                                {
-                                                    "field": "age",
-                                                    "message": "Age must be a positive number",
-                                                    "code": "POSITIVE_NUMBER"
-                                                },
-                                                {
-                                                    "field": "registrationDate",
-                                                    "message": "Invalid date format",
-                                                    "code": "INVALID_DATE"
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    "required": ["errors"]
-                                },
-                                "examples": {
-                                    "다양한 필드 유효성 오류": {
-                                        "value": {
-                                            "error": {
-                                                "message": "다양한 필드 유효성 오류",
-                                                "code": "ERROR_400"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }

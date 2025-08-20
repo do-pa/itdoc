@@ -34,6 +34,9 @@ interface OpenAPIInfo {
 
 /**
  * OpenAPI Specification generator
+ *
+ * It operates in a Singleton pattern and collects test results
+ * Create a Specification document in OpenAPI 3.0.0 format.
  */
 export class OpenAPIGenerator implements IOpenAPIGenerator {
     private testResults: TestResult[] = []
@@ -112,8 +115,6 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
 
             groupedResults.get(path)!.get(method)!.get(statusCode)!.push(result)
         }
-
-        logger.info("Grouped test results:", groupedResults)
 
         return groupedResults
     }

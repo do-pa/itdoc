@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 export const itdocExampleJs = ` 
 describeAPI(
     HttpMethod.POST,
@@ -35,6 +51,24 @@ describeAPI(
                     error: field("에러 메세지", "username is required"),
                 })
         })
+        itDoc("에러가 발생할 경우, 500 응답을 반환한다.", async () => {
+            const layer = getRouteLayer(targetApp, "post", "/signup")
+            sandbox.stub(layer, "handle").callsFake((req, res, next) => {
+                return res.status(500).json({ error: "Internal Server Error" })
+            })
+            await apiDoc
+                .test()
+                .req()
+                .body({
+                    username: field("사용자 이름", "hun"),
+                    password: field("패스워드(8자 이상)", "12345678"),
+                })
+                .res()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body({
+                    error: field("에러 메시지", "Internal Server Error"),
+                })
+        })
     },
 )
 
@@ -64,6 +98,20 @@ describeAPI(
                     friends: field("유저의 친구", ["zagabi", "json"]),
                 })
         })
+
+        itDoc("유효한 헤더로 접근하면 200 응답을 반환한다.", async () => {
+            await apiDoc
+                .test()
+                .req()
+                .queryParam({
+                    token: field("인증 토큰A", 123456)
+                })
+                .header({
+                    Authorization: field("인증 토큰B", "Bearer 123456"),
+                })
+                .res()
+                .status(HttpStatus.OK) 
+        }) 
     },
 )
 `

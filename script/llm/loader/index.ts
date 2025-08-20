@@ -18,18 +18,31 @@ import fs from "fs"
 import path from "path"
 import logger from "../../../lib/config/logger"
 
-type FileType = "spec" | "app" | "env"
+type FileType = "app" | "env"
 
 /**
- * Checks the path according to the given type and returns the file path or content.
- * @param {FileType} type "spec" | "app" | "env"
- * @param {string} filePath Input path (relative or absolute)
- * @param {boolean} readContent If true, returns file content as string; if false, returns only the path
- * @returns {string} (file content or path)
+ * Load and optionally read a file depending on its {@link FileType}.
+ *
+ * Behavior by type:
+ * - **`"app"`** (required): If the file cannot be resolved, logs an error and **terminates the process** with `process.exit(1)`.
+ * - **`"env"`** (optional): If the file cannot be resolved, logs a warning and returns an empty string.
+ *
+ * Resolution rules:
+ * - If `filePath` is provided, it is resolved relative to `process.cwd()` when not absolute.
+ * - If `filePath` is omitted, the function searches a set of sensible defaults for the given type.
+ * @param {FileType} type
+ *        The category of file to resolve (`"app"` or `"env"`).
+ * @param {string} [filePath]
+ *        An explicit path to the file. If relative, it is resolved from `process.cwd()`.
+ *        When omitted, a default search list is used (see implementation).
+ * @param {boolean} [readContent]
+ *        When `true`, returns the UTF-8 file contents; when `false`, returns the resolved absolute path.
+ * @returns {string}
+ *        The resolved absolute path (when `readContent === false`) or the UTF-8 contents (when `true`).
+ *        For missing `"env"` files, an empty string is returned.
  */
 export function loadFile(type: FileType, filePath?: string, readContent: boolean = false): string {
-    const defaultPaths: Record<FileType, string[]> = {
-        spec: [path.resolve(process.cwd(), "md/testspec.md")],
+    const defaults: Record<FileType, string[]> = {
         app: [
             path.resolve(process.cwd(), "app.js"),
             path.resolve(process.cwd(), "app.ts"),
@@ -41,26 +54,41 @@ export function loadFile(type: FileType, filePath?: string, readContent: boolean
         env: [path.resolve(process.cwd(), ".env")],
     }
 
-    let resolvedPath: string
-
+    let resolved: string | undefined
     if (filePath) {
-        resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath)
+        resolved = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath)
     } else {
-        const foundPath = defaultPaths[type].find((p) => fs.existsSync(p))
-
-        if (!foundPath) {
-            logger.error(
-                `${type} 파일을 찾을 수 없습니다. 기본 경로: ${defaultPaths[type].join(", ")}`,
-            )
-            process.exit(1)
-        }
-
-        resolvedPath = foundPath
+        resolved = defaults[type].find((p) => fs.existsSync(p))
     }
-
-    if (!fs.existsSync(resolvedPath)) {
-        logger.error(`${type} 파일이 존재하지 않습니다: ${resolvedPath}`)
+    if (!resolved || !fs.existsSync(resolved)) {
+        if (type === "env") {
+            if (filePath) {
+                logger.warn(
+                    `ENV file not found at provided path: ${filePath}. Continuing without it.`,
+                )
+            } else {
+                logger.warn(
+                    `ENV file not found at default locations: ${defaults.env.join(", ")}. Continuing without it.`,
+                )
+            }
+            return readContent ? "" : ""
+        }
+        if (filePath) {
+            logger.error(`${type} file does not exist: ${filePath}`)
+        } else {
+            logger.error(`${type} file not found. Searched: ${defaults[type].join(", ")}`)
+        }
         process.exit(1)
     }
-    return readContent ? fs.readFileSync(resolvedPath, "utf8") : resolvedPath
+    if (!readContent) return resolved
+
+    try {
+        return fs.readFileSync(resolved, "utf8")
+    } catch (err) {
+        logger.error(`Failed to read ${type} file: ${resolved}. ${(err as Error).message}`)
+        if (type === "env") {
+            return ""
+        }
+        process.exit(1)
+    }
 }

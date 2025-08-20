@@ -55,7 +55,6 @@ Example:
 program
     .command("generate")
     .description("Generate ITDOC test code based on LLM.")
-    .option("-p, --path <testspecPath>", "Path to the markdown test spec file.")
     .option("-a, --app <appPath>", "Path to the Express root app file.")
     .option("-e, --env <envPath>", "Path to the .env file.")
     .action((options: { path?: string; env?: string; app?: string }) => {
@@ -81,11 +80,7 @@ program
         if (options.app) {
             const appPath = resolvePath(options.app)
             logger.info(`Running analysis based on Express app path: ${appPath}`)
-            generateByLLM("", appPath, envPath)
-        } else if (options.path) {
-            const specPath = resolvePath(options.path)
-            logger.info(`Running analysis based on test spec (MD) path: ${specPath}`)
-            generateByLLM(specPath, "", envPath)
+            generateByLLM(appPath, envPath)
         }
     })
 
