@@ -35,7 +35,7 @@ import { RouteResult } from "../parser/type/interface"
  * @param {RouteResult[]} routesChunk - A chunk of parsed route definitions
  *                                      used as the basis for test generation.
  * @param {boolean} isEn - Whether to generate the prompt in English (true) or Korean (false).
- * @param {number} part - The chunk part number (used to decide if continuation rules apply).
+ * @param {number} part - The sequential part number of the response when the GPT call does not return the full output at once and multiple calls are made to retrieve the continuation.
  * @param {boolean} [isTypeScript] - Whether to generate TypeScript-based test examples instead of JavaScript.
  * @returns {string} A formatted prompt containing route information, language rules,
  *                   and example code for generating `itdoc` tests.
