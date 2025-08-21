@@ -1,7 +1,60 @@
 const app = require("../expressApp.js")
 const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
 
-const targetApp = app 
+const targetApp = app
+describeAPI(
+    HttpMethod.POST,
+    "signup",
+    {
+        summary: "회원 가입 API",
+        tag: "Auth",
+        description: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+    },
+    targetApp,
+    (apiDoc) => {
+        itDoc("회원가입 성공", async () => {
+            await apiDoc
+                .test()
+                .prettyPrint()
+                .req()
+                .body({
+                    username: field("사용자 이름", "username"),
+                    password: field("패스워드", "P@ssw0rd123!@#"),
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        })
+
+        itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", async () => {
+            await apiDoc
+                .test()
+                .req()
+                .body({
+                    password: field("패스워드", "P@ssw0rd123!@#"),
+                })
+                .res()
+                .status(HttpStatus.BAD_REQUEST)
+                .body({
+                    error: field("에러 메시지", "username is required"),
+                })
+        })
+
+        itDoc("패스워드가 8자 미만이면 회원가입 실패한다.", async () => {
+            await apiDoc
+                .test()
+                .req()
+                .body({
+                    username: field("아이디", "penekhun"),
+                    password: field("패스워드", "1234567"),
+                })
+                .res()
+                .status(HttpStatus.BAD_REQUEST)
+                .body({
+                    error: field("에러 메시지", "password must be at least 8 characters"),
+                })
+        })
+    },
+)
 
 describeAPI(
     HttpMethod.GET,
@@ -419,7 +472,7 @@ describeAPI(
                 .test()
                 .req()
                 .header({
-                    "If-None-Match": field("ETag 값", '"abc123"'),
+                    "if-none-match": field("ETag 값", '"abc123"'),
                     Accept: "application/json",
                     "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
                 })
@@ -436,57 +489,6 @@ describeAPI(
                 .body({
                     data: field("데이터", { version: "1.0", content: "캐시 가능한 데이터" }),
                     timestamp: field("타임스탬프", 1697873280000),
-                })
-        })
-    },
-)
-
-describeAPI(
-    HttpMethod.POST,
-    "/validate",
-    {
-        summary: "데이터 유효성 검증 API",
-        tag: "Validation",
-        description: "다양한 형태의 데이터 유효성을 검증하고 상세한 오류 정보를 제공합니다.",
-    },
-    targetApp,
-    (apiDoc) => {
-        itDoc("다양한 필드 유효성 오류", async () => {
-            await apiDoc
-                .test()
-                .req()
-                .body({
-                    username: field("잘못된 사용자명", "a"),
-                    email: field("잘못된 이메일", "not-an-email"),
-                    age: field("잘못된 나이", -5),
-                    registrationDate: field("잘못된 날짜", "2023-13-45"),
-                })
-                .res()
-                .status(HttpStatus.BAD_REQUEST)
-                .body({
-                    success: false,
-                    errors: field("오류 목록", [
-                        {
-                            field: "username",
-                            message: "Username must be at least 3 characters",
-                            code: "MIN_LENGTH",
-                        },
-                        {
-                            field: "email",
-                            message: "Invalid email format",
-                            code: "INVALID_FORMAT",
-                        },
-                        {
-                            field: "age",
-                            message: "Age must be a positive number",
-                            code: "POSITIVE_NUMBER",
-                        },
-                        {
-                            field: "registrationDate",
-                            message: "Invalid date format",
-                            code: "INVALID_DATE",
-                        },
-                    ]),
                 })
         })
     },
