@@ -40,11 +40,9 @@ export async function generateDocs(oasOutputPath: string, outputDir: string): Pr
         logger.info(`HTML path: ${htmlPath}`)
 
         const config = await loadConfig({})
-        logger.info("Step 1: Redocly configuration loaded")
 
         const bundleResult = await bundle({ ref: oasOutputPath, config })
         const api = bundleResult.bundle.parsed
-        logger.info("Step 2: OpenAPI bundling completed")
         const widdershinsOpts = { headings: 2, summary: true }
         console.log = () => {}
         const markdown = await widdershins.convert(api, widdershinsOpts)

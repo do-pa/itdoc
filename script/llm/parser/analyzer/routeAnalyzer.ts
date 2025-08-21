@@ -159,14 +159,31 @@ function findFunctionDefinition(
 
     return foundFunction
 }
-
 /**
- * Analyzes the body of a given function node to collect request/response information.
- * @param {t.FunctionExpression | t.ArrowFunctionExpression} functionNode - The function node to analyze.
- * @param {string} source - The source code of the file.
- * @param {any} ret - The object that collects analysis results.
- * @param {NodePath<t.CallExpression>} parentPath - The parent call expression node.
- * @param {t.File} [ast] - The full AST of the file, used for nested function analysis.
+ * Analyze the body of a route handler function to extract request/response metadata.
+ *
+ * Walks the handler’s AST and delegates to specialized analyzers:
+ * - **VariableDeclarator** → `analyzeVariableDeclarator`
+ * Captures destructured `req` fields (`query`, `params`, `headers`, `body`), tracks identifiers,
+ * and records samples for local array literals (e.g., `const members = [...]`).
+ * - **CallExpression** → `analyzeResponseCall`
+ * Detects `res.status(...)`, `res.json(...)`, `res.send(...)`, and aggregates default/branch responses.
+ * - **MemberExpression** → `analyzeMemberExpression`
+ * Tracks usage like `req.headers.*`, `req.body.*`, and analyzes inline `res.json({ ... })` objects.
+ *
+ * The function **mutates** the provided accumulator `ret` in place (adds req field sets, response maps, etc.).
+ * @param {t.FunctionExpression | t.ArrowFunctionExpression} functionNode
+ *        The route handler (function or arrow function) whose body will be traversed.
+ * @param {string} source
+ *        Raw source code of the file; forwarded to sub-analyzers for context (e.g., snippet extraction).
+ * @param {any} ret
+ *        Mutable accumulator object that will be enriched with analysis results
+ *        (e.g., `reqHeaders`, `reqParams`, `reqQuery`, `bodyFields`, `defaultResponse`, `branchResponses`).
+ * @param {NodePath<t.CallExpression>} parentPath
+ *        The `CallExpression` path that registered the route (e.g., `app.get(...)`), used to inherit scope during traversal.
+ * @param {t.File} [ast]
+ *        Optional full-file AST. When provided, sub-analyzers may use it to resolve identifiers across the file.
+ * @returns {void} Mutates `ret` in place; no value is returned.
  */
 export function analyzeFunctionBody(
     functionNode: t.FunctionExpression | t.ArrowFunctionExpression,

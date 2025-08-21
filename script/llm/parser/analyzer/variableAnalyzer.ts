@@ -16,13 +16,60 @@
 
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
-import { createFunctionIdentifier } from "../utils/extractValue"
+import { extractValue } from "../utils/extractValue"
 
 /**
- * Analyzes request parameters and function call results from variable declarations.
- * @param {NodePath<t.VariableDeclarator>} varPath - Variable declaration node
- * @param {any} ret - Analysis result storage object
- * @param {Record<string, any[]>} localArrays - Local array storage object
+ * Ensures that the accumulator object `ret` has a response json field map.
+ * @param {any} ret Mutable accumulator for analysis results.
+ * @returns {Record<string, any>} The ensured `responseJsonFieldMap`.
+ */
+function ensureResMap(ret: any) {
+    if (!ret.responseJsonFieldMap) ret.responseJsonFieldMap = {}
+    return ret.responseJsonFieldMap as Record<string, any>
+}
+
+/**
+ * Analyze `res.json({ ... })` object literal and fill metadata for each property.
+ * @param {t.ObjectExpression} obj Object literal passed to `res.json`.
+ * @param {any} ret Mutable accumulator for analysis results (augments `responseJsonFieldMap`).
+ * @param {Record<string, any> | undefined} variableMap Mapping of identifiers to previously-resolved descriptors.
+ * @param {Record<string, any[]>} localArrays Map of local array identifiers (for value tracking).
+ * @param {t.File | undefined} ast Whole-file AST (optional).
+ * @returns {void}
+ */
+function analyzeJsonObjectFields(
+    obj: t.ObjectExpression,
+    ret: any,
+    variableMap: Record<string, any> | undefined,
+    localArrays: Record<string, any[]>,
+    ast?: t.File,
+) {
+    const out = ensureResMap(ret)
+
+    for (const p of obj.properties) {
+        if (!t.isObjectProperty(p)) continue
+
+        let keyName: string | null = null
+        if (t.isIdentifier(p.key)) keyName = p.key.name
+        else if (t.isStringLiteral(p.key)) keyName = p.key.value
+        if (!keyName) continue
+
+        const v = p.value
+        const extracted = extractValue(v as t.Node, localArrays, variableMap ?? {}, ast)
+        if (extracted !== null && extracted !== undefined) {
+            out[keyName] = extracted
+        }
+    }
+}
+
+/**
+ * Analyze a variable declarator for:
+ * - Calls/constructors assigned to identifiers
+ * - Destructuring from `req.query|params|body|headers` and track field usage
+ * @param {NodePath<t.VariableDeclarator>} varPath Variable declarator path.
+ * @param {any} ret Mutable accumulator for analysis results (adds `variableMap`, `req*` sets).
+ * @param {Record<string, any[]>} localArrays Map of local array identifiers (for value tracking).
+ * @returns {void}
  */
 export function analyzeVariableDeclarator(
     varPath: NodePath<t.VariableDeclarator>,
@@ -32,24 +79,27 @@ export function analyzeVariableDeclarator(
     const decl = varPath.node
 
     if (t.isIdentifier(decl.id) && t.isArrayExpression(decl.init)) {
-        localArrays[decl.id.name] = []
+        const arrVal = extractValue(
+            decl.init,
+            localArrays,
+            ret.variableMap ?? {},
+            ret.ast as t.File | undefined,
+        )
+        localArrays[decl.id.name] = Array.isArray(arrVal) ? arrVal : []
         return
     }
 
     if (t.isIdentifier(decl.id) && decl.init) {
-        let callExpression: t.CallExpression | null = null
+        if (!ret.variableMap) ret.variableMap = {}
+        const maybe = extractValue(
+            decl.init as t.Node,
+            localArrays,
+            ret.variableMap,
+            ret.ast as t.File | undefined,
+        )
 
-        if (t.isAwaitExpression(decl.init) && t.isCallExpression(decl.init.argument)) {
-            callExpression = decl.init.argument
-        } else if (t.isCallExpression(decl.init)) {
-            callExpression = decl.init
-        }
-
-        if (callExpression) {
-            if (!ret.variableMap) {
-                ret.variableMap = {}
-            }
-            ret.variableMap[decl.id.name] = createFunctionIdentifier(callExpression)
+        if (maybe !== null && maybe !== undefined) {
+            ret.variableMap[decl.id.name] = maybe
         }
     }
 
@@ -57,25 +107,62 @@ export function analyzeVariableDeclarator(
         t.isObjectPattern(decl.id) &&
         t.isMemberExpression(decl.init) &&
         t.isIdentifier(decl.init.object, { name: "req" }) &&
-        t.isIdentifier(decl.init.property)
+        (t.isIdentifier(decl.init.property) || t.isStringLiteral(decl.init.property))
     ) {
-        const propName = decl.init.property.name
+        const propName = t.isIdentifier(decl.init.property)
+            ? decl.init.property.name
+            : decl.init.property.value
+
         decl.id.properties.forEach((prop: any) => {
-            if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
-                const fieldName = prop.key.name
+            if (t.isObjectProperty(prop)) {
+                const key = prop.key
+                const fieldName = t.isIdentifier(key)
+                    ? key.name
+                    : t.isStringLiteral(key)
+                      ? key.value
+                      : null
+                if (!fieldName) return
 
                 switch (propName) {
                     case "query":
                         ret.reqQuery.add(fieldName)
+                        if (!ret.variableMap) ret.variableMap = {}
+                        ret.variableMap[fieldName] = {
+                            type: "member_access",
+                            object: "req.query",
+                            property: fieldName,
+                            identifier: `req.query.${fieldName}`,
+                        }
                         break
                     case "params":
                         ret.reqParams.add(fieldName)
+                        if (!ret.variableMap) ret.variableMap = {}
+                        ret.variableMap[fieldName] = {
+                            type: "member_access",
+                            object: "req.params",
+                            property: fieldName,
+                            identifier: `req.params.${fieldName}`,
+                        }
                         break
                     case "headers":
                         ret.reqHeaders.add(fieldName.toLowerCase())
+                        if (!ret.variableMap) ret.variableMap = {}
+                        ret.variableMap[fieldName] = {
+                            type: "member_access",
+                            object: "req.headers",
+                            property: fieldName.toLowerCase(),
+                            identifier: `req.headers.${fieldName.toLowerCase()}`,
+                        }
                         break
                     case "body":
                         ret.bodyFields.add(fieldName)
+                        if (!ret.variableMap) ret.variableMap = {}
+                        ret.variableMap[fieldName] = {
+                            type: "member_access",
+                            object: "req.body",
+                            property: fieldName,
+                            identifier: `req.body.${fieldName}`,
+                        }
                         break
                 }
             }
@@ -84,26 +171,70 @@ export function analyzeVariableDeclarator(
 }
 
 /**
- * Analyzes request parameters from member expressions.
- * @param {NodePath<t.MemberExpression>} memPath - Member expression node
- * @param {any} ret - Analysis result storage object
+ * Inspect member-expressions to:
+ * - Track request field usage (`req.headers.*`, `req.body.*`)
+ * - Detect `res.json({ ... })` calls and analyze their object argument
+ * @param {NodePath<t.MemberExpression>} memPath Member expression path.
+ * @param {any} ret Mutable accumulator for analysis results.
+ * @returns {void}
  */
 export function analyzeMemberExpression(memPath: NodePath<t.MemberExpression>, ret: any) {
     const mm = memPath.node
 
+    const parentObj = ((): t.MemberExpression | t.OptionalMemberExpression | null => {
+        if (t.isMemberExpression(mm.object) || t.isOptionalMemberExpression(mm.object)) {
+            return mm.object
+        }
+        return null
+    })()
+
     if (
-        t.isMemberExpression(mm.object) &&
-        t.isIdentifier(mm.object.object, { name: "req" }) &&
-        t.isIdentifier(mm.object.property) &&
-        t.isIdentifier(mm.property)
+        parentObj &&
+        t.isIdentifier(parentObj.object, { name: "req" }) &&
+        (t.isIdentifier(parentObj.property) || t.isStringLiteral(parentObj.property))
     ) {
-        const parent = mm.object.property.name
-        const child = mm.property.name
+        const parent = t.isIdentifier(parentObj.property)
+            ? parentObj.property.name
+            : parentObj.property.value
+
+        let child: string | null = null
+        if (t.isIdentifier(mm.property)) child = mm.property.name
+        else if (t.isStringLiteral(mm.property)) child = mm.property.value
+
+        if (!child) return
 
         if (parent === "headers") {
             ret.reqHeaders.add(child.toLowerCase())
         } else if (parent === "body") {
             ret.bodyFields.add(child)
+        }
+    }
+
+    const isJsonCallee =
+        (t.isIdentifier(mm.property, { name: "json" }) ||
+            t.isStringLiteral(mm.property, { value: "json" })) &&
+        (t.isIdentifier(mm.object, { name: "res" }) ||
+            (t.isCallExpression(mm.object) &&
+                (t.isMemberExpression(mm.object.callee) ||
+                    t.isOptionalMemberExpression(mm.object.callee)) &&
+                (t.isIdentifier((mm.object.callee as t.MemberExpression).property, {
+                    name: "status",
+                }) ||
+                    t.isStringLiteral((mm.object.callee as t.MemberExpression).property as any, {
+                        value: "status",
+                    }))))
+
+    if (isJsonCallee && memPath.parentPath && memPath.parentPath.isCallExpression()) {
+        const call = memPath.parentPath.node
+        const firstArg = call.arguments[0]
+        if (firstArg && t.isObjectExpression(firstArg)) {
+            analyzeJsonObjectFields(
+                firstArg,
+                ret,
+                ret.variableMap,
+                ret.localArrays ?? {},
+                ret.ast as t.File | undefined,
+            )
         }
     }
 }
