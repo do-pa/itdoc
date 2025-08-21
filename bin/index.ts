@@ -57,19 +57,17 @@ program
     .description("Generate ITDOC test code based on LLM.")
     .option("-a, --app <appPath>", "Path to the Express root app file.")
     .option("-e, --env <envPath>", "Path to the .env file.")
-    .action((options: { path?: string; env?: string; app?: string }) => {
+    .action(async (options: { env?: string; app?: string }) => {
         const envPath = options.env
             ? path.isAbsolute(options.env)
                 ? options.env
                 : path.resolve(process.cwd(), options.env)
             : path.resolve(process.cwd(), ".env")
 
-        if (!options.path && !options.app) {
+        if (!options.app) {
             logger.error(
-                "Either a test spec path (-p) or an Express app path (-a) must be provided. By default, the OpenAI key (OPENAI_API_KEY in .env) is loaded from the root directory, but you can customize the path if needed",
+                "An Express app path (-a) must be provided. By default, the OpenAI key (OPENAI_API_KEY in .env) is loaded from the root directory, but you can customize the path with -e/--env if needed.",
             )
-            logger.info("ex) itdoc generate -p ../md/testspec.md")
-            logger.info("ex) itdoc generate --path ../md/testspec.md")
             logger.info("ex) itdoc generate -a ../app.js")
             logger.info("ex) itdoc generate --app ../app.js")
             logger.info("ex) itdoc generate -a ../app.js -e <custom path : env>")
@@ -79,8 +77,14 @@ program
         logger.box("ITDOC LLM START")
         if (options.app) {
             const appPath = resolvePath(options.app)
+
             logger.info(`Running analysis based on Express app path: ${appPath}`)
-            generateByLLM(appPath, envPath)
+            try {
+                await generateByLLM(appPath, envPath)
+            } catch (err) {
+                logger.error(`LLM generation failed: ${(err as Error).message}`)
+                process.exit(1)
+            }
         }
     })
 

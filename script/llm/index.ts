@@ -84,7 +84,7 @@ export async function makeitdoc(
 
             for (let retry = 0; retry < maxRetry; retry++) {
                 gptCallCount++
-                logger.info(`[makeitdocByMD] Attempting GPT call : ${gptCallCount} times`)
+                logger.info(`[makeitdoc] Attempting GPT call : ${gptCallCount} times`)
                 const msg = getItdocPrompt(routesChunk, isEn, retry + 1, isTypeScript)
 
                 const response = await openai.chat.completions.create({
@@ -113,7 +113,7 @@ export async function makeitdoc(
 
         return result.trim()
     } catch (error: unknown) {
-        logger.error(`makeitdocByMD() ERROR: ${error}`)
+        logger.error(`makeitdoc() ERROR: ${error}`)
         return null
     }
 }
