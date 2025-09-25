@@ -97,7 +97,7 @@ export const validateResponse = (expected: any, actual: any, path: string = ""):
     }
 
     // 객체인 경우 (null 제외)
-    if (expected && typeof expected === "object" && expected !== null) {
+    if (expected && typeof expected === "object") {
         for (const key in expected) {
             const currentPath = path ? `${path}.${key}` : key
             const expectedVal = expected[key]
@@ -107,8 +107,8 @@ export const validateResponse = (expected: any, actual: any, path: string = ""):
                 validateDSLField(expectedVal, actualVal, currentPath)
             } else if (Array.isArray(expectedVal)) {
                 validateArray(expectedVal, actualVal, currentPath)
-            } else if (expectedVal && typeof expectedVal === "object" && expectedVal !== null) {
-                if (!actualVal || typeof actualVal !== "object" || actualVal === null) {
+            } else if (expectedVal && typeof expectedVal === "object") {
+                if (!actualVal || typeof actualVal !== "object") {
                     throw new Error(
                         `Expected response body[${currentPath}] to be an object but got ${actualVal}`,
                     )
