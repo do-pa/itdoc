@@ -25,18 +25,21 @@ import { isDSLField } from "../interface/field"
  * @see {@link import('../interface/field.ts').field}
  */
 const validateDSLField = (expectedDSL: any, actualVal: any, path: string): void => {
+    const example = expectedDSL.example
+    if (example === undefined) {
+        throw new Error(
+            `The example value of the DSL field at response body[${path}] is undefined. Skipping validation for this field.`,
+        )
+    }
+
     // DSL Field의 example이 함수인 경우
     if (typeof expectedDSL.example === "function") {
-        expectedDSL.example(actualVal)
+        validateFunction(expectedDSL.example, actualVal)
         return
     }
 
     // DSL Field의 example이 객체인 경우
-    if (
-        expectedDSL.example &&
-        typeof expectedDSL.example === "object" &&
-        expectedDSL.example !== null
-    ) {
+    if (example && typeof example === "object") {
         if (isDSLField(actualVal)) {
             validateResponse(expectedDSL.example, actualVal.example, path)
         } else {
@@ -80,6 +83,20 @@ const validateArray = (expectedArr: any[], actualArr: any[], path: string): void
     })
 }
 
+const validateFunction = (func: (actualValue: any) => any, actualVal: any): void => {
+    const argsCount = func.length
+    if (argsCount > 1) {
+        throw new Error(
+            `Validator function should have at most one argument, but got ${argsCount}.
+            Please check the following function:
+
+            ${func.toString()}`,
+        )
+    }
+
+    func(actualVal)
+}
+
 /**
  * Function that performs **actual validation** of API response values defined in `ResponseBuilder`.
  * Performs validation by branching for various types such as arrays, objects, etc.
@@ -107,6 +124,8 @@ export const validateResponse = (expected: any, actual: any, path: string = ""):
                 validateDSLField(expectedVal, actualVal, currentPath)
             } else if (Array.isArray(expectedVal)) {
                 validateArray(expectedVal, actualVal, currentPath)
+            } else if (typeof expectedVal === "function") {
+                validateFunction(expectedVal, actualVal)
             } else if (expectedVal && typeof expectedVal === "object") {
                 if (!actualVal || typeof actualVal !== "object") {
                     throw new Error(
