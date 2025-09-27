@@ -33,6 +33,11 @@ export interface DSLField<T extends FIELD_TYPES = FIELD_TYPES> {
     readonly required: boolean
 }
 
+export interface DSLRequestFile {
+    file: { path?: string; buffer?: Buffer; stream?: NodeJS.ReadableStream }
+    opts: { contentType: string; filename?: string }
+}
+
 /**
  * DSL Helper Functions
  * - DSL Field creation function
