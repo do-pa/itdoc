@@ -1,5 +1,5 @@
 const app = require("../expressApp.js")
-const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
+const { describeAPI, itDoc, HttpStatus, field, fileField, HttpMethod } = require("itdoc")
 
 const targetApp = app
 describeAPI(
@@ -493,6 +493,7 @@ describeAPI(
         })
     },
 )
+
 describeAPI(
     HttpMethod.GET,
     "/failed-test",
@@ -511,6 +512,48 @@ describeAPI(
                 .status(HttpStatus.NOT_FOUND)
                 .body({
                     message: field("실패 메시지", "This endpoint is designed to make tests fail"),
+                })
+        })
+    },
+)
+
+describeAPI(
+    HttpMethod.POST,
+    "/uploads",
+    {
+        summary: "파일 업로드 API",
+        tag: "File",
+        description: "파일을 업로드합니다.",
+    },
+    targetApp,
+    (apiDoc) => {
+        before(() => {
+            // tmp 폴더에 example.txt 파일 생성
+            const fs = require("fs")
+            const path = require("path")
+            const dir = path.join(__dirname, "../tmp")
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir)
+            }
+            fs.writeFileSync(path.join(dir, "example.txt"), "This is an example file.")
+        })
+
+        // with filePath
+        itDoc("파일 업로드 성공", async () => {
+            await apiDoc
+                .test()
+                .req()
+                .file(
+                    fileField("업로드할 파일", {
+                        path: require("path").join(__dirname, "../tmp/example.txt"),
+                    }),
+                )
+                .res()
+                .status(HttpStatus.CREATED)
+                .body({
+                    success: true,
+                    message: field("성공 메시지", "File uploaded successfully"),
+                    fileId: field("파일 ID", "file123"),
                 })
         })
     },
