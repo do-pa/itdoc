@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import fs from "fs"
+
 export type FIELD_TYPES =
     | string
     | number
@@ -58,13 +60,43 @@ export function field<T extends FIELD_TYPES>(
 /**
  * DSL File Field creation function
  * @param {string} description Field description to be displayed in documentation
- * @param {string} filePath Local file path for the upload
+ * @param {string} path Local file path for the upload
+ * @param buffer Buffer containing file data
+ * @param stream Readable stream containing file data
+ * @param filename (Optional) Filename to be used in the upload (if not provided, the name from filePath will be used)
  */
-export function fileField(description: string, filePath: string): DSLRequestFile {
+export function fileField(
+    description: string,
+    {
+        path,
+        buffer,
+        stream,
+        filename,
+    }: { path?: string; buffer?: Buffer; stream?: NodeJS.ReadableStream; filename?: string },
+): DSLRequestFile {
+    if (path) {
+        if (!fs.existsSync(path)) {
+            throw new Error(`fileField(): path "${path}" does not exist.`)
+        }
+    } else if (buffer) {
+        if (!Buffer.isBuffer(buffer)) {
+            throw new Error("fileField(): buffer must be a Buffer instance.")
+        }
+    } else if (stream) {
+        if (
+            typeof stream !== "object" ||
+            typeof (stream as NodeJS.ReadableStream).pipe !== "function"
+        ) {
+            throw new Error("fileField(): stream must be a Readable stream.")
+        }
+    } else {
+        throw new Error("fileField(): provide one of path | buffer | stream.")
+    }
+
     return {
         description,
-        file: { path: filePath },
-        opts: { contentType: "application/octet-stream", filename: filePath },
+        file: { path, buffer, stream },
+        opts: { contentType: "application/octet-stream", filename },
     } satisfies DSLRequestFile
 }
 
