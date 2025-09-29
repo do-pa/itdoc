@@ -34,8 +34,9 @@ export interface DSLField<T extends FIELD_TYPES = FIELD_TYPES> {
 }
 
 export interface DSLRequestFile {
-    file: { path?: string; buffer?: Buffer; stream?: NodeJS.ReadableStream }
-    opts: { contentType: string; filename?: string }
+    readonly description: string
+    readonly file: { path?: string; buffer?: Buffer; stream?: NodeJS.ReadableStream }
+    readonly opts: { contentType: string; filename?: string }
 }
 
 /**
@@ -52,6 +53,19 @@ export function field<T extends FIELD_TYPES>(
     required: boolean = true,
 ): DSLField<FIELD_TYPES> {
     return { description, example, required } as DSLField<FIELD_TYPES>
+}
+
+/**
+ * DSL File Field creation function
+ * @param {string} description Field description to be displayed in documentation
+ * @param {string} filePath Local file path for the upload
+ */
+export function fileField(description: string, filePath: string): DSLRequestFile {
+    return {
+        description,
+        file: { path: filePath },
+        opts: { contentType: "application/octet-stream", filename: filePath },
+    } satisfies DSLRequestFile
 }
 
 /**

@@ -69,6 +69,9 @@ export class RequestBuilder extends AbstractTestBuilder {
      * })
      */
     public file(requestFile: DSLRequestFile): this {
+        if (!requestFile || typeof requestFile !== "object") {
+            throw new Error("req().file(): you must provide a requestFile object as an argument.")
+        }
         const { file } = requestFile
 
         const sources = [file.path ? 1 : 0, file.buffer ? 1 : 0, file.stream ? 1 : 0].reduce(
