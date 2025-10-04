@@ -57,26 +57,24 @@ const PlaygroundPage: React.FC = () => {
     }, [showHelp])
 
     return (
-        <Layout title="Playground" description="Interactive itdoc playground backed by WebContainer.">
+        <Layout
+            title="Playground"
+            description="Interactive itdoc playground backed by WebContainer."
+        >
             <main className={`container margin-vert--lg ${styles.page}`}>
                 <div className="row">
                     <div className="col col--12">
-                        <header className={styles.header}>
-                            <div className={styles.headerCopy}>
-                                <h1 className={styles.title}>Playground</h1>
-                                <p className={styles.subtitle}>
-                                    Experience itdoc right in your browser—explore the DSL, run the bundled tests, and see how the
-                                    library captures API behavior without leaving this page.
-                                </p>
-                            </div>
-                            <button className={styles.helpButton} type="button" onClick={() => setShowHelp(true)}>
-                                How to use
-                            </button>
-                        </header>
-                        <BrowserOnly fallback={<div className={styles.fallback}>The playground loads in the browser only.</div>}>
+                        <BrowserOnly
+                            fallback={
+                                <div className={styles.fallback}>
+                                    The playground loads in the browser only.
+                                </div>
+                            }
+                        >
                             {() => {
-                                const Playground = require("@site/src/components/Playground").default
-                                return <Playground />
+                                const Playground =
+                                    require("@site/src/components/Playground").default
+                                return <Playground onRequestHelp={() => setShowHelp(true)} />
                             }}
                         </BrowserOnly>
                     </div>
@@ -97,7 +95,11 @@ const PlaygroundPage: React.FC = () => {
                     >
                         <div className={styles.modalHeader}>
                             <h2 id={instructionsTitleId}>How to use the playground</h2>
-                            <button className={styles.closeButton} type="button" onClick={() => setShowHelp(false)}>
+                            <button
+                                className={styles.closeButton}
+                                type="button"
+                                onClick={() => setShowHelp(false)}
+                            >
                                 Close
                             </button>
                         </div>
@@ -106,19 +108,24 @@ const PlaygroundPage: React.FC = () => {
                                 <h3>Get started quickly</h3>
                                 <ol>
                                     <li>
-                                        Let the installer finish booting the WebContainer. The status pill flips to <strong>Ready</strong>
+                                        Let the installer finish booting the WebContainer. The
+                                        status pill flips to <strong>Ready</strong>
                                         once the in-browser <code>npm install</code> wraps up.
                                     </li>
                                     <li>
-                                        Tweak the Express handlers on the left and mirror the expectations in the itdoc test suite on the
-                                        right. The default scenario wires up <code>/greeting</code> and <code>/users</code> endpoints.
+                                        Tweak the Express handlers on the left and mirror the
+                                        expectations in the itdoc test suite on the right. The
+                                        default scenario wires up <code>/greeting</code> and{" "}
+                                        <code>/users</code> endpoints.
                                     </li>
                                     <li>
-                                        Hit <strong>Run</strong> to execute <code>npm test</code>. Watch the terminal for install logs,
-                                        assertions, and any failures.
+                                        Hit <strong>Run</strong> to execute <code>npm test</code>.
+                                        Watch the terminal for install logs, assertions, and any
+                                        failures.
                                     </li>
                                     <li>
-                                        Green tests regenerate the OpenAPI output in <code>oas.json</code>. Red output points to the exact
+                                        Green tests regenerate the OpenAPI output in{" "}
+                                        <code>oas.json</code>. Red output points to the exact
                                         assertion or handler that needs an update.
                                     </li>
                                 </ol>
@@ -127,21 +134,26 @@ const PlaygroundPage: React.FC = () => {
                                 <h3>Good to know</h3>
                                 <ul>
                                     <li>
-                                        The playground keeps a single mocha suite so everything stays responsive. Add routes and assertions,
-                                        but keep an eye on runtime as you experiment.
+                                        The playground keeps a single mocha suite so everything
+                                        stays responsive. Add routes and assertions, but keep an eye
+                                        on runtime as you experiment.
                                     </li>
                                     <li>
-                                        Your container state persists between runs. Reload the page anytime you want to reset the sample
-                                        project to its starting point.
+                                        Your container state persists between runs. Reload the page
+                                        anytime you want to reset the sample project to its starting
+                                        point.
                                     </li>
                                     <li>
-                                        The first visit downloads npm packages. Afterwards, runs are cached and should complete much faster.
+                                        The first visit downloads npm packages. Afterwards, runs are
+                                        cached and should complete much faster.
                                     </li>
                                     <li>
-                                        WebContainer needs <code>SharedArrayBuffer</code> support. Serve the docs with
+                                        WebContainer needs <code>SharedArrayBuffer</code> support.
+                                        Serve the docs with
                                         <code>Cross-Origin-Opener-Policy: same-origin</code> and
-                                        <code>Cross-Origin-Embedder-Policy: require-corp</code>, or open the playground in a Chromium browser
-                                        that enables those headers for you.
+                                        <code>Cross-Origin-Embedder-Policy: require-corp</code>, or
+                                        open the playground in a Chromium browser that enables those
+                                        headers for you.
                                     </li>
                                 </ul>
                             </section>

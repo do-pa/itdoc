@@ -95,7 +95,9 @@
     padding: 0.35rem 0.9rem;
     border-radius: 999px;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .previewToggle:hover {
@@ -114,7 +116,9 @@
     color: var(--ifm-font-color-base-inverse);
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .runButton:not(:disabled):hover {
@@ -125,6 +129,37 @@
 .runButton:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.topHelpButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 1.15rem;
+    border-radius: 999px;
+    border: 1px solid rgba(226, 232, 240, 0.55);
+    background: rgba(226, 232, 240, 0.12);
+    color: rgba(241, 245, 249, 0.92);
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.topHelpButton:hover {
+    background: rgba(226, 232, 240, 0.24);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.topHelpButton:focus-visible {
+    outline: 2px solid rgba(226, 232, 240, 0.85);
+    outline-offset: 2px;
 }
 
 .statusChip {
@@ -183,7 +218,11 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, rgba(248, 250, 252, 0.94) 0%, rgba(226, 232, 240, 0.92) 100%);
+    background: linear-gradient(
+        180deg,
+        rgba(248, 250, 252, 0.94) 0%,
+        rgba(226, 232, 240, 0.92) 100%
+    );
 }
 
 .workspace {
@@ -191,12 +230,8 @@
     min-height: 0;
     display: grid;
     gap: clamp(1rem, 3vw, 1.75rem);
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.25fr) minmax(0, 0.9fr);
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     padding: clamp(1rem, 4vw, 2rem);
-}
-
-.workspaceCollapsed {
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr);
 }
 
 .workspacePlaceholder {
@@ -271,25 +306,6 @@
     gap: 0.75rem;
 }
 
-.previewCollapseButton {
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    background: rgba(248, 250, 252, 0.9);
-    color: var(--ifm-color-emphasis-700);
-    font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.35rem 0.9rem;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.previewCollapseButton:hover {
-    background: rgba(226, 232, 240, 0.9);
-    transform: translateY(-1px);
-}
-
 .previewLaunchButton {
     border: 1px solid rgba(59, 130, 246, 0.35);
     background: rgba(59, 130, 246, 0.18);
@@ -301,7 +317,9 @@
     padding: 0.35rem 0.9rem;
     border-radius: 999px;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .previewLaunchButton:not(:disabled):hover {
@@ -314,18 +332,148 @@
     cursor: not-allowed;
 }
 
-.previewPlaceholder {
+.runModalBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    text-align: center;
+    justify-content: center;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    z-index: 9999999999;
 }
 
-.previewPlaceholderBody {
-    padding: 2rem;
-    color: var(--ifm-color-content-secondary);
-    max-width: 28rem;
+.runModal {
+    width: min(1100px, 100%);
+    max-height: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+    background: var(--ifm-color-white);
+    border-radius: 1rem;
+    box-shadow: 0 40px 80px rgba(15, 23, 42, 0.2);
+    overflow: auto;
+}
+
+.runModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-lg);
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #e2e8f0;
+}
+
+.runModalHeadingGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.runModalHeadingGroup h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.runModalStatus {
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.75);
+}
+
+.runModalClose {
+    border: none;
+    border-radius: 999px;
+    padding: 0.45rem 1.2rem;
+    background: rgba(226, 232, 240, 0.15);
+    color: #f8fafc;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.runModalClose:hover {
+    background: rgba(226, 232, 240, 0.3);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.runModalBody {
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: clamp(1rem, 3vw, 1.5rem);
+    padding: 1.5rem;
+    background: linear-gradient(
+        180deg,
+        rgba(248, 250, 252, 0.95) 0%,
+        rgba(226, 232, 240, 0.9) 100%
+    );
+}
+
+.runModalColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-height: 0;
+}
+
+.runModalCard {
+    display: flex;
+    flex-direction: column;
+    background: var(--ifm-color-white);
+    border-radius: 0.9rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    min-height: 0;
+}
+
+.runModalCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-md);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    background: rgba(248, 250, 252, 0.92);
+}
+
+.runModalCardTitle {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ifm-color-emphasis-800);
+}
+
+.runModalChip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1d4ed8;
+    background: rgba(59, 130, 246, 0.15);
+}
+
+.runModalCardBody {
+    flex: 1;
+    min-height: 0;
+    padding: 1.25rem 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .columnBody {
@@ -406,7 +554,6 @@
     min-height: 0;
 }
 
-
 .oasPreviewContainer {
     flex: 1;
     display: flex;
@@ -431,6 +578,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    margin-bottom: 1rem;
 }
 
 .codeChrome {
@@ -663,7 +811,11 @@
     bottom: 0;
     left: 0;
     width: 0;
-    background: linear-gradient(135deg, var(--ifm-color-primary), color-mix(in srgb, var(--ifm-color-primary) 82%, white 18%));
+    background: linear-gradient(
+        135deg,
+        var(--ifm-color-primary),
+        color-mix(in srgb, var(--ifm-color-primary) 82%, white 18%)
+    );
     transition: width 0.6s ease;
 }
 
@@ -671,7 +823,6 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: clamp(0.75rem, 1.5vw, 1.25rem);
     padding: 0;
     margin: 0;
 }
@@ -762,7 +913,9 @@
     cursor: pointer;
     padding: 0.4rem 0.75rem;
     border-radius: 999px;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .tipButton:hover {
@@ -821,11 +974,11 @@
     justify-content: center;
     align-items: center;
     padding: clamp(2rem, 6vw, 4rem);
-    z-index: 30;
+    z-index: 999999999999;
 }
 
 .previewModal {
-    width: min(960px, 100%);
+    width: min(1260px, 100%);
     max-height: 90vh;
     background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
     border: 1px solid rgba(148, 163, 184, 0.4);
@@ -859,7 +1012,9 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .previewModalClose:hover {
@@ -870,6 +1025,7 @@
 .previewModalBody {
     flex: 1;
     padding: 0 clamp(2rem, 4vw, 2.5rem) clamp(2rem, 4vw, 2.5rem);
+    background: white;
     overflow: auto;
     display: flex;
     flex-direction: column;

@@ -43,6 +43,12 @@ declare global {
 }
 
 const REDOC_CDN_URL = "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"
+const swaggerPreviewTitleId = "playground-swagger-preview-title"
+const runModalTitleId = "playground-run-modal-title"
+
+interface PlaygroundProps {
+    onRequestHelp?: () => void
+}
 
 const initialExpressCode = `const express = require("express")
 
@@ -158,20 +164,20 @@ const installMilestones = [
 
 const waitingTips = [
     {
-        title: "Skim the sample Express routes",
-        body: "Plan which handlers you want to change first—maybe adjust the greeting copy or add a new status code.",
+        title: "Browse the Quick Start",
+        body: "Hop into Guides → Quick Start to see the same describeAPI and itDoc flow you have here, plus a full walkthrough of the request/response pairing.",
     },
     {
-        title: "Draft your first assertion",
-        body: "Think about an edge case for the /users endpoint. What should happen if required fields are missing?",
+        title: "Sketch a new scenario",
+        body: "Jot down another story for /users while you wait—maybe a conflict or validation error you can turn into a new test once the install finishes.",
     },
     {
-        title: "Review the DSL chaining",
-        body: "Notice how describeAPI and itDoc combine request and response expectations. Consider additional response fields to document.",
+        title: "Peek at the DSL cheatsheet",
+        body: "Need a refresher on chaining? Open API Reference → DSL to recap helpers like field() or res().status().",
     },
     {
-        title: "OpenAPI ideas",
-        body: "Consider the tags and descriptions you want to surface in the generated OpenAPI document once the run completes.",
+        title: "Plan your OpenAPI copy",
+        body: "Think about the tags and summaries you want the generated OpenAPI file to carry so docs stay readable when you export.",
     },
 ]
 
@@ -331,7 +337,7 @@ async function switchItDocDependencyToRegistry(
     }
 }
 
-const Playground: React.FC = () => {
+const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
     const [installStatus, setInstallStatus] = useState<InstallStatus>("idle")
     const [isRunning, setIsRunning] = useState(false)
     const [expressCode, setExpressCode] = useState(initialExpressCode)
@@ -344,6 +350,7 @@ const Playground: React.FC = () => {
     )
     const [elapsedInstallMs, setElapsedInstallMs] = useState(0)
     const [showSwaggerPreview, setShowSwaggerPreview] = useState(false)
+    const [showRunModal, setShowRunModal] = useState(false)
 
     const initialCodeRef = useRef(initialExpressCode)
     const initialTestCodeRef = useRef(initialTestCode)
@@ -428,7 +435,7 @@ const Playground: React.FC = () => {
     const itdocTarballUrl = useBaseUrl(itdocTarballAsset)
 
     useEffect(() => {
-        if (!canUseDom) {
+        if (!canUseDom || !showRunModal) {
             return
         }
 
@@ -499,7 +506,7 @@ const Playground: React.FC = () => {
             fitAddonRef.current = null
             term.dispose()
         }
-    }, [canUseDom])
+    }, [appendTerminalOutput, canUseDom, showRunModal])
 
     useEffect(() => {
         if (!canUseDom) {
@@ -609,7 +616,7 @@ const Playground: React.FC = () => {
             return
         }
 
-        if (!oasOutput) {
+        if (!oasOutput || (!showSwaggerPreview && !showRunModal)) {
             if (redocContainerRef.current) {
                 redocContainerRef.current.innerHTML = ""
             }
@@ -659,7 +666,7 @@ const Playground: React.FC = () => {
         return () => {
             cancelled = true
         }
-    }, [canUseDom, ensureRedocScript, oasOutput, showSwaggerPreview])
+    }, [canUseDom, ensureRedocScript, oasOutput, showRunModal, showSwaggerPreview])
 
     useEffect(() => {
         if (!canUseDom || installStatus !== "installing" || installMilestones.length === 0) {
@@ -776,6 +783,7 @@ const Playground: React.FC = () => {
         }
 
         setIsRunning(true)
+        setShowRunModal(true)
         setErrorMessage(null)
         setOasOutput("")
         resetTerminal()
@@ -852,6 +860,15 @@ const Playground: React.FC = () => {
                     >
                         {isRunning ? "Running..." : "Run"}
                     </button>
+                    {onRequestHelp ? (
+                        <button
+                            type="button"
+                            className={styles.topHelpButton}
+                            onClick={onRequestHelp}
+                        >
+                            How to use
+                        </button>
+                    ) : null}
                 </div>
             </header>
             {showWorkspace && errorMessage ? (
@@ -868,7 +885,9 @@ const Playground: React.FC = () => {
                                 <div className={styles.columnHeader}>
                                     <div className={styles.columnHeading}>
                                         <span className={styles.columnTitle}>app.js</span>
-                                        <span className={styles.columnMeta}>Express entry point</span>
+                                        <span className={styles.columnMeta}>
+                                            Express entry point
+                                        </span>
                                     </div>
                                 </div>
                                 <div className={styles.columnBody}>
@@ -888,15 +907,20 @@ const Playground: React.FC = () => {
                                         />
                                     </div>
                                     <p className={styles.hint}>
-                                        Tip: adjust the handlers above, then run the tests to regenerate the OpenAPI schema.
+                                        Tip: Try sketching an Express-powered server API above
+                                        before writing test with itdoc.
                                     </p>
                                 </div>
                             </section>
                             <section className={`${styles.column} ${styles.codeColumn}`}>
                                 <div className={styles.columnHeader}>
                                     <div className={styles.columnHeading}>
-                                        <span className={styles.columnTitle}>__tests__/app.test.js</span>
-                                        <span className={styles.columnMeta}>Mocha + itdoc suite</span>
+                                        <span className={styles.columnTitle}>
+                                            __tests__/app.test.js
+                                        </span>
+                                        <span className={styles.columnMeta}>
+                                            Mocha + itdoc suite
+                                        </span>
                                     </div>
                                 </div>
                                 <div className={styles.columnBody}>
@@ -916,74 +940,9 @@ const Playground: React.FC = () => {
                                         />
                                     </div>
                                     <p className={styles.hint}>
-                                        Tip: align the assertions here with any changes you make to the Express handlers.
+                                        Tip: Write an Itdoc DSL to test the implemented Express API
+                                        before running the tests.
                                     </p>
-                                </div>
-                            </section>
-                            <section className={`${styles.column} ${styles.previewColumn}`}>
-                                <div className={styles.columnHeader}>
-                                    <div className={styles.columnHeading}>
-                                        <span className={styles.columnTitle}>OpenAPI studio</span>
-                                        <span className={styles.columnMeta}>Generated from your tests</span>
-                                    </div>
-                                    <div className={styles.columnActions}>
-                                        <button
-                                            type="button"
-                                            className={styles.previewLaunchButton}
-                                            onClick={() => setShowSwaggerPreview(true)}
-                                            disabled={!oasOutput}
-                                        >
-                                            Fullscreen preview
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className={styles.columnBody}>
-                                    <div className={styles.oasWorkspace}>
-                                        <div className={`${styles.codeSurface} ${styles.oasEditorCard}`}>
-                                            <div className={styles.codeChrome}>oas.json</div>
-                                            <div className={styles.oasEditorSurface}>
-                                                {oasOutput ? (
-                                                    <CodeMirror
-                                                        value={oasOutput}
-                                                        height="100%"
-                                                        extensions={jsonCodeMirrorExtensions}
-                                                        theme={oneDark}
-                                                        editable={false}
-                                                        basicSetup={{
-                                                            lineNumbers: true,
-                                                            highlightActiveLine: false,
-                                                            highlightActiveLineGutter: false,
-                                                        }}
-                                                        className={styles.codeEditor}
-                                                    />
-                                                ) : (
-                                                    <p className={styles.oasEmpty}>
-                                                        Run the tests to generate the OpenAPI document.
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className={`${styles.codeSurface} ${styles.oasPreviewCard}`}>
-                                            <div className={styles.codeChrome}>Swagger Preview</div>
-                                            <div className={styles.oasPreviewContainer}>
-                                                {oasOutput ? (
-                                                    showSwaggerPreview ? (
-                                                        <p className={styles.oasEmpty}>
-                                                            The preview is open in a fullscreen window.
-                                                        </p>
-                                                    ) : (
-                                                        <div ref={redocContainerRef} className={styles.oasPreviewCanvas}>
-                                                            Loading preview…
-                                                        </div>
-                                                    )
-                                                ) : (
-                                                    <p className={styles.oasEmpty}>
-                                                        Preview will appear here after a successful run.
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </section>
                         </>
@@ -991,7 +950,8 @@ const Playground: React.FC = () => {
                         <div className={styles.workspacePlaceholder}>
                             <p className={styles.placeholderTitle}>Booting your sandbox…</p>
                             <p className={styles.placeholderCopy}>
-                                WebContainer is preparing the environment. Dependencies install automatically the first time the playground loads.
+                                WebContainer is preparing the environment. Dependencies install
+                                automatically the first time the playground loads.
                             </p>
                             {waitingTip ? (
                                 <aside className={styles.tipCard}>
@@ -1013,24 +973,141 @@ const Playground: React.FC = () => {
                     )}
                 </div>
             </main>
-            <footer className={styles.bottomDock}>
-                <div className={styles.bottomDockHeader}>
-                    <span className={styles.dockTitle}>Terminal</span>
-                    <span className={styles.dockStatus}>{dockStatusMessage}</span>
-                </div>
-                <div className={styles.bottomDockBody}>
-                    <div className={styles.terminalShell}>
-                        <div className={styles.terminalChrome}>
-                            <span className={`${styles.terminalDot} ${styles.dotRed}`} />
-                            <span className={`${styles.terminalDot} ${styles.dotYellow}`} />
-                            <span className={`${styles.terminalDot} ${styles.dotGreen}`} />
+            {showRunModal ? (
+                <div
+                    className={styles.runModalBackdrop}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby={runModalTitleId}
+                    onClick={() => setShowRunModal(false)}
+                >
+                    <div className={styles.runModal} onClick={(event) => event.stopPropagation()}>
+                        <div className={styles.runModalHeader}>
+                            <div className={styles.runModalHeadingGroup}>
+                                <h2 id={runModalTitleId}>Run output</h2>
+                                <span className={styles.runModalStatus}>{dockStatusMessage}</span>
+                            </div>
+                            <button
+                                type="button"
+                                className={styles.runModalClose}
+                                onClick={() => setShowRunModal(false)}
+                            >
+                                Close
+                            </button>
                         </div>
-                        <div className={styles.terminalOutput}>
-                            <div ref={terminalHostRef} className={styles.terminalViewport} />
+                        <div className={styles.runModalBody}>
+                            <section className={styles.runModalColumn}>
+                                <div className={styles.runModalCard}>
+                                    <div className={styles.runModalCardHeader}>
+                                        <h3 className={styles.runModalCardTitle}>Terminal</h3>
+                                        <span className={styles.runModalChip}>
+                                            {dockStatusMessage}
+                                        </span>
+                                    </div>
+                                    <div className={styles.runModalCardBody}>
+                                        <div className={styles.terminalShell}>
+                                            <div className={styles.terminalChrome}>
+                                                <span
+                                                    className={`${styles.terminalDot} ${styles.dotRed}`}
+                                                />
+                                                <span
+                                                    className={`${styles.terminalDot} ${styles.dotYellow}`}
+                                                />
+                                                <span
+                                                    className={`${styles.terminalDot} ${styles.dotGreen}`}
+                                                />
+                                            </div>
+                                            <div className={styles.terminalOutput}>
+                                                <div
+                                                    ref={terminalHostRef}
+                                                    className={styles.terminalViewport}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <section className={styles.runModalColumn}>
+                                <div className={styles.runModalCard}>
+                                    <div className={styles.runModalCardHeader}>
+                                        <h3 className={styles.runModalCardTitle}>
+                                            Generated docs by itdoc
+                                        </h3>
+                                        <button
+                                            type="button"
+                                            className={styles.previewLaunchButton}
+                                            onClick={() => setShowSwaggerPreview(true)}
+                                            disabled={!oasOutput}
+                                        >
+                                            Fullscreen preview
+                                        </button>
+                                    </div>
+                                    <div className={styles.runModalCardBody}>
+                                        <div className={styles.oasWorkspace}>
+                                            <div
+                                                className={`${styles.codeSurface} ${styles.oasEditorCard}`}
+                                            >
+                                                <div className={styles.codeChrome}>oas.json</div>
+                                                <div className={styles.oasEditorSurface}>
+                                                    {oasOutput ? (
+                                                        <CodeMirror
+                                                            value={oasOutput}
+                                                            height="100%"
+                                                            extensions={jsonCodeMirrorExtensions}
+                                                            theme={oneDark}
+                                                            editable={false}
+                                                            basicSetup={{
+                                                                lineNumbers: true,
+                                                                highlightActiveLine: false,
+                                                                highlightActiveLineGutter: false,
+                                                            }}
+                                                            className={styles.codeEditor}
+                                                        />
+                                                    ) : (
+                                                        <p className={styles.oasEmpty}>
+                                                            Run the tests to generate the OpenAPI
+                                                            document.
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div
+                                                className={`${styles.codeSurface} ${styles.oasPreviewCard}`}
+                                            >
+                                                <div className={styles.codeChrome}>
+                                                    Swagger Preview
+                                                </div>
+                                                <div className={styles.oasPreviewContainer}>
+                                                    {oasOutput ? (
+                                                        showSwaggerPreview ? (
+                                                            <p className={styles.oasEmpty}>
+                                                                The preview is open in a fullscreen
+                                                                window.
+                                                            </p>
+                                                        ) : (
+                                                            <div
+                                                                ref={redocContainerRef}
+                                                                className={styles.oasPreviewCanvas}
+                                                            >
+                                                                Loading preview…
+                                                            </div>
+                                                        )
+                                                    ) : (
+                                                        <p className={styles.oasEmpty}>
+                                                            Preview will appear here after a
+                                                            successful run.
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
                         </div>
                     </div>
                 </div>
-            </footer>
+            ) : null}
             {showOverlay ? (
                 <div
                     className={styles.installOverlay}
@@ -1044,8 +1121,12 @@ const Playground: React.FC = () => {
                                 <div className={styles.progressContext}>
                                     <span className={styles.progressSpinner} aria-hidden="true" />
                                     <div>
-                                        <p className={styles.progressLabel}>Setting up your workspace</p>
-                                        <p className={styles.progressTitle}>{currentMilestone.title}</p>
+                                        <p className={styles.progressLabel}>
+                                            Setting up your workspace
+                                        </p>
+                                        <p className={styles.progressTitle}>
+                                            {currentMilestone.title}
+                                        </p>
                                     </div>
                                 </div>
                                 <span className={styles.progressPercent}>{progressPercent}%</span>
@@ -1092,10 +1173,14 @@ const Playground: React.FC = () => {
                                             )
                                         })}
                                     </ul>
-                                    <div className={styles.elapsedTimer}>Elapsed: {formattedElapsed}</div>
+                                    <div className={styles.elapsedTimer}>
+                                        Elapsed: {formattedElapsed}
+                                    </div>
                                     {showFinalizingHint ? (
                                         <p className={styles.finalizingHint}>
-                                            Almost there—WebContainer is preparing the editors and terminal. This final step can take up to a minute the first time the sandbox boots.
+                                            Almost there—WebContainer is preparing the editors and
+                                            terminal. This final step can take up to a minute the
+                                            first time the sandbox boots.
                                         </p>
                                     ) : null}
                                 </div>
@@ -1122,7 +1207,8 @@ const Playground: React.FC = () => {
                             <h2>Environment failed to start</h2>
                             <p>{errorMessage ?? "An unexpected error occurred during setup."}</p>
                             <p className={styles.installErrorHint}>
-                                Refresh the page to try again or verify your browser supports WebContainer.
+                                Refresh the page to try again or verify your browser supports
+                                WebContainer.
                             </p>
                         </div>
                     ) : null}
@@ -1136,7 +1222,10 @@ const Playground: React.FC = () => {
                     aria-labelledby={swaggerPreviewTitleId}
                     onClick={() => setShowSwaggerPreview(false)}
                 >
-                    <div className={styles.previewModal} onClick={(event) => event.stopPropagation()}>
+                    <div
+                        className={styles.previewModal}
+                        onClick={(event) => event.stopPropagation()}
+                    >
                         <div className={styles.previewModalHeader}>
                             <h2 id={swaggerPreviewTitleId}>Swagger Preview</h2>
                             <button
@@ -1154,7 +1243,8 @@ const Playground: React.FC = () => {
                                 </div>
                             ) : (
                                 <p className={styles.previewModalEmpty}>
-                                    Run the tests to generate the OpenAPI document before opening the preview.
+                                    Run the tests to generate the OpenAPI document before opening
+                                    the preview.
                                 </p>
                             )}
                         </div>
@@ -1163,7 +1253,6 @@ const Playground: React.FC = () => {
             ) : null}
         </div>
     )
-
 }
 
 export default Playground

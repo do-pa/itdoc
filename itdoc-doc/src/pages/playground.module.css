@@ -42,33 +42,6 @@
     flex-direction: column;
 }
 
-.helpButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-    padding: 0.6rem 1.2rem;
-    border-radius: 999px;
-    border: 1px solid var(--ifm-color-primary);
-    background-color: transparent;
-    color: var(--ifm-color-primary);
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.helpButton:hover,
-.helpButton:focus {
-    background-color: color-mix(in srgb, var(--ifm-color-primary) 15%, transparent);
-    color: color-mix(in srgb, var(--ifm-color-primary) 85%, black 15%);
-    transform: translateY(-1px);
-}
-
-.helpButton:focus-visible {
-    outline: 2px solid var(--ifm-color-primary);
-    outline-offset: 3px;
-}
-
 .modalBackdrop {
     position: fixed;
     inset: 0;
