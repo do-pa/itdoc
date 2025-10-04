@@ -646,7 +646,7 @@
                 "operationId": "postOrders",
                 "parameters": [
                     {
-                        "name": "X-Request-ID",
+                        "name": "x-request-id",
                         "in": "header",
                         "schema": {
                             "type": "string",
@@ -1188,7 +1188,7 @@
                         "required": false
                     },
                     {
-                        "name": "Accept",
+                        "name": "accept",
                         "in": "header",
                         "schema": {
                             "type": "string",
@@ -1197,7 +1197,7 @@
                         "required": false
                     },
                     {
-                        "name": "Accept-Language",
+                        "name": "accept-language",
                         "in": "header",
                         "schema": {
                             "type": "string",
