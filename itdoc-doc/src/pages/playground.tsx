@@ -113,10 +113,9 @@ const PlaygroundPage: React.FC = () => {
                                         once the in-browser <code>npm install</code> wraps up.
                                     </li>
                                     <li>
-                                        Tweak the Express handlers on the left and mirror the
-                                        expectations in the itdoc test suite on the right. The
-                                        default scenario wires up <code>/greeting</code> and{" "}
-                                        <code>/users</code> endpoints.
+                                        Write a simple API using Express and create an itdoc test
+                                        for it. The default scenario wires up <code>/greeting</code>{" "}
+                                        and <code>/users</code> endpoints.
                                     </li>
                                     <li>
                                         Hit <strong>Run</strong> to execute <code>npm test</code>.
@@ -129,33 +128,6 @@ const PlaygroundPage: React.FC = () => {
                                         assertion or handler that needs an update.
                                     </li>
                                 </ol>
-                            </section>
-                            <section>
-                                <h3>Good to know</h3>
-                                <ul>
-                                    <li>
-                                        The playground keeps a single mocha suite so everything
-                                        stays responsive. Add routes and assertions, but keep an eye
-                                        on runtime as you experiment.
-                                    </li>
-                                    <li>
-                                        Your container state persists between runs. Reload the page
-                                        anytime you want to reset the sample project to its starting
-                                        point.
-                                    </li>
-                                    <li>
-                                        The first visit downloads npm packages. Afterwards, runs are
-                                        cached and should complete much faster.
-                                    </li>
-                                    <li>
-                                        WebContainer needs <code>SharedArrayBuffer</code> support.
-                                        Serve the docs with
-                                        <code>Cross-Origin-Opener-Policy: same-origin</code> and
-                                        <code>Cross-Origin-Embedder-Policy: require-corp</code>, or
-                                        open the playground in a Chromium browser that enables those
-                                        headers for you.
-                                    </li>
-                                </ul>
                             </section>
                         </div>
                     </div>
