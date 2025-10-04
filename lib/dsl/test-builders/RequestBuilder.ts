@@ -69,18 +69,26 @@ export class RequestBuilder extends AbstractTestBuilder {
      * })
      */
     public file(requestFile: DSLRequestFile): this {
-        if (!requestFile || typeof requestFile !== "object") {
-            throw new Error("req().file(): you must provide a requestFile object as an argument.")
+        if (this.config.requestHeaders) {
+            throw new Error("already defined headers. can't use file()")
         }
+
+        this.config.requestHeaders = {
+            ...(this.config.requestHeaders ?? {}),
+            "Content-Type": "application/octet-stream",
+        }
+
+        if (!requestFile || typeof requestFile !== "object") {
+            logger.warn("req().file(): provide one of file.path | file.buffer | file.stream.")
+            return this
+        }
+
         const { file } = requestFile
 
         const sources = [file.path ? 1 : 0, file.buffer ? 1 : 0, file.stream ? 1 : 0].reduce(
             (a, b) => a + b,
             0,
         )
-        if (sources === 0) {
-            throw new Error("req().file(): provide one of file.path | file.buffer | file.stream.")
-        }
         if (sources > 1) {
             throw new Error(
                 "req().file(): only one of file.path | file.buffer | file.stream must be provided.",

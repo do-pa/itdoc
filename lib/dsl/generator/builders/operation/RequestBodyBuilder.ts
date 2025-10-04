@@ -33,28 +33,43 @@ export class RequestBodyBuilder implements RequestBodyBuilderInterface {
      * @returns Request body object or undefined
      */
     public generateRequestBody(result: TestResult): RequestBodyObject | undefined {
-        if (!result.request.body) {
-            return undefined
-        }
-
         const contentType = this.getContentType(result.request)
-        const schema = SchemaBuilder.inferSchema(result.request.body) as Record<string, any>
-        const content: Content = {
-            [contentType]: {
-                schema,
-            },
+
+        if (result.request.file) {
+            const content: Content = {
+                [contentType]: {
+                    schema: {
+                        type: "string",
+                        format: "binary",
+                    },
+                },
+            }
+
+            return {
+                content,
+                required: true,
+            }
         }
 
         if (result.request.body) {
+            const schema = SchemaBuilder.inferSchema(result.request.body) as Record<string, any>
+            const content: Content = {
+                [contentType]: {
+                    schema,
+                },
+            }
+
             content[contentType].example = this.utilityBuilder.extractSimpleExampleValue(
                 result.request.body,
             )
+
+            return {
+                content,
+                required: true,
+            }
         }
 
-        return {
-            content,
-            required: true,
-        }
+        return undefined
     }
 
     /**
@@ -63,8 +78,13 @@ export class RequestBodyBuilder implements RequestBodyBuilderInterface {
      * @returns Content-Type value
      */
     private getContentType(request: TestResult["request"]): string {
-        if (request.headers && "content-type" in request.headers) {
-            const contentType = request.headers["content-type"]
+        if (request.headers) {
+            // case ignores
+            const headers = Object.fromEntries(
+                Object.entries(request.headers).map(([k, v]) => [k.toLowerCase(), v]),
+            )
+            const contentType = headers["content-type"]
+
             if (typeof contentType === "string") {
                 return contentType
             } else if (isDSLField(contentType) && typeof contentType.example === "string") {

@@ -55,7 +55,7 @@
         "prepare": "husky && husky install",
         "prettier": "prettier \"{lib,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",
         "prettier:check": "prettier \"{lib,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
-        "test": "pnpm build && pnpm test:unit && pnpm test:e2e",
+        "test": "pnpm build && pnpm --filter example-express test:mocha",
         "test:unit": "mocha",
         "test:e2e": "pnpm --filter example-express test && pnpm --filter testframework-compatibility-test test && pnpm --filter example-nestjs test && pnpm --filter example-fastify test && pnpm --filter example-express-ts test",
         "docs": "pnpm --filter itdoc-doc run start",

@@ -41,6 +41,7 @@ export interface TestResult {
     url: string
     options: ApiDocOptions
     request: {
+        file?: unknown
         body?: unknown
         headers?: Record<string, string | unknown>
         queryParams?: Record<string, string | unknown>

@@ -15,7 +15,7 @@
  */
 
 import { HttpStatus } from "../enums"
-import { DSLField } from "../interface"
+import { DSLField, DSLRequestFile } from "../interface"
 import supertest, { Response } from "supertest"
 import { validateResponse } from "./validateResponse"
 import { isDSLField } from "../interface/field"
@@ -23,6 +23,7 @@ import { AbstractTestBuilder } from "./AbstractTestBuilder"
 import { recordTestFailure, resultCollector, TestResult } from "../generator"
 import logger from "../../config/logger"
 import { testContext } from "../interface/testContext"
+import fs from "fs"
 
 /**
  * Builder class for setting result values to validate API responses.
@@ -93,7 +94,54 @@ export class ResponseBuilder extends AbstractTestBuilder {
         for (const [key, fieldObj] of Object.entries(this.config.requestBody || {})) {
             body[key] = isDSLField(fieldObj) ? fieldObj.example : fieldObj
         }
-        req = req.send(body)
+        if (Object.keys(body).length > 0) {
+            req = req.send(body)
+        }
+
+        if (this.config.requestFile) {
+            const requestFile: DSLRequestFile = this.config.requestFile
+            if (
+                !requestFile.file ||
+                (!requestFile.file.path && !requestFile.file.buffer && !requestFile.file.stream)
+            ) {
+                logger.warn("req().file(): provide one of file.path | file.buffer | file.stream.")
+            } else if (requestFile.file.path) {
+                const hasContentType =
+                    !!this.config.requestHeaders &&
+                    Object.keys(this.config.requestHeaders).some(
+                        (k) => k.toLowerCase() === "content-type",
+                    )
+                if (!hasContentType) {
+                    req.set("Content-Type", "application/octet-stream")
+                }
+                const buf = fs.readFileSync(requestFile.file.path)
+                req = req.send(buf)
+            } else if (requestFile.file.buffer) {
+                const hasContentType =
+                    !!this.config.requestHeaders &&
+                    Object.keys(this.config.requestHeaders).some(
+                        (k) => k.toLowerCase() === "content-type",
+                    )
+                if (!hasContentType) {
+                    req.set("Content-Type", "application/octet-stream")
+                }
+            } else if (requestFile.file.stream) {
+                const hasContentType =
+                    !!this.config.requestHeaders &&
+                    Object.keys(this.config.requestHeaders).some(
+                        (k) => k.toLowerCase() === "content-type",
+                    )
+                if (!hasContentType) {
+                    req.set("Content-Type", "application/octet-stream")
+                }
+                const chunks: Buffer[] = []
+                for await (const chunk of requestFile.file.stream as any) {
+                    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+                }
+                const streamBuffer = Buffer.concat(chunks)
+                req = req.send(streamBuffer)
+            }
+        }
 
         if (this.config.expectedStatus) {
             req = req.expect(this.config.expectedStatus)
@@ -145,13 +193,25 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 headers: this.config.requestHeaders,
                 queryParams: this.config.queryParams,
                 pathParams: this.config.pathParams,
-                requestBody: this.config.requestBody,
+                requestBody: this.config.requestFile
+                    ? this.config.requestFile
+                    : this.config.requestBody,
             },
             response: {
                 status: 1,
                 responseBody: null,
             },
         }
+
+        // let requestType: string = ""
+        // if (this.config.requestFile) {
+        //     requestType = "binary"
+        // } else if (this.config.requestBody) {
+        //     requestType = "body"
+        // } else {
+        //     throw new Error("Could not define requestType")
+        // }
+
         try {
             const res = await req
             logToPrint.response = {
@@ -171,6 +231,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 url: this.url,
                 options: this.config.apiOptions || {},
                 request: {
+                    file: this.config.requestFile,
                     body: this.config.requestBody,
                     headers: this.prepareHeadersForCollector(this.config.requestHeaders),
                     queryParams: this.config.queryParams,
