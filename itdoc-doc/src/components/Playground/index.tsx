@@ -164,20 +164,16 @@ const installMilestones = [
 
 const waitingTips = [
     {
-        title: "Browse the Quick Start",
-        body: "Hop into Guides → Quick Start to see the same describeAPI and itDoc flow you have here, plus a full walkthrough of the request/response pairing.",
+        title: "Origin of the name itdoc",
+        body: "The name 'itdoc' comes from the typical testing pattern describe()... it()... meaning 'documentation (doc) generated from test cases (it)'.",
     },
     {
-        title: "Sketch a new scenario",
-        body: "Jot down another story for /users while you wait—maybe a conflict or validation error you can turn into a new test once the install finishes.",
+        title: "Did you know?",
+        body: "The itdoc mascot logo was actually created using generative AI. :grin:",
     },
     {
-        title: "Peek at the DSL cheatsheet",
-        body: "Need a refresher on chaining? Open API Reference → DSL to recap helpers like field() or res().status().",
-    },
-    {
-        title: "Plan your OpenAPI copy",
-        body: "Think about the tags and summaries you want the generated OpenAPI file to carry so docs stay readable when you export.",
+        title: "How to run itdoc tests",
+        body: "You can execute itdoc tests with Mocha or Jest from the CLI. API documentation is generated automatically based on the test results—no extra configuration needed.",
     },
 ]
 
