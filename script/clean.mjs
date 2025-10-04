@@ -14,12 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* eslint-disable */
 import { rm } from "fs/promises"
 import { resolve } from "path"
 
-/**
- * The script that clean up build directory.
- */
 async function main() {
     const target = resolve(process.cwd(), "build")
 
