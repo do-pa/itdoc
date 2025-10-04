@@ -14,35 +14,505 @@
  * limitations under the License.
  */
 
-.container {
+.appShell {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--ifm-spacing-xl);
-    width: 100%;
+    min-height: calc(100vh - 6rem);
+    background-color: var(--ifm-color-emphasis-0);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 1rem;
+    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
 }
 
-.controls {
+.browserOnly {
+    padding: clamp(3rem, 6vw, 5rem);
+    text-align: center;
+    color: var(--ifm-color-content-secondary);
+}
+
+.topBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-lg);
+    padding: 1.1rem clamp(1.2rem, 4vw, 2rem);
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #e2e8f0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.brandGroup {
     display: flex;
     align-items: center;
     gap: var(--ifm-spacing-md);
-    flex-wrap: wrap;
+}
+
+.brandMark {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: var(--ifm-color-primary);
+    box-shadow: 0 0 18px rgba(99, 102, 241, 0.65);
+}
+
+.brandText {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.brandTitle {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.brandSubtitle {
+    margin: 0;
+    font-size: 0.78rem;
+    color: rgba(226, 232, 240, 0.7);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.topActions {
+    display: flex;
+    align-items: center;
+    gap: var(--ifm-spacing-md);
+}
+
+.runButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    background-color: var(--ifm-color-primary);
+    color: var(--ifm-font-color-base-inverse);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.runButton:not(:disabled):hover {
+    background-color: color-mix(in srgb, var(--ifm-color-primary) 88%, black 12%);
+    transform: translateY(-1px);
+}
+
+.runButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.statusChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #0f172a;
+    background: rgba(226, 232, 240, 0.92);
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.statusChip::before {
+    content: "";
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--ifm-color-success);
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.65);
+}
+
+.statusChip[data-status="installing"]::before {
+    background: #fbbf24;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.85);
+    animation: statusPulse 1.4s ease-in-out infinite;
+}
+
+.statusChip[data-status="error"] {
+    color: #991b1b;
+    background: rgba(254, 202, 202, 0.75);
+}
+
+.statusChip[data-status="error"]::before {
+    background: #ef4444;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.8);
+}
+
+.inlineAlert {
+    margin: 1rem clamp(1.2rem, 4vw, 2rem) 0;
+    padding: 0.85rem 1.1rem;
+    border-radius: 0.75rem;
+    background: rgba(254, 202, 202, 0.35);
+    border: 1px solid rgba(248, 113, 113, 0.45);
+    color: #b91c1c;
+    font-size: 0.9rem;
+}
+
+.inlineAlert strong {
+    margin-right: 0.35rem;
+}
+
+.mainArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.94) 0%, rgba(226, 232, 240, 0.92) 100%);
+}
+
+.workspace {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    gap: clamp(1rem, 3vw, 1.75rem);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    padding: clamp(1rem, 4vw, 2rem);
+}
+
+.workspacePlaceholder {
+    grid-column: span 12;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: clamp(2.5rem, 6vw, 4rem);
+    text-align: center;
+    color: var(--ifm-color-content-secondary);
+}
+
+.placeholderTitle {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--ifm-color-emphasis-800);
+}
+
+.placeholderCopy {
+    margin: 0;
+    max-width: 28rem;
+}
+
+.column {
+    grid-column: span 12;
+    display: flex;
+    flex-direction: column;
+    background: var(--ifm-color-white);
+    border-radius: 0.9rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    min-height: 0;
+}
+
+.columnHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-md);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    background: rgba(248, 250, 252, 0.9);
+}
+
+.columnHeading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.columnTitle {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ifm-color-emphasis-800);
+}
+
+.columnMeta {
+    margin: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ifm-color-content-secondary);
+}
+
+.columnActions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.previewLaunchButton {
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    background: rgba(59, 130, 246, 0.18);
+    color: #1d4ed8;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.previewLaunchButton:not(:disabled):hover {
+    background: rgba(59, 130, 246, 0.28);
+    transform: translateY(-1px);
+}
+
+.previewLaunchButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.columnBody {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ifm-spacing-md);
+    padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.editorWrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ifm-spacing-sm);
+}
+
+.codeEditor :global(.cm-editor) {
+    border-radius: 0.75rem;
+    border: 1px solid var(--ifm-color-emphasis-300);
+    background-color: #1e1e1e;
+    box-shadow: 0 4px 18px rgba(8, 15, 45, 0.25);
+    height: 100%;
+    min-height: 0;
+}
+
+.codeEditor :global(.cm-scroller) {
+    font-family: var(--ifm-font-family-monospace);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    min-height: 0;
+}
+
+.codeEditor :global(.cm-gutters) {
+    background-color: transparent;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hint {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ifm-color-content-secondary);
+}
+
+.oasWorkspace {
+    display: grid;
+    gap: var(--ifm-spacing-lg);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.oasEditorCard,
+.oasPreviewCard {
+    grid-column: span 12;
+    min-height: 320px;
+}
+
+.oasEditorSurface {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--ifm-spacing-md);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 0 0 0.75rem 0.75rem;
+    gap: var(--ifm-spacing-md);
+    min-height: 0;
+    max-height: 420px;
+    overflow: auto;
+}
+
+.oasEditorSurface :global(.cm-editor) {
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0.65rem;
+}
+
+.oasEditorSurface :global(.cm-scroller) {
+    min-height: 0;
+}
+
+.oasPreviewContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--ifm-spacing-md);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 0 0 0.75rem 0.75rem;
+    min-height: 0;
+    max-height: 420px;
+    overflow: auto;
+}
+
+.oasPreviewCanvas {
+    flex: 1;
+    min-height: 320px;
+}
+
+.codeSurface {
+    background: linear-gradient(135deg, rgba(241, 245, 249, 0.9), rgba(226, 232, 240, 0.9));
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.codeChrome {
+    font-family: var(--ifm-font-family-monospace);
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    padding: 0.6rem var(--ifm-spacing-md);
+    color: var(--ifm-color-emphasis-700);
+    background: rgba(148, 163, 184, 0.25);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.oasEmpty {
+    margin: auto;
+    text-align: center;
+    color: var(--ifm-color-content-secondary);
+    max-width: 18rem;
+    line-height: 1.5;
+}
+
+.bottomDock {
+    background: linear-gradient(180deg, #0b1221 0%, #070c18 100%);
+    border-top: 1px solid rgba(15, 23, 42, 0.35);
+    display: flex;
+    flex-direction: column;
+    min-height: 240px;
+}
+
+.bottomDockHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem clamp(1.2rem, 4vw, 1.8rem);
+    color: rgba(226, 232, 240, 0.82);
+    font-size: 0.85rem;
+}
+
+.dockTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+}
+
+.dockTitle::before {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+}
+
+.dockStatus {
+    color: rgba(148, 163, 184, 0.75);
+}
+
+.bottomDockBody {
+    flex: 1;
+    padding: 0 1.5rem 1.5rem;
+}
+
+.terminalShell {
+    background-color: #0d1117;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    min-height: 0;
+}
+
+.terminalChrome {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem var(--ifm-spacing-md);
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.terminalDot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    opacity: 0.85;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.dotRed {
+    background-color: #ff5f56;
+}
+
+.dotYellow {
+    background-color: #fdbc2e;
+}
+
+.dotGreen {
+    background-color: #28c840;
+}
+
+.terminalOutput {
+    background-color: rgba(15, 23, 42, 0.85);
+    padding: var(--ifm-spacing-md);
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.terminalViewport {
+    flex: 1;
+}
+
+.terminalViewport :global(.xterm) {
+    height: 100%;
+    width: 100%;
+}
+
+.terminalViewport :global(.xterm-viewport) {
+    background-color: transparent;
 }
 
 .installOverlay {
-    position: relative;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    position: absolute;
+    inset: 0;
     padding: clamp(3rem, 6vw, 6rem) clamp(1.5rem, 5vw, 4rem);
-    min-height: calc(100vh - 5rem);
     display: flex;
     align-items: center;
     justify-content: center;
     background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.08), transparent 60%),
         radial-gradient(circle at bottom right, rgba(14, 116, 144, 0.12), transparent 55%),
-        linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.92));
-    backdrop-filter: blur(5px);
+        linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.94));
+    backdrop-filter: blur(6px);
     color: var(--ifm-color-white);
+    z-index: 20;
 }
 
 .installCard {
@@ -137,7 +607,6 @@
     bottom: 0;
     left: 0;
     width: 0;
-    display: block;
     background: linear-gradient(135deg, var(--ifm-color-primary), color-mix(in srgb, var(--ifm-color-primary) 82%, white 18%));
     transition: width 0.6s ease;
 }
@@ -194,6 +663,13 @@
 .elapsedTimer {
     font-size: 0.85rem;
     color: rgba(226, 232, 240, 0.65);
+}
+
+.finalizingHint {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(226, 232, 240, 0.78);
+    line-height: 1.5;
 }
 
 .tipCard {
@@ -280,254 +756,85 @@
     font-size: 0.9rem;
 }
 
-.runButton {
-    display: inline-flex;
-    align-items: center;
+.previewModalBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(4px);
+    display: flex;
     justify-content: center;
-    padding: 0.5rem 1.5rem;
-    border-radius: 0.5rem;
-    border: none;
-    background-color: var(--ifm-color-primary);
-    color: var(--ifm-font-color-base-inverse);
+    align-items: center;
+    padding: clamp(2rem, 6vw, 4rem);
+    z-index: 30;
+}
+
+.previewModal {
+    width: min(960px, 100%);
+    max-height: 90vh;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    border-radius: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 64px rgba(8, 15, 35, 0.45);
+    overflow: hidden;
+}
+
+.previewModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-md);
+    padding: clamp(1.5rem, 3vw, 2rem) clamp(2rem, 4vw, 2.5rem);
+    color: var(--ifm-color-white);
+}
+
+.previewModalHeader h2 {
+    margin: 0;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+}
+
+.previewModalClose {
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    background: rgba(15, 23, 42, 0.6);
+    color: var(--ifm-color-white);
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.runButton:not(:disabled):hover {
-    background-color: color-mix(in srgb, var(--ifm-color-primary) 88%, black 12%);
+.previewModalClose:hover {
+    background: rgba(99, 102, 241, 0.3);
     transform: translateY(-1px);
 }
 
-.runButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.statusLabel {
-    font-size: 0.95rem;
-    color: var(--ifm-color-content-secondary);
-}
-
-.error {
-    border: 1px solid var(--ifm-color-danger);
-    background-color: color-mix(in srgb, var(--ifm-color-danger) 12%, transparent);
-    color: var(--ifm-color-danger);
-    border-radius: 0.5rem;
-    padding: var(--ifm-spacing-md);
-    font-size: 0.95rem;
-}
-
-.workspace {
-    display: grid;
-    gap: var(--ifm-spacing-xl);
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-}
-
-.expressPanel,
-.testsPanel,
-.terminalPanel,
-.oasPanel {
-    grid-column: span 12;
-}
-
-@media (min-width: 996px) {
-    .expressPanel,
-    .testsPanel {
-        grid-column: span 6;
-    }
-
-    .oasEditorCard,
-    .oasPreviewCard {
-        grid-column: span 6;
-    }
-}
-
-.panel {
-    background-color: var(--ifm-color-emphasis-0);
-    border: 1px solid var(--ifm-color-emphasis-200);
-    border-radius: 0.75rem;
-    padding: var(--ifm-spacing-lg);
-    display: flex;
-    flex-direction: column;
-    gap: var(--ifm-spacing-md);
-    min-height: 320px;
-}
-
-.panelHeader {
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: var(--ifm-color-emphasis-700);
-}
-
-.editorWrapper {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ifm-spacing-sm);
-}
-
-.codeEditor :global(.cm-editor) {
-    border-radius: 0.75rem;
-    border: 1px solid var(--ifm-color-emphasis-300);
-    background-color: #1e1e1e;
-    box-shadow: 0 4px 18px rgba(8, 15, 45, 0.25);
-}
-
-.codeEditor :global(.cm-scroller) {
-    font-family: var(--ifm-font-family-monospace);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    min-height: 320px;
-}
-
-.codeEditor :global(.cm-gutters) {
-    background-color: transparent;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.terminalShell {
-    background-color: #0d1117;
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    border-radius: 0.75rem;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    height: 320px;
-}
-
-.terminalChrome {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.65rem var(--ifm-spacing-md);
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
-    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-}
-
-.terminalDot {
-    width: 0.65rem;
-    height: 0.65rem;
-    border-radius: 50%;
-    opacity: 0.85;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.dotRed {
-    background-color: #ff5f56;
-}
-
-.dotYellow {
-    background-color: #fdbc2e;
-}
-
-.dotGreen {
-    background-color: #28c840;
-}
-
-.terminalOutput {
-    background-color: rgba(15, 23, 42, 0.85);
-    padding: var(--ifm-spacing-md);
+.previewModalBody {
     flex: 1;
-    display: flex;
-    overflow: hidden;
-}
-
-.terminalViewport {
-    flex: 1;
-}
-
-.terminalViewport :global(.xterm) {
-    height: 100%;
-    width: 100%;
-}
-
-.terminalViewport :global(.xterm-viewport) {
-    background-color: transparent;
-}
-
-.codeSurface {
-    background: linear-gradient(135deg, rgba(241, 245, 249, 0.9), rgba(226, 232, 240, 0.9));
-    border: 1px solid rgba(148, 163, 184, 0.35);
-    border-radius: 0.75rem;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.codeChrome {
-    font-family: var(--ifm-font-family-monospace);
-    font-size: 0.85rem;
-    letter-spacing: 0.02em;
-    padding: 0.6rem var(--ifm-spacing-md);
-    color: var(--ifm-color-emphasis-700);
-    background: rgba(148, 163, 184, 0.25);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.4);
-}
-
-.hint {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--ifm-color-content-secondary);
-}
-
-.oasWorkspace {
-    display: grid;
-    gap: var(--ifm-spacing-lg);
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-}
-
-.oasEditorCard,
-.oasPreviewCard {
-    grid-column: span 12;
-    min-height: 320px;
-}
-
-.oasEditorSurface,
-.oasPreviewContainer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: var(--ifm-spacing-md);
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 0 0 0.75rem 0.75rem;
-    gap: var(--ifm-spacing-md);
-    min-height: 0;
-    max-height: 420px;
+    padding: 0 clamp(2rem, 4vw, 2.5rem) clamp(2rem, 4vw, 2.5rem);
     overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-.oasEditorSurface :global(.cm-editor) {
-    height: 100%;
-    max-height: 100%;
-    border-radius: 0.65rem;
+.previewModalCanvas {
+    min-height: 420px;
+    color: var(--ifm-color-white);
 }
 
-.oasEditorSurface :global(.cm-scroller) {
-    min-height: 0;
+.previewModalCanvas :global(.redoc-wrap) {
+    background: transparent;
+    color: inherit;
 }
 
-.oasPreviewContainer {
-    position: relative;
-}
-
-.oasPreviewCanvas {
-    flex: 1;
-    min-height: 0;
-}
-
-.oasPreviewContainer :global(.redoc-wrap) {
-    padding: 0 var(--ifm-spacing-md) var(--ifm-spacing-md);
-    background-color: transparent;
-}
-
-.oasEmpty {
+.previewModalEmpty {
     margin: auto;
     text-align: center;
-    color: var(--ifm-color-content-secondary);
-    max-width: 18rem;
-    line-height: 1.5;
+    color: rgba(226, 232, 240, 0.8);
+    max-width: 24rem;
+    line-height: 1.6;
 }
 
 @keyframes installSpinner {
@@ -536,10 +843,19 @@
     }
 }
 
+@keyframes statusPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7);
+    }
+
+    100% {
+        box-shadow: 0 0 0 10px rgba(251, 191, 36, 0);
+    }
+}
+
 @media (max-width: 768px) {
     .installOverlay {
         padding: 3rem 1.5rem;
-        min-height: calc(100vh - 4rem);
     }
 
     .installCard {
@@ -550,10 +866,7 @@
         grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 
-    .installTimeline {
-        grid-column: span 1;
-    }
-
+    .installTimeline,
     .installBody .tipCard {
         grid-column: span 1;
     }
@@ -568,12 +881,22 @@
         text-align: left;
     }
 
-    .panel {
-        min-height: 260px;
+    .previewModalBackdrop {
+        padding: 1.5rem;
     }
 
-    .codeEditor :global(.cm-scroller) {
-        min-height: 260px;
+    .previewModalBody {
+        padding: 0 1.5rem 1.5rem;
+    }
+
+    .workspace {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 900px) {
+    .codeColumn {
+        grid-column: span 6;
     }
 }
 
@@ -581,5 +904,12 @@
     .oasEditorCard,
     .oasPreviewCard {
         grid-column: span 6;
+    }
+}
+
+@media (min-width: 1200px) {
+    .codeColumn,
+    .previewColumn {
+        grid-column: span 4;
     }
 }

@@ -343,6 +343,7 @@ const Playground: React.FC = () => {
         waitingTips.length > 0 ? Math.floor(Math.random() * waitingTips.length) : 0,
     )
     const [elapsedInstallMs, setElapsedInstallMs] = useState(0)
+    const [showSwaggerPreview, setShowSwaggerPreview] = useState(false)
 
     const initialCodeRef = useRef(initialExpressCode)
     const initialTestCodeRef = useRef(initialTestCode)
@@ -658,7 +659,7 @@ const Playground: React.FC = () => {
         return () => {
             cancelled = true
         }
-    }, [canUseDom, ensureRedocScript, oasOutput])
+    }, [canUseDom, ensureRedocScript, oasOutput, showSwaggerPreview])
 
     useEffect(() => {
         if (!canUseDom || installStatus !== "installing" || installMilestones.length === 0) {
@@ -744,6 +745,25 @@ const Playground: React.FC = () => {
         return waitingTips[normalizedIndex]
     }, [waitingTipIndex])
 
+    const showFinalizingHint = installStatus === "installing" && progressPercent >= 90
+
+    const dockStatusMessage = useMemo(() => {
+        if (isRunning) {
+            return "npm test (running)"
+        }
+
+        switch (installStatus) {
+            case "installing":
+                return "npm install"
+            case "ready":
+                return "Environment ready"
+            case "error":
+                return "Environment failed to start"
+            default:
+                return statusLabel
+        }
+    }, [installStatus, isRunning, statusLabel])
+
     const handleNextTip = useCallback(() => {
         if (waitingTips.length > 0) {
             setWaitingTipIndex((index) => index + 1)
@@ -798,19 +818,219 @@ const Playground: React.FC = () => {
 
     if (!canUseDom) {
         return (
-            <div className={styles.container}>
-                <p>The interactive playground is only available in the browser.</p>
+            <div className={styles.appShell}>
+                <p className={styles.browserOnly}>
+                    The interactive playground is only available in the browser.
+                </p>
             </div>
         )
     }
 
     const showWorkspace = installStatus === "ready"
-
     const isInstalling = installStatus === "installing"
-    const showOverlay = isInstalling || (!showWorkspace && errorMessage)
+    const showOverlay = isInstalling || installStatus === "error"
 
     return (
-        <div className={styles.container}>
+        <div className={styles.appShell}>
+            <header className={styles.topBar}>
+                <div className={styles.brandGroup}>
+                    <span className={styles.brandMark} />
+                    <div className={styles.brandText}>
+                        <p className={styles.brandTitle}>itdoc playground</p>
+                        <p className={styles.brandSubtitle}>Express · Mocha · WebContainer</p>
+                    </div>
+                </div>
+                <div className={styles.topActions}>
+                    <span className={styles.statusChip} data-status={installStatus}>
+                        {statusLabel}
+                    </span>
+                    <button
+                        className={styles.runButton}
+                        type="button"
+                        onClick={handleRun}
+                        disabled={runDisabled}
+                    >
+                        {isRunning ? "Running..." : "Run"}
+                    </button>
+                </div>
+            </header>
+            {showWorkspace && errorMessage ? (
+                <div className={styles.inlineAlert} role="alert">
+                    <strong>Test run failed.</strong>
+                    {errorMessage}
+                </div>
+            ) : null}
+            <main className={styles.mainArea}>
+                <div className={styles.workspace}>
+                    {showWorkspace ? (
+                        <>
+                            <section className={`${styles.column} ${styles.codeColumn}`}>
+                                <div className={styles.columnHeader}>
+                                    <div className={styles.columnHeading}>
+                                        <span className={styles.columnTitle}>app.js</span>
+                                        <span className={styles.columnMeta}>Express entry point</span>
+                                    </div>
+                                </div>
+                                <div className={styles.columnBody}>
+                                    <div className={styles.editorWrapper}>
+                                        <CodeMirror
+                                            value={expressCode}
+                                            height="100%"
+                                            extensions={codeMirrorExtensions}
+                                            theme={oneDark}
+                                            basicSetup={{
+                                                lineNumbers: true,
+                                                highlightActiveLine: true,
+                                                highlightActiveLineGutter: true,
+                                            }}
+                                            onChange={(value) => setExpressCode(value)}
+                                            className={styles.codeEditor}
+                                        />
+                                    </div>
+                                    <p className={styles.hint}>
+                                        Tip: adjust the handlers above, then run the tests to regenerate the OpenAPI schema.
+                                    </p>
+                                </div>
+                            </section>
+                            <section className={`${styles.column} ${styles.codeColumn}`}>
+                                <div className={styles.columnHeader}>
+                                    <div className={styles.columnHeading}>
+                                        <span className={styles.columnTitle}>__tests__/app.test.js</span>
+                                        <span className={styles.columnMeta}>Mocha + itdoc suite</span>
+                                    </div>
+                                </div>
+                                <div className={styles.columnBody}>
+                                    <div className={styles.editorWrapper}>
+                                        <CodeMirror
+                                            value={testCode}
+                                            height="100%"
+                                            extensions={codeMirrorExtensions}
+                                            theme={oneDark}
+                                            basicSetup={{
+                                                lineNumbers: true,
+                                                highlightActiveLine: true,
+                                                highlightActiveLineGutter: true,
+                                            }}
+                                            onChange={(value) => setTestCode(value)}
+                                            className={styles.codeEditor}
+                                        />
+                                    </div>
+                                    <p className={styles.hint}>
+                                        Tip: align the assertions here with any changes you make to the Express handlers.
+                                    </p>
+                                </div>
+                            </section>
+                            <section className={`${styles.column} ${styles.previewColumn}`}>
+                                <div className={styles.columnHeader}>
+                                    <div className={styles.columnHeading}>
+                                        <span className={styles.columnTitle}>OpenAPI studio</span>
+                                        <span className={styles.columnMeta}>Generated from your tests</span>
+                                    </div>
+                                    <div className={styles.columnActions}>
+                                        <button
+                                            type="button"
+                                            className={styles.previewLaunchButton}
+                                            onClick={() => setShowSwaggerPreview(true)}
+                                            disabled={!oasOutput}
+                                        >
+                                            Fullscreen preview
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className={styles.columnBody}>
+                                    <div className={styles.oasWorkspace}>
+                                        <div className={`${styles.codeSurface} ${styles.oasEditorCard}`}>
+                                            <div className={styles.codeChrome}>oas.json</div>
+                                            <div className={styles.oasEditorSurface}>
+                                                {oasOutput ? (
+                                                    <CodeMirror
+                                                        value={oasOutput}
+                                                        height="100%"
+                                                        extensions={jsonCodeMirrorExtensions}
+                                                        theme={oneDark}
+                                                        editable={false}
+                                                        basicSetup={{
+                                                            lineNumbers: true,
+                                                            highlightActiveLine: false,
+                                                            highlightActiveLineGutter: false,
+                                                        }}
+                                                        className={styles.codeEditor}
+                                                    />
+                                                ) : (
+                                                    <p className={styles.oasEmpty}>
+                                                        Run the tests to generate the OpenAPI document.
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className={`${styles.codeSurface} ${styles.oasPreviewCard}`}>
+                                            <div className={styles.codeChrome}>Swagger Preview</div>
+                                            <div className={styles.oasPreviewContainer}>
+                                                {oasOutput ? (
+                                                    showSwaggerPreview ? (
+                                                        <p className={styles.oasEmpty}>
+                                                            The preview is open in a fullscreen window.
+                                                        </p>
+                                                    ) : (
+                                                        <div ref={redocContainerRef} className={styles.oasPreviewCanvas}>
+                                                            Loading preview…
+                                                        </div>
+                                                    )
+                                                ) : (
+                                                    <p className={styles.oasEmpty}>
+                                                        Preview will appear here after a successful run.
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </>
+                    ) : (
+                        <div className={styles.workspacePlaceholder}>
+                            <p className={styles.placeholderTitle}>Booting your sandbox…</p>
+                            <p className={styles.placeholderCopy}>
+                                WebContainer is preparing the environment. Dependencies install automatically the first time the playground loads.
+                            </p>
+                            {waitingTip ? (
+                                <aside className={styles.tipCard}>
+                                    <div className={styles.tipHeader}>
+                                        <span className={styles.tipLabel}>While you wait</span>
+                                        <button
+                                            type="button"
+                                            className={styles.tipButton}
+                                            onClick={handleNextTip}
+                                        >
+                                            Show another idea
+                                        </button>
+                                    </div>
+                                    <p className={styles.tipTitle}>{waitingTip.title}</p>
+                                    <p className={styles.tipBody}>{waitingTip.body}</p>
+                                </aside>
+                            ) : null}
+                        </div>
+                    )}
+                </div>
+            </main>
+            <footer className={styles.bottomDock}>
+                <div className={styles.bottomDockHeader}>
+                    <span className={styles.dockTitle}>Terminal</span>
+                    <span className={styles.dockStatus}>{dockStatusMessage}</span>
+                </div>
+                <div className={styles.bottomDockBody}>
+                    <div className={styles.terminalShell}>
+                        <div className={styles.terminalChrome}>
+                            <span className={`${styles.terminalDot} ${styles.dotRed}`} />
+                            <span className={`${styles.terminalDot} ${styles.dotYellow}`} />
+                            <span className={`${styles.terminalDot} ${styles.dotGreen}`} />
+                        </div>
+                        <div className={styles.terminalOutput}>
+                            <div ref={terminalHostRef} className={styles.terminalViewport} />
+                        </div>
+                    </div>
+                </div>
+            </footer>
             {showOverlay ? (
                 <div
                     className={styles.installOverlay}
@@ -824,12 +1044,8 @@ const Playground: React.FC = () => {
                                 <div className={styles.progressContext}>
                                     <span className={styles.progressSpinner} aria-hidden="true" />
                                     <div>
-                                        <p className={styles.progressLabel}>
-                                            Setting up your workspace
-                                        </p>
-                                        <p className={styles.progressTitle}>
-                                            {currentMilestone.title}
-                                        </p>
+                                        <p className={styles.progressLabel}>Setting up your workspace</p>
+                                        <p className={styles.progressTitle}>{currentMilestone.title}</p>
                                     </div>
                                 </div>
                                 <span className={styles.progressPercent}>{progressPercent}%</span>
@@ -876,9 +1092,12 @@ const Playground: React.FC = () => {
                                             )
                                         })}
                                     </ul>
-                                    <div className={styles.elapsedTimer}>
-                                        Elapsed: {formattedElapsed}
-                                    </div>
+                                    <div className={styles.elapsedTimer}>Elapsed: {formattedElapsed}</div>
+                                    {showFinalizingHint ? (
+                                        <p className={styles.finalizingHint}>
+                                            Almost there—WebContainer is preparing the editors and terminal. This final step can take up to a minute the first time the sandbox boots.
+                                        </p>
+                                    ) : null}
                                 </div>
                                 {waitingTip ? (
                                     <aside className={styles.tipCard}>
@@ -898,151 +1117,53 @@ const Playground: React.FC = () => {
                                 ) : null}
                             </div>
                         </section>
-                    ) : errorMessage ? (
+                    ) : installStatus === "error" ? (
                         <div className={styles.installErrorCard}>
                             <h2>Environment failed to start</h2>
-                            <p>{errorMessage}</p>
+                            <p>{errorMessage ?? "An unexpected error occurred during setup."}</p>
                             <p className={styles.installErrorHint}>
-                                Refresh the page to try again or verify your browser supports
-                                WebContainer.
+                                Refresh the page to try again or verify your browser supports WebContainer.
                             </p>
                         </div>
                     ) : null}
                 </div>
             ) : null}
-            {showWorkspace ? (
-                <>
-                    <div className={styles.controls}>
-                        <button
-                            className={styles.runButton}
-                            onClick={handleRun}
-                            disabled={runDisabled}
-                        >
-                            {isRunning ? "Running..." : "Run"}
-                        </button>
-                        <span className={styles.statusLabel}>{statusLabel}</span>
-                    </div>
-                    {errorMessage ? <div className={styles.error}>{errorMessage}</div> : null}
-                    <div className={styles.workspace}>
-                        <section className={`${styles.panel} ${styles.expressPanel}`}>
-                            <div className={styles.panelHeader}>
-                                <span>Express App (edit and run)</span>
-                            </div>
-                            <div className={styles.editorWrapper}>
-                                <CodeMirror
-                                    value={expressCode}
-                                    height="320px"
-                                    extensions={codeMirrorExtensions}
-                                    theme={oneDark}
-                                    basicSetup={{
-                                        lineNumbers: true,
-                                        highlightActiveLine: true,
-                                        highlightActiveLineGutter: true,
-                                    }}
-                                    onChange={(value) => setExpressCode(value)}
-                                    className={styles.codeEditor}
-                                />
-                                <p className={styles.hint}>
-                                    Tip: adjust the handlers above, then run the tests to regenerate
-                                    the OpenAPI schema.
+            {showSwaggerPreview ? (
+                <div
+                    className={styles.previewModalBackdrop}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby={swaggerPreviewTitleId}
+                    onClick={() => setShowSwaggerPreview(false)}
+                >
+                    <div className={styles.previewModal} onClick={(event) => event.stopPropagation()}>
+                        <div className={styles.previewModalHeader}>
+                            <h2 id={swaggerPreviewTitleId}>Swagger Preview</h2>
+                            <button
+                                type="button"
+                                className={styles.previewModalClose}
+                                onClick={() => setShowSwaggerPreview(false)}
+                            >
+                                Close
+                            </button>
+                        </div>
+                        <div className={styles.previewModalBody}>
+                            {oasOutput ? (
+                                <div ref={redocContainerRef} className={styles.previewModalCanvas}>
+                                    Loading preview…
+                                </div>
+                            ) : (
+                                <p className={styles.previewModalEmpty}>
+                                    Run the tests to generate the OpenAPI document before opening the preview.
                                 </p>
-                            </div>
-                        </section>
-                        <section className={`${styles.panel} ${styles.testsPanel}`}>
-                            <div className={styles.panelHeader}>
-                                <span>itdoc Test Suite</span>
-                            </div>
-                            <div className={styles.editorWrapper}>
-                                <CodeMirror
-                                    value={testCode}
-                                    height="320px"
-                                    extensions={codeMirrorExtensions}
-                                    theme={oneDark}
-                                    basicSetup={{
-                                        lineNumbers: true,
-                                        highlightActiveLine: true,
-                                        highlightActiveLineGutter: true,
-                                    }}
-                                    onChange={(value) => setTestCode(value)}
-                                    className={styles.codeEditor}
-                                />
-                                <p className={styles.hint}>
-                                    Tip: align the assertions here with any changes you make to the
-                                    Express handlers.
-                                </p>
-                            </div>
-                        </section>
-                        <section className={`${styles.panel} ${styles.terminalPanel}`}>
-                            <div className={styles.panelHeader}>
-                                <span>Terminal</span>
-                            </div>
-                            <div className={styles.terminalShell}>
-                                <div className={styles.terminalChrome}>
-                                    <span className={`${styles.terminalDot} ${styles.dotRed}`} />
-                                    <span className={`${styles.terminalDot} ${styles.dotYellow}`} />
-                                    <span className={`${styles.terminalDot} ${styles.dotGreen}`} />
-                                </div>
-                                <div className={styles.terminalOutput}>
-                                    <div
-                                        ref={terminalHostRef}
-                                        className={styles.terminalViewport}
-                                    />
-                                </div>
-                            </div>
-                        </section>
-                        <section className={`${styles.panel} ${styles.oasPanel}`}>
-                            <div className={styles.panelHeader}>
-                                <span>OpenAPI Output</span>
-                            </div>
-                            <div className={styles.oasWorkspace}>
-                                <div className={`${styles.codeSurface} ${styles.oasEditorCard}`}>
-                                    <div className={styles.codeChrome}>oas.json</div>
-                                    <div className={styles.oasEditorSurface}>
-                                        {oasOutput ? (
-                                            <CodeMirror
-                                                value={oasOutput}
-                                                height="100%"
-                                                extensions={jsonCodeMirrorExtensions}
-                                                theme={oneDark}
-                                                editable={false}
-                                                basicSetup={{
-                                                    lineNumbers: true,
-                                                    highlightActiveLine: false,
-                                                    highlightActiveLineGutter: false,
-                                                }}
-                                                className={styles.codeEditor}
-                                            />
-                                        ) : (
-                                            <p className={styles.oasEmpty}>
-                                                Run the tests to generate the OpenAPI document.
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className={`${styles.codeSurface} ${styles.oasPreviewCard}`}>
-                                    <div className={styles.codeChrome}>Swagger Preview</div>
-                                    <div className={styles.oasPreviewContainer}>
-                                        {oasOutput ? (
-                                            <div
-                                                ref={redocContainerRef}
-                                                className={styles.oasPreviewCanvas}
-                                            >
-                                                Loading preview…
-                                            </div>
-                                        ) : (
-                                            <p className={styles.oasEmpty}>
-                                                Preview will appear here after a successful run.
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                            )}
+                        </div>
                     </div>
-                </>
+                </div>
             ) : null}
         </div>
     )
+
 }
 
 export default Playground
