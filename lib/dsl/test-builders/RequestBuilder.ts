@@ -25,12 +25,18 @@ import { AbstractTestBuilder } from "./AbstractTestBuilder"
  */
 export class RequestBuilder extends AbstractTestBuilder {
     /**
-     * Sets headers to be used in requests.
+     * Sets headers to be used in requests. Header names are normalized to lowercase.
      * @param {Record<string, DSLField<string>>} headers Headers to be used in requests
      * @returns {this} Request builder instance
      */
     public header(headers: Record<string, DSLField<string>>): this {
-        this.config.requestHeaders = headers
+        const normalizedHeaders: Record<string, DSLField<string>> = {}
+
+        Object.entries(headers).forEach(([headerName, headerValue]) => {
+            normalizedHeaders[headerName.toLowerCase()] = headerValue
+        })
+
+        this.config.requestHeaders = normalizedHeaders
         return this
     }
 

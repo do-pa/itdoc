@@ -32,8 +32,8 @@ export class SecurityBuilder implements SecurityBuilderInterface {
     public extractSecurityRequirements(result: TestResult): Array<Record<string, string[]>> {
         const security: Array<Record<string, string[]>> = []
 
-        if (result.request.headers && "Authorization" in result.request.headers) {
-            const authHeaderValue = result.request.headers["Authorization"]
+        if (result.request.headers && "authorization" in result.request.headers) {
+            const authHeaderValue = result.request.headers["authorization"]
             let authHeader = ""
 
             if (typeof authHeaderValue === "string") {
