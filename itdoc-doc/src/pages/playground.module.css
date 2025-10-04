@@ -1,0 +1,178 @@
+/*
+ * Copyright 2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.page {
+    position: relative;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-lg);
+    margin-bottom: var(--ifm-spacing-lg);
+    flex-wrap: wrap;
+}
+
+.title {
+    margin-bottom: 0.35rem;
+}
+
+.subtitle {
+    margin: 0;
+    color: var(--ifm-color-content-secondary);
+    max-width: 680px;
+}
+
+.headerCopy {
+    display: flex;
+    flex-direction: column;
+}
+
+.helpButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid var(--ifm-color-primary);
+    background-color: transparent;
+    color: var(--ifm-color-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.helpButton:hover,
+.helpButton:focus {
+    background-color: color-mix(in srgb, var(--ifm-color-primary) 15%, transparent);
+    color: color-mix(in srgb, var(--ifm-color-primary) 85%, black 15%);
+    transform: translateY(-1px);
+}
+
+.helpButton:focus-visible {
+    outline: 2px solid var(--ifm-color-primary);
+    outline-offset: 3px;
+}
+
+.modalBackdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--ifm-spacing-lg);
+    z-index: 999;
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    background-color: var(--ifm-background-surface-color);
+    color: var(--ifm-font-color-base);
+    border-radius: 1rem;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.25);
+    width: min(720px, 100%);
+    max-height: 90vh;
+    overflow: hidden auto;
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ifm-spacing-lg);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background-image: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.95));
+}
+
+.modalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-lg);
+    padding-bottom: var(--ifm-spacing-sm);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.closeButton {
+    border: none;
+    background: none;
+    color: var(--ifm-color-emphasis-600);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.35rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.closeButton:hover,
+.closeButton:focus-visible {
+    background-color: color-mix(in srgb, var(--ifm-color-emphasis-200) 60%, transparent);
+    color: var(--ifm-color-emphasis-900);
+}
+
+.modalBody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ifm-spacing-lg);
+}
+
+.modalBody section {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 0.75rem;
+    padding: clamp(1.1rem, 2.5vw, 1.6rem);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.modalBody section h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    color: var(--ifm-color-emphasis-800);
+}
+
+.modalBody ol,
+.modalBody ul {
+    padding-left: 1.2rem;
+}
+
+.modalBody li + li {
+    margin-top: 0.35rem;
+}
+
+.modalBody li::marker {
+    color: var(--ifm-color-primary);
+    font-weight: 600;
+}
+
+.modalBody strong {
+    color: var(--ifm-color-primary);
+}
+
+.fallback {
+    text-align: center;
+    padding: var(--ifm-spacing-lg);
+    border: 1px dashed var(--ifm-color-emphasis-200);
+    border-radius: 0.75rem;
+    color: var(--ifm-color-content-secondary);
+}
+
+@media (max-width: 996px) {
+    .modal {
+        padding: clamp(1.25rem, 6vw, 1.75rem);
+    }
+}

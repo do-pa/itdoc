@@ -20,4 +20,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.playgroundButton {
+  --ifm-button-background-color: var(--ifm-color-primary);
+  --ifm-button-border-color: transparent;
+  --ifm-button-color: var(--ifm-font-color-base-inverse);
+  --ifm-button-hover-background-color: var(--ifm-color-primary-darker);
+  background-color: var(--ifm-color-primary);
+  color: var(--ifm-font-color-base-inverse);
+  border: none;
+}
+
+.playgroundButton:hover,
+.playgroundButton:focus {
+  background-color: var(--ifm-color-primary-darker);
+  color: var(--ifm-font-color-base-inverse);
 }

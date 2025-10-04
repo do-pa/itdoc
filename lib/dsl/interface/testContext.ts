@@ -15,25 +15,57 @@
  */
 
 import { AsyncLocalStorage } from "async_hooks"
+import { isWebContainer } from "@webcontainer/env"
 
-const asyncLocalStorage = new AsyncLocalStorage<{ description: string }>()
+const isRunningInWebContainer = (() => {
+    try {
+        return isWebContainer()
+    } catch {
+        return false
+    }
+})()
+
+const asyncLocalStorage = isRunningInWebContainer
+    ? null
+    : new AsyncLocalStorage<{ description: string }>()
+
+/**
+ * WebContainer (used by the docs playground) does not yet support AsyncLocalStorage.
+ * When we detect that runtime, we return a stubbed implementation so tests still run
+ * inside the browser, while keeping the full AsyncLocalStorage-backed context elsewhere.
+ * @see https://github.com/stackblitz/webcontainer-core/issues/1169#issuecomment-1699128573
+ */
+function createTestContext() {
+    if (!asyncLocalStorage) {
+        return {
+            run<T>(_description: string, fn: () => Promise<T> | T): Promise<T> | T {
+                return fn()
+            },
+            get(): string | null {
+                return null
+            },
+        }
+    }
+
+    return {
+        run<T>(description: string, fn: () => Promise<T> | T): Promise<T> | T {
+            return asyncLocalStorage.run({ description }, fn)
+        },
+        get(): string | null {
+            if (!asyncLocalStorage.getStore()) {
+                throw new Error(
+                    "testContext is not initialized. Please use testContext.run() to initialize it.",
+                )
+            }
+
+            return asyncLocalStorage.getStore()?.description ?? null
+        },
+    }
+}
 
 /**
  * itDoc("Error occurs when password is less than 8 characters", () => {
  *
  * Utility for recording/sharing test descriptions like "Error occurs when password is less than 8 characters".
  */
-export const testContext = {
-    run<T>(description: string, fn: () => Promise<T> | T): Promise<T> | T {
-        return asyncLocalStorage.run({ description }, fn)
-    },
-    get(): string | null {
-        if (!asyncLocalStorage.getStore()) {
-            throw new Error(
-                "testContext is not initialized. Please use testContext.run() to initialize it.",
-            )
-        }
-
-        return asyncLocalStorage.getStore()?.description ?? null
-    },
-}
+export const testContext = createTestContext()
