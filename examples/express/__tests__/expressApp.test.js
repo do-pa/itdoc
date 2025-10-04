@@ -538,8 +538,7 @@ describeAPI(
             fs.writeFileSync(path.join(dir, "example.txt"), "This is an example file.")
         })
 
-        // with filePath
-        itDoc("파일 업로드 성공", async () => {
+        itDoc("파일 업로드 성공 (with filePath)", async () => {
             await apiDoc
                 .test()
                 .req()
@@ -550,10 +549,18 @@ describeAPI(
                 )
                 .res()
                 .status(HttpStatus.CREATED)
+        })
+
+        itDoc("업로드할 파일을 지정하지 않으면 400에러가 뜬다", async () => {
+            await apiDoc
+                .test()
+                .prettyPrint()
+                .req()
+                .file()
+                .res()
+                .status(HttpStatus.BAD_REQUEST)
                 .body({
-                    success: true,
-                    message: field("성공 메시지", "File uploaded successfully"),
-                    fileId: field("파일 ID", "file123"),
+                    error: field("에러 메세지", "No file uploaded"),
                 })
         })
     },
