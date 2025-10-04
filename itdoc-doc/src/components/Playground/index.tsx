@@ -341,7 +341,7 @@ const Playground: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [activeMilestoneIndex, setActiveMilestoneIndex] = useState(0)
     const [waitingTipIndex, setWaitingTipIndex] = useState(() =>
-        Math.floor(Math.random() * waitingTips.length),
+        waitingTips.length > 0 ? Math.floor(Math.random() * waitingTips.length) : 0,
     )
     const [elapsedInstallMs, setElapsedInstallMs] = useState(0)
 
@@ -661,6 +661,44 @@ const Playground: React.FC = () => {
         }
     }, [canUseDom, ensureRedocScript, oasOutput])
 
+    useEffect(() => {
+        if (!canUseDom || installStatus !== "installing" || installMilestones.length === 0) {
+            return
+        }
+
+        setActiveMilestoneIndex(0)
+        setElapsedInstallMs(0)
+        if (waitingTips.length > 0) {
+            setWaitingTipIndex(Math.floor(Math.random() * waitingTips.length))
+        }
+
+        let milestoneProgress = 0
+        const totalMilestones = installMilestones.length
+
+        const milestoneInterval = window.setInterval(() => {
+            milestoneProgress = Math.min(milestoneProgress + 1, totalMilestones - 1)
+            setActiveMilestoneIndex(milestoneProgress)
+            if (milestoneProgress >= totalMilestones - 1) {
+                window.clearInterval(milestoneInterval)
+            }
+        }, 6000)
+
+        const elapsedInterval = window.setInterval(() => {
+            setElapsedInstallMs((previous) => previous + 1000)
+        }, 1000)
+
+        return () => {
+            window.clearInterval(milestoneInterval)
+            window.clearInterval(elapsedInterval)
+        }
+    }, [canUseDom, installStatus])
+
+    useEffect(() => {
+        if (installStatus === "ready" && installMilestones.length > 0) {
+            setActiveMilestoneIndex(installMilestones.length - 1)
+        }
+    }, [installStatus])
+
     const runDisabled = installStatus !== "ready" || isRunning
 
     const statusLabel = useMemo(() => {
@@ -675,6 +713,42 @@ const Playground: React.FC = () => {
                 return "Waiting to start..."
         }
     }, [installStatus])
+
+    const progressPercent = useMemo(() => {
+        const milestoneCount = installMilestones.length
+        if (milestoneCount <= 1) {
+            return 100
+        }
+
+        const clampedIndex = Math.min(activeMilestoneIndex, milestoneCount - 1)
+        return Math.round((clampedIndex / (milestoneCount - 1)) * 100)
+    }, [activeMilestoneIndex])
+
+    const currentMilestone = useMemo(() => {
+        if (installMilestones.length === 0) {
+            return null
+        }
+
+        const clampedIndex = Math.min(activeMilestoneIndex, installMilestones.length - 1)
+        return installMilestones[clampedIndex]
+    }, [activeMilestoneIndex])
+
+    const formattedElapsed = useMemo(() => formatDuration(elapsedInstallMs), [elapsedInstallMs])
+
+    const waitingTip = useMemo(() => {
+        if (waitingTips.length === 0) {
+            return null
+        }
+
+        const normalizedIndex = ((waitingTipIndex % waitingTips.length) + waitingTips.length) % waitingTips.length
+        return waitingTips[normalizedIndex]
+    }, [waitingTipIndex])
+
+    const handleNextTip = useCallback(() => {
+        if (waitingTips.length > 0) {
+            setWaitingTipIndex((index) => index + 1)
+        }
+    }, [])
 
     const handleRun = async () => {
         if (runDisabled || !webcontainerRef.current) {
@@ -730,128 +804,193 @@ const Playground: React.FC = () => {
         )
     }
 
+    const showWorkspace = installStatus === "ready"
+
     return (
         <div className={styles.container}>
-            <div className={styles.controls}>
-                <button className={styles.runButton} onClick={handleRun} disabled={runDisabled}>
-                    {isRunning ? "Running..." : "Run"}
-                </button>
-                <span className={styles.statusLabel}>{statusLabel}</span>
-            </div>
-            {errorMessage ? <div className={styles.error}>{errorMessage}</div> : null}
-            <div className={styles.workspace}>
-                <section className={`${styles.panel} ${styles.expressPanel}`}>
-                    <div className={styles.panelHeader}>
-                        <span>Express App (edit and run)</span>
-                    </div>
-                    <div className={styles.editorWrapper}>
-                        <CodeMirror
-                            value={expressCode}
-                            height="320px"
-                            extensions={codeMirrorExtensions}
-                            theme={oneDark}
-                            basicSetup={{
-                                lineNumbers: true,
-                                highlightActiveLine: true,
-                                highlightActiveLineGutter: true,
-                            }}
-                            onChange={(value) => setExpressCode(value)}
-                            className={styles.codeEditor}
-                        />
-                        <p className={styles.hint}>
-                            Tip: adjust the handlers above, then run the tests to regenerate the
-                            OpenAPI schema.
-                        </p>
-                    </div>
-                </section>
-                <section className={`${styles.panel} ${styles.testsPanel}`}>
-                    <div className={styles.panelHeader}>
-                        <span>itdoc Test Suite</span>
-                    </div>
-                    <div className={styles.editorWrapper}>
-                        <CodeMirror
-                            value={testCode}
-                            height="320px"
-                            extensions={codeMirrorExtensions}
-                            theme={oneDark}
-                            basicSetup={{
-                                lineNumbers: true,
-                                highlightActiveLine: true,
-                                highlightActiveLineGutter: true,
-                            }}
-                            onChange={(value) => setTestCode(value)}
-                            className={styles.codeEditor}
-                        />
-                        <p className={styles.hint}>
-                            Tip: align the assertions here with any changes you make to the Express
-                            handlers.
-                        </p>
-                    </div>
-                </section>
-                <section className={`${styles.panel} ${styles.terminalPanel}`}>
-                    <div className={styles.panelHeader}>
-                        <span>Terminal</span>
-                    </div>
-                    <div className={styles.terminalShell}>
-                        <div className={styles.terminalChrome}>
-                            <span className={`${styles.terminalDot} ${styles.dotRed}`} />
-                            <span className={`${styles.terminalDot} ${styles.dotYellow}`} />
-                            <span className={`${styles.terminalDot} ${styles.dotGreen}`} />
-                        </div>
-                        <div className={styles.terminalOutput}>
-                            <div ref={terminalHostRef} className={styles.terminalViewport} />
-                        </div>
-                    </div>
-                </section>
-                <section className={`${styles.panel} ${styles.oasPanel}`}>
-                    <div className={styles.panelHeader}>
-                        <span>OpenAPI Output</span>
-                    </div>
-                    <div className={styles.oasWorkspace}>
-                        <div className={`${styles.codeSurface} ${styles.oasEditorCard}`}>
-                            <div className={styles.codeChrome}>oas.json</div>
-                            <div className={styles.oasEditorSurface}>
-                                {oasOutput ? (
-                                    <CodeMirror
-                                        value={oasOutput}
-                                        height="100%"
-                                        extensions={jsonCodeMirrorExtensions}
-                                        theme={oneDark}
-                                        editable={false}
-                                        basicSetup={{
-                                            lineNumbers: true,
-                                            highlightActiveLine: false,
-                                            highlightActiveLineGutter: false,
-                                        }}
-                                        className={styles.codeEditor}
-                                    />
-                                ) : (
-                                    <p className={styles.oasEmpty}>
-                                        Run the tests to generate the OpenAPI document.
-                                    </p>
-                                )}
+            {installStatus === "installing" && currentMilestone ? (
+                <section className={styles.installCard} aria-live="polite">
+                    <div className={styles.progressIntro}>
+                        <div className={styles.progressContext}>
+                            <span className={styles.progressSpinner} aria-hidden="true" />
+                            <div>
+                                <p className={styles.progressLabel}>Setting up your workspace</p>
+                                <p className={styles.progressTitle}>{currentMilestone.title}</p>
                             </div>
                         </div>
-                        <div className={`${styles.codeSurface} ${styles.oasPreviewCard}`}>
-                            <div className={styles.codeChrome}>Swagger Preview</div>
-                            <div className={styles.oasPreviewContainer}>
-                                {oasOutput ? (
-                                    <div
-                                        ref={redocContainerRef}
-                                        className={styles.oasPreviewCanvas}
-                                    >
-                                        Loading preview…
+                        <span className={styles.progressPercent}>{progressPercent}%</span>
+                    </div>
+                    <p className={styles.progressDescription}>{currentMilestone.description}</p>
+                    <div
+                        className={styles.progressBar}
+                        role="progressbar"
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={progressPercent}
+                    >
+                        <span
+                            className={styles.progressBarFill}
+                            style={{ width: `${progressPercent}%` }}
+                        />
+                    </div>
+                    <ul className={styles.milestoneList}>
+                        {installMilestones.map((milestone, index) => {
+                            const stateClass =
+                                index < activeMilestoneIndex
+                                    ? styles.milestoneItemComplete
+                                    : index === activeMilestoneIndex
+                                      ? styles.milestoneItemActive
+                                      : styles.milestoneItemUpcoming
+
+                            return (
+                                <li key={milestone.title} className={`${styles.milestoneItem} ${stateClass}`}>
+                                    <span className={styles.milestoneBullet} aria-hidden="true" />
+                                    <span className={styles.milestoneLabel}>{milestone.title}</span>
+                                </li>
+                            )
+                        })}
+                    </ul>
+                    <div className={styles.elapsedTimer}>Elapsed: {formattedElapsed}</div>
+                    {waitingTip ? (
+                        <div className={styles.tipCard}>
+                            <div className={styles.tipHeader}>
+                                <span className={styles.tipLabel}>While you wait</span>
+                                <button type="button" className={styles.tipButton} onClick={handleNextTip}>
+                                    Show another idea
+                                </button>
+                            </div>
+                            <p className={styles.tipTitle}>{waitingTip.title}</p>
+                            <p className={styles.tipBody}>{waitingTip.body}</p>
+                        </div>
+                    ) : null}
+                </section>
+            ) : null}
+            {showWorkspace ? (
+                <>
+                    <div className={styles.controls}>
+                        <button className={styles.runButton} onClick={handleRun} disabled={runDisabled}>
+                            {isRunning ? "Running..." : "Run"}
+                        </button>
+                        <span className={styles.statusLabel}>{statusLabel}</span>
+                    </div>
+                    {errorMessage ? <div className={styles.error}>{errorMessage}</div> : null}
+                    <div className={styles.workspace}>
+                        <section className={`${styles.panel} ${styles.expressPanel}`}>
+                            <div className={styles.panelHeader}>
+                                <span>Express App (edit and run)</span>
+                            </div>
+                            <div className={styles.editorWrapper}>
+                                <CodeMirror
+                                    value={expressCode}
+                                    height="320px"
+                                    extensions={codeMirrorExtensions}
+                                    theme={oneDark}
+                                    basicSetup={{
+                                        lineNumbers: true,
+                                        highlightActiveLine: true,
+                                        highlightActiveLineGutter: true,
+                                    }}
+                                    onChange={(value) => setExpressCode(value)}
+                                    className={styles.codeEditor}
+                                />
+                                <p className={styles.hint}>
+                                    Tip: adjust the handlers above, then run the tests to regenerate the
+                                    OpenAPI schema.
+                                </p>
+                            </div>
+                        </section>
+                        <section className={`${styles.panel} ${styles.testsPanel}`}>
+                            <div className={styles.panelHeader}>
+                                <span>itdoc Test Suite</span>
+                            </div>
+                            <div className={styles.editorWrapper}>
+                                <CodeMirror
+                                    value={testCode}
+                                    height="320px"
+                                    extensions={codeMirrorExtensions}
+                                    theme={oneDark}
+                                    basicSetup={{
+                                        lineNumbers: true,
+                                        highlightActiveLine: true,
+                                        highlightActiveLineGutter: true,
+                                    }}
+                                    onChange={(value) => setTestCode(value)}
+                                    className={styles.codeEditor}
+                                />
+                                <p className={styles.hint}>
+                                    Tip: align the assertions here with any changes you make to the Express
+                                    handlers.
+                                </p>
+                            </div>
+                        </section>
+                        <section className={`${styles.panel} ${styles.terminalPanel}`}>
+                            <div className={styles.panelHeader}>
+                                <span>Terminal</span>
+                            </div>
+                            <div className={styles.terminalShell}>
+                                <div className={styles.terminalChrome}>
+                                    <span className={`${styles.terminalDot} ${styles.dotRed}`} />
+                                    <span className={`${styles.terminalDot} ${styles.dotYellow}`} />
+                                    <span className={`${styles.terminalDot} ${styles.dotGreen}`} />
+                                </div>
+                                <div className={styles.terminalOutput}>
+                                    <div ref={terminalHostRef} className={styles.terminalViewport} />
+                                </div>
+                            </div>
+                        </section>
+                        <section className={`${styles.panel} ${styles.oasPanel}`}>
+                            <div className={styles.panelHeader}>
+                                <span>OpenAPI Output</span>
+                            </div>
+                            <div className={styles.oasWorkspace}>
+                                <div className={`${styles.codeSurface} ${styles.oasEditorCard}`}>
+                                    <div className={styles.codeChrome}>oas.json</div>
+                                    <div className={styles.oasEditorSurface}>
+                                        {oasOutput ? (
+                                            <CodeMirror
+                                                value={oasOutput}
+                                                height="100%"
+                                                extensions={jsonCodeMirrorExtensions}
+                                                theme={oneDark}
+                                                editable={false}
+                                                basicSetup={{
+                                                    lineNumbers: true,
+                                                    highlightActiveLine: false,
+                                                    highlightActiveLineGutter: false,
+                                                }}
+                                                className={styles.codeEditor}
+                                            />
+                                        ) : (
+                                            <p className={styles.oasEmpty}>
+                                                Run the tests to generate the OpenAPI document.
+                                            </p>
+                                        )}
                                     </div>
-                                ) : (
-                                    <p className={styles.oasEmpty}>
-                                        Preview will appear here after a successful run.
-                                    </p>
-                                )}
+                                </div>
+                                <div className={`${styles.codeSurface} ${styles.oasPreviewCard}`}>
+                                    <div className={styles.codeChrome}>Swagger Preview</div>
+                                    <div className={styles.oasPreviewContainer}>
+                                        {oasOutput ? (
+                                            <div
+                                                ref={redocContainerRef}
+                                                className={styles.oasPreviewCanvas}
+                                            >
+                                                Loading preview…
+                                            </div>
+                                        ) : (
+                                            <p className={styles.oasEmpty}>
+                                                Preview will appear here after a successful run.
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </section>
                     </div>
-                </section>
-            </div>
+                </>
+            ) : errorMessage ? (
+                <div className={styles.error}>{errorMessage}</div>
+            ) : null}
         </div>
     )
 }

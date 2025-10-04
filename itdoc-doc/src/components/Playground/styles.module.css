@@ -28,6 +28,191 @@
     flex-wrap: wrap;
 }
 
+.installCard {
+    border: 1px solid var(--ifm-color-emphasis-200);
+    background: linear-gradient(135deg, rgba(241, 245, 249, 0.95), rgba(226, 232, 240, 0.95));
+    border-radius: 0.75rem;
+    padding: var(--ifm-spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ifm-spacing-md);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.progressIntro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-lg);
+}
+
+.progressContext {
+    display: flex;
+    align-items: center;
+    gap: var(--ifm-spacing-md);
+}
+
+.progressSpinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid rgba(15, 23, 42, 0.1);
+    border-top-color: var(--ifm-color-primary);
+    border-radius: 50%;
+    animation: installSpinner 1s linear infinite;
+}
+
+.progressLabel {
+    margin: 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ifm-color-content-secondary);
+}
+
+.progressTitle {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ifm-color-emphasis-800);
+}
+
+.progressPercent {
+    font-weight: 600;
+    color: var(--ifm-color-emphasis-700);
+    min-width: 3.25rem;
+    text-align: right;
+}
+
+.progressDescription {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ifm-color-emphasis-600);
+}
+
+.progressBar {
+    position: relative;
+    height: 0.55rem;
+    background-color: rgba(148, 163, 184, 0.35);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progressBarFill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    display: block;
+    background: linear-gradient(135deg, var(--ifm-color-primary), color-mix(in srgb, var(--ifm-color-primary) 82%, white 18%));
+    transition: width 0.6s ease;
+}
+
+.milestoneList {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ifm-spacing-md);
+    padding: 0;
+    margin: 0;
+}
+
+.milestoneItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.milestoneBullet {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
+    background-color: rgba(148, 163, 184, 0.55);
+}
+
+.milestoneLabel {
+    color: var(--ifm-color-emphasis-600);
+}
+
+.milestoneItemActive .milestoneBullet {
+    background-color: var(--ifm-color-primary);
+}
+
+.milestoneItemActive .milestoneLabel {
+    color: var(--ifm-color-emphasis-800);
+    font-weight: 600;
+}
+
+.milestoneItemComplete .milestoneBullet {
+    background-color: color-mix(in srgb, var(--ifm-color-primary) 65%, black 35%);
+}
+
+.milestoneItemComplete .milestoneLabel {
+    color: var(--ifm-color-emphasis-700);
+}
+
+.milestoneItemUpcoming .milestoneLabel {
+    color: var(--ifm-color-content-secondary);
+}
+
+.elapsedTimer {
+    font-size: 0.85rem;
+    color: var(--ifm-color-content-secondary);
+}
+
+.tipCard {
+    border: 1px dashed rgba(148, 163, 184, 0.6);
+    background-color: rgba(248, 250, 252, 0.95);
+    border-radius: 0.75rem;
+    padding: var(--ifm-spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.tipHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ifm-spacing-sm);
+}
+
+.tipLabel {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ifm-color-content-secondary);
+}
+
+.tipButton {
+    border: none;
+    background: none;
+    color: var(--ifm-color-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.tipButton:hover {
+    background-color: rgba(99, 102, 241, 0.12);
+}
+
+.tipTitle {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ifm-color-emphasis-800);
+}
+
+.tipBody {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ifm-color-emphasis-600);
+}
+
 .runButton {
     display: inline-flex;
     align-items: center;
@@ -241,21 +426,28 @@
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 0 0 0.75rem 0.75rem;
     gap: var(--ifm-spacing-md);
+    min-height: 0;
+    max-height: 420px;
+    overflow: auto;
 }
 
 .oasEditorSurface :global(.cm-editor) {
     height: 100%;
+    max-height: 100%;
     border-radius: 0.65rem;
 }
 
+.oasEditorSurface :global(.cm-scroller) {
+    min-height: 0;
+}
+
 .oasPreviewContainer {
-    overflow: auto;
     position: relative;
 }
 
 .oasPreviewCanvas {
     flex: 1;
-    min-height: 320px;
+    min-height: 0;
 }
 
 .oasPreviewContainer :global(.redoc-wrap) {
@@ -271,12 +463,35 @@
     line-height: 1.5;
 }
 
+@keyframes installSpinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 @media (max-width: 768px) {
+    .progressIntro {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--ifm-spacing-md);
+    }
+
+    .progressPercent {
+        text-align: left;
+    }
+
     .panel {
         min-height: 260px;
     }
 
     .codeEditor :global(.cm-scroller) {
         min-height: 260px;
+    }
+}
+
+@media (min-width: 996px) {
+    .oasEditorCard,
+    .oasPreviewCard {
+        grid-column: span 6;
     }
 }
