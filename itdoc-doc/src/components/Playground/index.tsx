@@ -141,14 +141,13 @@ const installMilestones = [
             "Spinning up the in-browser Node.js environment so the playground can run without leaving this tab.",
     },
     {
-        title: "Fetching local itdoc build",
-        description:
-            "Retrieving the bundled itdoc package and aligning dependencies before npm install kicks off.",
+        title: "Fetching itdoc",
+        description: "Fetching the latest version of the itdoc library.",
     },
     {
         title: "Installing npm dependencies",
         description:
-            "Downloading and linking packages inside the WebContainer workspace. Keep an eye on the terminal for live logs.",
+            "Downloading the dependencies required for using itdoc, such as express and mocha.",
     },
     {
         title: "Finalizing workspace",
@@ -740,7 +739,8 @@ const Playground: React.FC = () => {
             return null
         }
 
-        const normalizedIndex = ((waitingTipIndex % waitingTips.length) + waitingTips.length) % waitingTips.length
+        const normalizedIndex =
+            ((waitingTipIndex % waitingTips.length) + waitingTips.length) % waitingTips.length
         return waitingTips[normalizedIndex]
     }, [waitingTipIndex])
 
@@ -806,69 +806,118 @@ const Playground: React.FC = () => {
 
     const showWorkspace = installStatus === "ready"
 
+    const isInstalling = installStatus === "installing"
+    const showOverlay = isInstalling || (!showWorkspace && errorMessage)
+
     return (
         <div className={styles.container}>
-            {installStatus === "installing" && currentMilestone ? (
-                <section className={styles.installCard} aria-live="polite">
-                    <div className={styles.progressIntro}>
-                        <div className={styles.progressContext}>
-                            <span className={styles.progressSpinner} aria-hidden="true" />
-                            <div>
-                                <p className={styles.progressLabel}>Setting up your workspace</p>
-                                <p className={styles.progressTitle}>{currentMilestone.title}</p>
+            {showOverlay ? (
+                <div
+                    className={styles.installOverlay}
+                    role="status"
+                    aria-live="polite"
+                    aria-busy={isInstalling}
+                >
+                    {isInstalling && currentMilestone ? (
+                        <section className={styles.installCard}>
+                            <div className={styles.progressIntro}>
+                                <div className={styles.progressContext}>
+                                    <span className={styles.progressSpinner} aria-hidden="true" />
+                                    <div>
+                                        <p className={styles.progressLabel}>
+                                            Setting up your workspace
+                                        </p>
+                                        <p className={styles.progressTitle}>
+                                            {currentMilestone.title}
+                                        </p>
+                                    </div>
+                                </div>
+                                <span className={styles.progressPercent}>{progressPercent}%</span>
                             </div>
-                        </div>
-                        <span className={styles.progressPercent}>{progressPercent}%</span>
-                    </div>
-                    <p className={styles.progressDescription}>{currentMilestone.description}</p>
-                    <div
-                        className={styles.progressBar}
-                        role="progressbar"
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuenow={progressPercent}
-                    >
-                        <span
-                            className={styles.progressBarFill}
-                            style={{ width: `${progressPercent}%` }}
-                        />
-                    </div>
-                    <ul className={styles.milestoneList}>
-                        {installMilestones.map((milestone, index) => {
-                            const stateClass =
-                                index < activeMilestoneIndex
-                                    ? styles.milestoneItemComplete
-                                    : index === activeMilestoneIndex
-                                      ? styles.milestoneItemActive
-                                      : styles.milestoneItemUpcoming
+                            <div className={styles.installBody}>
+                                <div className={styles.installTimeline}>
+                                    <p className={styles.progressDescription}>
+                                        {currentMilestone.description}
+                                    </p>
+                                    <div
+                                        className={styles.progressBar}
+                                        role="progressbar"
+                                        aria-valuemin={0}
+                                        aria-valuemax={100}
+                                        aria-valuenow={progressPercent}
+                                    >
+                                        <span
+                                            className={styles.progressBarFill}
+                                            style={{ width: `${progressPercent}%` }}
+                                        />
+                                    </div>
+                                    <ul className={styles.milestoneList}>
+                                        {installMilestones.map((milestone, index) => {
+                                            const stateClass =
+                                                index < activeMilestoneIndex
+                                                    ? styles.milestoneItemComplete
+                                                    : index === activeMilestoneIndex
+                                                      ? styles.milestoneItemActive
+                                                      : styles.milestoneItemUpcoming
 
-                            return (
-                                <li key={milestone.title} className={`${styles.milestoneItem} ${stateClass}`}>
-                                    <span className={styles.milestoneBullet} aria-hidden="true" />
-                                    <span className={styles.milestoneLabel}>{milestone.title}</span>
-                                </li>
-                            )
-                        })}
-                    </ul>
-                    <div className={styles.elapsedTimer}>Elapsed: {formattedElapsed}</div>
-                    {waitingTip ? (
-                        <div className={styles.tipCard}>
-                            <div className={styles.tipHeader}>
-                                <span className={styles.tipLabel}>While you wait</span>
-                                <button type="button" className={styles.tipButton} onClick={handleNextTip}>
-                                    Show another idea
-                                </button>
+                                            return (
+                                                <li
+                                                    key={milestone.title}
+                                                    className={`${styles.milestoneItem} ${stateClass}`}
+                                                >
+                                                    <span
+                                                        className={styles.milestoneBullet}
+                                                        aria-hidden="true"
+                                                    />
+                                                    <span className={styles.milestoneLabel}>
+                                                        {milestone.title}
+                                                    </span>
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                    <div className={styles.elapsedTimer}>
+                                        Elapsed: {formattedElapsed}
+                                    </div>
+                                </div>
+                                {waitingTip ? (
+                                    <aside className={styles.tipCard}>
+                                        <div className={styles.tipHeader}>
+                                            <span className={styles.tipLabel}>While you wait</span>
+                                            <button
+                                                type="button"
+                                                className={styles.tipButton}
+                                                onClick={handleNextTip}
+                                            >
+                                                Show another idea
+                                            </button>
+                                        </div>
+                                        <p className={styles.tipTitle}>{waitingTip.title}</p>
+                                        <p className={styles.tipBody}>{waitingTip.body}</p>
+                                    </aside>
+                                ) : null}
                             </div>
-                            <p className={styles.tipTitle}>{waitingTip.title}</p>
-                            <p className={styles.tipBody}>{waitingTip.body}</p>
+                        </section>
+                    ) : errorMessage ? (
+                        <div className={styles.installErrorCard}>
+                            <h2>Environment failed to start</h2>
+                            <p>{errorMessage}</p>
+                            <p className={styles.installErrorHint}>
+                                Refresh the page to try again or verify your browser supports
+                                WebContainer.
+                            </p>
                         </div>
                     ) : null}
-                </section>
+                </div>
             ) : null}
             {showWorkspace ? (
                 <>
                     <div className={styles.controls}>
-                        <button className={styles.runButton} onClick={handleRun} disabled={runDisabled}>
+                        <button
+                            className={styles.runButton}
+                            onClick={handleRun}
+                            disabled={runDisabled}
+                        >
                             {isRunning ? "Running..." : "Run"}
                         </button>
                         <span className={styles.statusLabel}>{statusLabel}</span>
@@ -894,8 +943,8 @@ const Playground: React.FC = () => {
                                     className={styles.codeEditor}
                                 />
                                 <p className={styles.hint}>
-                                    Tip: adjust the handlers above, then run the tests to regenerate the
-                                    OpenAPI schema.
+                                    Tip: adjust the handlers above, then run the tests to regenerate
+                                    the OpenAPI schema.
                                 </p>
                             </div>
                         </section>
@@ -918,8 +967,8 @@ const Playground: React.FC = () => {
                                     className={styles.codeEditor}
                                 />
                                 <p className={styles.hint}>
-                                    Tip: align the assertions here with any changes you make to the Express
-                                    handlers.
+                                    Tip: align the assertions here with any changes you make to the
+                                    Express handlers.
                                 </p>
                             </div>
                         </section>
@@ -934,7 +983,10 @@ const Playground: React.FC = () => {
                                     <span className={`${styles.terminalDot} ${styles.dotGreen}`} />
                                 </div>
                                 <div className={styles.terminalOutput}>
-                                    <div ref={terminalHostRef} className={styles.terminalViewport} />
+                                    <div
+                                        ref={terminalHostRef}
+                                        className={styles.terminalViewport}
+                                    />
                                 </div>
                             </div>
                         </section>
@@ -988,8 +1040,6 @@ const Playground: React.FC = () => {
                         </section>
                     </div>
                 </>
-            ) : errorMessage ? (
-                <div className={styles.error}>{errorMessage}</div>
             ) : null}
         </div>
     )
