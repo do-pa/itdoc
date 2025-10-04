@@ -103,43 +103,45 @@ const PlaygroundPage: React.FC = () => {
                         </div>
                         <div className={styles.modalBody}>
                             <section>
-                                <h3>Running the sample</h3>
+                                <h3>Get started quickly</h3>
                                 <ol>
-                                    <li>Wait for the playground to finish installing dependencies (an in-browser npm install).</li>
                                     <li>
-                                        Edit the Express handlers in the left editor and adjust the itdoc suite on the right.
-                                        The bundled tests expect <code>/greeting</code> and <code>/users</code> routes by default.
+                                        Let the installer finish booting the WebContainer. The status pill flips to <strong>Ready</strong>
+                                        once the in-browser <code>npm install</code> wraps up.
                                     </li>
                                     <li>
-                                        Press <strong>Run</strong> to execute <code>npm test</code> inside the WebContainer and monitor the
-                                        terminal panel below for progress and results.
+                                        Tweak the Express handlers on the left and mirror the expectations in the itdoc test suite on the
+                                        right. The default scenario wires up <code>/greeting</code> and <code>/users</code> endpoints.
                                     </li>
                                     <li>
-                                        When the tests pass, the latest OpenAPI document appears in the <code>oas.json</code> panel. Any
-                                        failures will show in the terminal with hints on what to adjust.
+                                        Hit <strong>Run</strong> to execute <code>npm test</code>. Watch the terminal for install logs,
+                                        assertions, and any failures.
+                                    </li>
+                                    <li>
+                                        Green tests regenerate the OpenAPI output in <code>oas.json</code>. Red output points to the exact
+                                        assertion or handler that needs an update.
                                     </li>
                                 </ol>
                             </section>
                             <section>
-                                <h3>Notes &amp; limitations</h3>
+                                <h3>Good to know</h3>
                                 <ul>
                                     <li>
-                                        The playground ships with a single mocha suite so the experience stays snappy. Feel free to extend
-                                        the Express routes and assertions for experimentation.
+                                        The playground keeps a single mocha suite so everything stays responsive. Add routes and assertions,
+                                        but keep an eye on runtime as you experiment.
                                     </li>
                                     <li>
-                                        Each run executes in the same container session. Refresh the page if you want to reset the
-                                        filesystem to the initial example.
+                                        Your container state persists between runs. Reload the page anytime you want to reset the sample
+                                        project to its starting point.
                                     </li>
                                     <li>
-                                        Network egress is required the first time you open the page because WebContainer fetches npm
-                                        dependencies on demand.
+                                        The first visit downloads npm packages. Afterwards, runs are cached and should complete much faster.
                                     </li>
                                     <li>
-                                        WebContainer relies on <code>SharedArrayBuffer</code>. Serve the docs with
-                                        <code> Cross-Origin-Opener-Policy: same-origin</code> and
-                                        <code> Cross-Origin-Embedder-Policy: require-corp</code> headers (or use a Chromium browser that supports
-                                        the `none` COEP mode) to enable execution.
+                                        WebContainer needs <code>SharedArrayBuffer</code> support. Serve the docs with
+                                        <code>Cross-Origin-Opener-Policy: same-origin</code> and
+                                        <code>Cross-Origin-Embedder-Policy: require-corp</code>, or open the playground in a Chromium browser
+                                        that enables those headers for you.
                                     </li>
                                 </ul>
                             </section>
