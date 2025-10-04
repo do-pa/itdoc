@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "test": "node ./scripts/run-tests-and-validate.js",
+        "test": "echo \"run test as mocha\" && mocha ./__tests__",
         "test:jest": "echo \"run test as jest\" && cross-env NODE_OPTIONS='--experimental-vm-modules' jest",
         "test:mocha": "echo \"run test as mocha\" && mocha ./__tests__"
     },
