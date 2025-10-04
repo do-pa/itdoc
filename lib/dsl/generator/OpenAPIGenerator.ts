@@ -130,10 +130,15 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
         const paths: Record<string, Record<string, unknown>> = {}
 
         for (const [path, methods] of groupedResults) {
-            paths[path] = {}
+            const normalizedPath = this.normalizePathTemplate(path)
+            paths[normalizedPath] = {}
 
             for (const [method, statusCodes] of methods) {
-                paths[path][method] = this.generateOperationObject(path, method, statusCodes)
+                paths[normalizedPath][method] = this.generateOperationObject(
+                    normalizedPath,
+                    method,
+                    statusCodes,
+                )
             }
         }
 
@@ -533,8 +538,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      */
     private validatePathParameters(paths: Record<string, Record<string, unknown>>): void {
         for (const [path, pathItem] of Object.entries(paths)) {
-            const pathParamMatches = path.match(/:([^/]+)/g) || []
-            const pathParams = pathParamMatches.map((param) => param.slice(1))
+            const pathParams = this.extractPathParameterNames(path)
 
             if (pathParams.length === 0) continue
 
@@ -569,6 +573,30 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
                 }
             }
         }
+    }
+
+    /**
+     * Converts colon-prefixed Express parameters to OpenAPI-compatible templates.
+     * @param {string} path Raw route path
+     * @returns {string} Normalized OpenAPI path
+     */
+    private normalizePathTemplate(path: string): string {
+        return path.replace(/:([A-Za-z0-9_]+)/g, "{$1}")
+    }
+
+    /**
+     * Extracts parameter names from a normalized or raw path template.
+     * @param {string} path Path string potentially containing parameters
+     * @returns {string[]} Parameter names
+     */
+    private extractPathParameterNames(path: string): string[] {
+        const braceMatches = path.match(/\{([^}]+)\}/g) || []
+        if (braceMatches.length > 0) {
+            return braceMatches.map((param) => param.slice(1, -1))
+        }
+
+        const colonMatches = path.match(/:([^/]+)/g) || []
+        return colonMatches.map((param) => param.slice(1))
     }
 
     /**

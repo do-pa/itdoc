@@ -89,7 +89,7 @@
                 }
             }
         },
-        "/users/:userId": {
+        "/users/{userId}": {
             "get": {
                 "summary": "사용자 조회 API",
                 "tags": ["User"],
@@ -383,7 +383,7 @@
                 }
             }
         },
-        "/users/:userId/friends/:friendName": {
+        "/users/{userId}/friends/{friendName}": {
             "delete": {
                 "summary": "특정 사용자의 친구를 삭제합니다.",
                 "tags": ["User"],
