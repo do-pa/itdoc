@@ -52,7 +52,7 @@ describe("interceptedRequest", () => {
         it("should not capture any data", async () => {
             await request(app).get("/users")
 
-            expect(CaptureContext.getCapturedRequests()).to.be.empty
+            void expect(CaptureContext.getCapturedRequests()).to.be.empty
         })
     })
 

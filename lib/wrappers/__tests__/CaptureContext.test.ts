@@ -21,12 +21,12 @@ import { CaptureContext } from "../core/CaptureContext"
 describe("CaptureContext", () => {
     describe("isActive", () => {
         it("should return false when not in context", () => {
-            expect(CaptureContext.isActive()).to.be.false
+            void expect(CaptureContext.isActive()).to.be.false
         })
 
         it("should return true when in context", () => {
             CaptureContext.run("test", undefined, () => {
-                expect(CaptureContext.isActive()).to.be.true
+                void expect(CaptureContext.isActive()).to.be.true
             })
         })
 
@@ -34,22 +34,22 @@ describe("CaptureContext", () => {
             CaptureContext.run("test", undefined, () => {
                 // inside context
             })
-            expect(CaptureContext.isActive()).to.be.false
+            void expect(CaptureContext.isActive()).to.be.false
         })
     })
 
     describe("getStore", () => {
         it("should return undefined when not in context", () => {
-            expect(CaptureContext.getStore()).to.be.undefined
+            void expect(CaptureContext.getStore()).to.be.undefined
         })
 
         it("should return store when in context", () => {
             CaptureContext.run("test description", { summary: "Test" }, () => {
                 const store = CaptureContext.getStore()
-                expect(store).to.not.be.undefined
-                expect(store?.description).to.equal("test description")
-                expect(store?.metadata?.summary).to.equal("Test")
-                expect(store?.capturedRequests).to.be.an("array").that.is.empty
+                void expect(store).to.not.be.undefined
+                void expect(store?.description).to.equal("test description")
+                void expect(store?.metadata?.summary).to.equal("Test")
+                void expect(store?.capturedRequests).to.be.an("array").that.is.empty
             })
         })
     })
@@ -81,7 +81,7 @@ describe("CaptureContext", () => {
 
         it("should not add request when not in context", () => {
             CaptureContext.addRequest({ method: "POST", url: "/users" })
-            expect(CaptureContext.getCapturedRequests()).to.be.empty
+            void expect(CaptureContext.getCapturedRequests()).to.be.empty
         })
     })
 
@@ -122,13 +122,13 @@ describe("CaptureContext", () => {
         it("should do nothing when no requests exist", () => {
             CaptureContext.run("test", undefined, () => {
                 CaptureContext.updateLastRequest({ body: { name: "John" } })
-                expect(CaptureContext.getCapturedRequests()).to.be.empty
+                void expect(CaptureContext.getCapturedRequests()).to.be.empty
             })
         })
 
         it("should do nothing when not in context", () => {
             CaptureContext.updateLastRequest({ body: { name: "John" } })
-            expect(CaptureContext.getCapturedRequests()).to.be.empty
+            void expect(CaptureContext.getCapturedRequests()).to.be.empty
         })
     })
 
@@ -138,11 +138,11 @@ describe("CaptureContext", () => {
                 CaptureContext.addRequest({ method: "GET", url: "/users" })
                 CaptureContext.addRequest({ method: "POST", url: "/users" })
 
-                expect(CaptureContext.getCapturedRequests()).to.have.lengthOf(2)
+                void expect(CaptureContext.getCapturedRequests()).to.have.lengthOf(2)
 
                 CaptureContext.clear()
 
-                expect(CaptureContext.getCapturedRequests()).to.be.empty
+                void expect(CaptureContext.getCapturedRequests()).to.be.empty
             })
         })
     })

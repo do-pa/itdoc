@@ -118,7 +118,8 @@ describe("wrapTest integration", () => {
             // })
 
             // NEW WAY (with wrapTest):
-            const apiTest = wrapTest(it)
+            // Example usage (commented out for now):
+            // const apiTest = wrapTest(it)
             // apiTest('should create user', async () => {
             //   const response = await request(app)
             //     .post('/users')
@@ -127,7 +128,7 @@ describe("wrapTest integration", () => {
             //   expect(response.status).toBe(201)
             // })
 
-            expect(true).to.be.true
+            void expect(true).to.be.true
         })
     })
 })
