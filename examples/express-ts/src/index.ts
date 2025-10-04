@@ -3,6 +3,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import { productRoutes } from "./routes/product.routes"
 import { userRoutes } from "./routes/user.routes"
+import { uploadRoutes } from "./routes/upload.routes"
 
 dotenv.config()
 
@@ -14,6 +15,7 @@ app.use(express.json())
 
 app.use("/api/user", userRoutes)
 app.use("/api/products", productRoutes)
+app.use("/api/upload", uploadRoutes)
 
 app.get("/health", (_req, res) => {
     const baseResponse = {
