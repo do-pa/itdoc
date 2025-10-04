@@ -491,7 +491,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      */
     private selectRepresentativeResult(results: TestResult[]): TestResult {
         const authTestCase = results.find(
-            (result) => result.request.headers && "Authorization" in result.request.headers,
+            (result) => result.request.headers && "authorization" in result.request.headers,
         )
 
         if (authTestCase) {
