@@ -527,23 +527,14 @@ describeAPI(
     },
     targetApp,
     (apiDoc) => {
-        before(() => {
-            // tmp 폴더에 example.txt 파일 생성
-            const fs = require("fs")
-            const path = require("path")
-            const dir = path.join(__dirname, "../tmp")
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir)
-            }
-            fs.writeFileSync(path.join(dir, "example.txt"), "This is an example file.")
-        })
+        const fileToUpload = "../expected/oas.json"
 
         itDoc("파일 업로드 성공 (with filePath)", async () => {
             await apiDoc
                 .test()
                 .req()
                 .file("업로드할 파일", {
-                    path: require("path").join(__dirname, "../tmp/example.txt"),
+                    path: require("path").join(__dirname, fileToUpload),
                 })
                 .res()
                 .status(HttpStatus.CREATED)
@@ -551,8 +542,7 @@ describeAPI(
 
         itDoc("파일 업로드 성공 (with Stream)", async () => {
             const fs = require("fs")
-            const path = require("path")
-            const filePath = path.join(__dirname, "../tmp/example.txt")
+            const filePath = require("path").join(__dirname, fileToUpload)
 
             await apiDoc
                 .test()
@@ -567,8 +557,7 @@ describeAPI(
 
         itDoc("파일 업로드 성공 (with Buffer)", async () => {
             const fs = require("fs")
-            const path = require("path")
-            const filePath = path.join(__dirname, "../tmp/example.txt")
+            const filePath = require("path").join(__dirname, fileToUpload)
 
             await apiDoc
                 .test()
