@@ -19,6 +19,7 @@ import { DSLField } from "../interface"
 import { ResponseBuilder } from "./ResponseBuilder"
 import { FIELD_TYPES } from "../interface/field"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
+import logger from "../../config/logger"
 
 /**
  * Builder class for setting API request information.
@@ -31,9 +32,18 @@ export class RequestBuilder extends AbstractTestBuilder {
      */
     public header(headers: Record<string, DSLField<string>>): this {
         const normalizedHeaders: Record<string, DSLField<string>> = {}
+        const seen = new Set<string>()
 
         Object.entries(headers).forEach(([headerName, headerValue]) => {
-            normalizedHeaders[headerName.toLowerCase()] = headerValue
+            const normalized = headerName.toLowerCase()
+
+            if (seen.has(normalized)) {
+                logger.warn(`Duplicate header detected: "${headerName}" (already set)`)
+                return
+            }
+
+            seen.add(normalized)
+            normalizedHeaders[normalized] = headerValue
         })
 
         this.config.requestHeaders = normalizedHeaders
