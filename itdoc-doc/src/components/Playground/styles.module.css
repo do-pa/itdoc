@@ -411,6 +411,7 @@
     flex: 1;
     min-height: 0;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    display: grid;
     gap: clamp(1rem, 3vw, 1.5rem);
     padding: 1.5rem;
     background: linear-gradient(
