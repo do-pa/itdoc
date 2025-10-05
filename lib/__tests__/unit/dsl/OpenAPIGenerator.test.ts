@@ -231,4 +231,42 @@ describe("OpenAPIGenerator", () => {
             assert.isUndefined(spec.paths["/test/no-body-responses"].get.responses["400"].content)
         })
     })
+
+    describe("normalizePathTemplate", () => {
+        it("should handle paths without parameters", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("/users")
+            assert.strictEqual(normalized, "/users")
+        })
+
+        it("should handle mixed format paths", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("/users/{userId}/posts/:postId")
+            assert.strictEqual(normalized, "/users/{userId}/posts/{postId}")
+        })
+
+        it("should handle parameters with underscores", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("/items/:item_id")
+            assert.strictEqual(normalized, "/items/{item_id}")
+        })
+
+        it("should handle empty path", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("")
+            assert.strictEqual(normalized, "")
+        })
+
+        it("should handle root path", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("/")
+            assert.strictEqual(normalized, "/")
+        })
+
+        it("should handle hyphenated parameter names", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("/files/:file-name")
+            assert.strictEqual(normalized, "/files/{file-name}")
+        })
+    })
 })
