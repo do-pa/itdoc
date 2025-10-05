@@ -20,6 +20,7 @@ import { RequestBodyBuilderInterface } from "./interfaces"
 import { SchemaBuilder } from "../schema"
 import { UtilityBuilder } from "./UtilityBuilder"
 import { isDSLField } from "../../../interface/field"
+import logger from "../../../../config/logger"
 
 /**
  * Builder class responsible for creating OpenAPI RequestBody objects
@@ -78,13 +79,8 @@ export class RequestBodyBuilder implements RequestBodyBuilderInterface {
      * @returns Content-Type value
      */
     private getContentType(request: TestResult["request"]): string {
-        if (request.headers) {
-            // case ignores
-            const headers = Object.fromEntries(
-                Object.entries(request.headers).map(([k, v]) => [k.toLowerCase(), v]),
-            )
-            const contentType = headers["content-type"]
-
+        if (request.headers && "content-type" in request.headers) {
+            const contentType = request.headers["content-type"]
             if (typeof contentType === "string") {
                 return contentType
             } else if (isDSLField(contentType) && typeof contentType.example === "string") {
@@ -92,6 +88,7 @@ export class RequestBodyBuilder implements RequestBodyBuilderInterface {
             }
         }
 
+        logger.warn("Content-Type header not found. Falling back to default 'application/json'.")
         return "application/json"
     }
 }
