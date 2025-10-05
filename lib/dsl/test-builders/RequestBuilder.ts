@@ -21,6 +21,14 @@ import { DSLRequestFile, FIELD_TYPES } from "../interface/field"
 import { AbstractTestBuilder } from "./AbstractTestBuilder"
 import logger from "../../config/logger"
 
+interface FileDescriptor {
+    readonly path?: string
+    readonly buffer?: Buffer
+    readonly stream?: NodeJS.ReadableStream
+    readonly filename?: string
+    readonly contentType?: string
+}
+
 /**
  * Builder class for setting API request information.
  */
@@ -57,30 +65,92 @@ export class RequestBuilder extends AbstractTestBuilder {
     /**
      * Sets the request body as a raw file (NOT multipart/form-data).
      *
-     * - Accepts a {@link DSLRequestFile} containing:
-     * • `file`: source (exactly one of path | buffer | stream)
-     * • `opts`: metadata such as contentType (required) and filename (optional)
-     * - Mutually exclusive with {@link body()}.
-     * @param requestFile
-     * @example
-     * req().file({
-     *   file: { path: "./fixtures/report.pdf" },
-     *   opts: { contentType: "application/pdf", filename: "report.pdf" }
-     * })
+     * Two invocation styles are supported:
+     * 1. Shorthand – `req().file("description", { path | buffer | stream, filename?, contentType? })`
+     * 2. Advanced – pass a custom {@link DSLRequestFile} object (legacy support).
+     *
+     * The request is mutually exclusive with {@link body()}.
      */
-    public file(requestFile: DSLRequestFile): this {
+    public file(description: string, descriptor: FileDescriptor): this
+    public file(requestFile: DSLRequestFile): this
+    public file(descriptionOrRequest: string | DSLRequestFile, descriptor?: FileDescriptor): this {
+        const normalized = this.normalizeFileArguments(descriptionOrRequest, descriptor)
+        return this.applyFile(normalized)
+    }
+
+    private normalizeFileArguments(
+        descriptionOrRequest: string | DSLRequestFile | undefined,
+        descriptor?: FileDescriptor,
+    ): DSLRequestFile | undefined {
+        if (typeof descriptionOrRequest !== "string") {
+            return descriptionOrRequest
+        }
+
+        if (!descriptor || typeof descriptor !== "object") {
+            return undefined
+        }
+
+        const file: DSLRequestFile["file"] = {}
+
+        const { path, buffer, stream } = descriptor
+
+        if (path !== undefined) {
+            file.path = path
+        }
+        if (buffer !== undefined) {
+            if (!Buffer.isBuffer(buffer)) {
+                throw new Error("req().file(): buffer must be a Buffer instance.")
+            }
+            file.buffer = buffer
+        }
+        if (stream !== undefined) {
+            if (!this.isReadableStream(stream)) {
+                throw new Error("req().file(): stream must be a readable stream.")
+            }
+            file.stream = stream
+        }
+
+        const providedSources = [file.path, file.buffer, file.stream].filter((value) => value)
+        if (providedSources.length !== 1) {
+            throw new Error(
+                "req().file(): provide exactly one of path | buffer | stream in the descriptor.",
+            )
+        }
+
+        const normalizedContentType = descriptor.contentType ?? "application/octet-stream"
+
+        return {
+            description: descriptionOrRequest,
+            file,
+            opts: descriptor.filename
+                ? { contentType: normalizedContentType, filename: descriptor.filename }
+                : { contentType: normalizedContentType },
+        }
+    }
+
+    private isReadableStream(value: unknown): value is NodeJS.ReadableStream {
+        return (
+            !!value &&
+            typeof value === "object" &&
+            typeof (value as NodeJS.ReadableStream).pipe === "function"
+        )
+    }
+
+    private applyFile(requestFile: DSLRequestFile | undefined): this {
         if (this.config.requestHeaders) {
             throw new Error("already defined headers. can't use file()")
         }
 
-        this.config.requestHeaders = {
-            ...(this.config.requestHeaders ?? {}),
-            "Content-Type": "application/octet-stream",
-        }
-
         if (!requestFile || typeof requestFile !== "object") {
+            this.config.requestHeaders = {
+                "content-type": "application/octet-stream",
+            }
             logger.warn("req().file(): provide one of file.path | file.buffer | file.stream.")
             return this
+        }
+
+        this.config.requestHeaders = {
+            "content-type": requestFile.opts?.contentType ?? "application/octet-stream",
         }
 
         const { file } = requestFile

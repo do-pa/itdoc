@@ -1,5 +1,5 @@
 const app = require("../expressApp.js")
-const { describeAPI, itDoc, HttpStatus, field, fileField, HttpMethod } = require("itdoc")
+const { describeAPI, itDoc, HttpStatus, field, HttpMethod } = require("itdoc")
 
 const targetApp = app
 describeAPI(
@@ -542,11 +542,41 @@ describeAPI(
             await apiDoc
                 .test()
                 .req()
-                .file(
-                    fileField("업로드할 파일", {
-                        path: require("path").join(__dirname, "../tmp/example.txt"),
-                    }),
-                )
+                .file("업로드할 파일", {
+                    path: require("path").join(__dirname, "../tmp/example.txt"),
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        })
+
+        itDoc("파일 업로드 성공 (with Stream)", async () => {
+            const fs = require("fs")
+            const path = require("path")
+            const filePath = path.join(__dirname, "../tmp/example.txt")
+
+            await apiDoc
+                .test()
+                .req()
+                .file("업로드할 파일", {
+                    stream: fs.createReadStream(filePath),
+                    filename: "example-stream.txt",
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        })
+
+        itDoc("파일 업로드 성공 (with Buffer)", async () => {
+            const fs = require("fs")
+            const path = require("path")
+            const filePath = path.join(__dirname, "../tmp/example.txt")
+
+            await apiDoc
+                .test()
+                .req()
+                .file("업로드할 파일", {
+                    buffer: fs.readFileSync(filePath),
+                    filename: "example-buffer.txt",
+                })
                 .res()
                 .status(HttpStatus.CREATED)
         })

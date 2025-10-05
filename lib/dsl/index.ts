@@ -16,5 +16,5 @@
 
 export { HttpMethod } from "./enums/HttpMethod"
 export { HttpStatus } from "./enums/HttpStatus"
-export { describeAPI, itDoc, field, fileField } from "./interface"
+export { describeAPI, itDoc, field } from "./interface"
 export type { ApiDocOptions } from "./interface/ItdocBuilderEntry"

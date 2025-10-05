@@ -100,6 +100,8 @@ export class ResponseBuilder extends AbstractTestBuilder {
 
         if (this.config.requestFile) {
             const requestFile: DSLRequestFile = this.config.requestFile
+            const contentType = requestFile.opts?.contentType ?? "application/octet-stream"
+
             if (
                 !requestFile.file ||
                 (!requestFile.file.path && !requestFile.file.buffer && !requestFile.file.stream)
@@ -112,7 +114,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
                         (k) => k.toLowerCase() === "content-type",
                     )
                 if (!hasContentType) {
-                    req.set("Content-Type", "application/octet-stream")
+                    req.set("Content-Type", contentType)
                 }
                 const buf = fs.readFileSync(requestFile.file.path)
                 req = req.send(buf)
@@ -123,8 +125,9 @@ export class ResponseBuilder extends AbstractTestBuilder {
                         (k) => k.toLowerCase() === "content-type",
                     )
                 if (!hasContentType) {
-                    req.set("Content-Type", "application/octet-stream")
+                    req.set("Content-Type", contentType)
                 }
+                req = req.send(requestFile.file.buffer)
             } else if (requestFile.file.stream) {
                 const hasContentType =
                     !!this.config.requestHeaders &&
@@ -132,7 +135,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
                         (k) => k.toLowerCase() === "content-type",
                     )
                 if (!hasContentType) {
-                    req.set("Content-Type", "application/octet-stream")
+                    req.set("Content-Type", contentType)
                 }
                 const chunks: Buffer[] = []
                 for await (const chunk of requestFile.file.stream as any) {
