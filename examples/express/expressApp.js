@@ -253,7 +253,7 @@ app.get("/failed-test", (req, res) => {
 
 app.post("/uploads", (req, res) => {
     if (req.headers["content-type"] !== "application/octet-stream") {
-        res.status(400).json({ error: "Invalid content type" })
+        return res.status(400).json({ error: "Invalid content type" })
     }
 
     let uploadedBytes = 0
@@ -264,13 +264,13 @@ app.post("/uploads", (req, res) => {
 
     req.on("end", () => {
         if (uploadedBytes === 0) {
-            res.status(400).json({ error: "No file uploaded" })
+            return res.status(400).json({ error: "No file uploaded" })
         }
-        res.status(201).json()
+        return res.status(201).json()
     })
 
     req.on("error", () => {
-        res.status(500).json({ error: "Upload failed" })
+        return res.status(500).json({ error: "Upload failed" })
     })
 })
 
