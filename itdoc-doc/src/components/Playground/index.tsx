@@ -722,10 +722,28 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
 
     const runDisabled = installStatus !== "ready" || isRunning
 
+    const progressPercent = useMemo(() => {
+        const milestoneCount = installMilestones.length
+        if (milestoneCount <= 1) {
+            return installStatus === "ready" ? 100 : 99
+        }
+
+        const clampedIndex = Math.min(activeMilestoneIndex, milestoneCount - 1)
+        const percent = Math.round((clampedIndex / (milestoneCount - 1)) * 100)
+
+        if (installStatus === "ready") {
+            return 100
+        }
+
+        return Math.min(percent, 99)
+    }, [activeMilestoneIndex, installStatus])
+
     const statusLabel = useMemo(() => {
         switch (installStatus) {
             case "installing":
-                return "Installing dependencies..."
+                return progressPercent >= 90
+                    ? "Finalizing environment..."
+                    : "Installing dependencies..."
             case "ready":
                 return "Environment ready."
             case "error":
@@ -733,17 +751,7 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
             default:
                 return "Waiting to start..."
         }
-    }, [installStatus])
-
-    const progressPercent = useMemo(() => {
-        const milestoneCount = installMilestones.length
-        if (milestoneCount <= 1) {
-            return 100
-        }
-
-        const clampedIndex = Math.min(activeMilestoneIndex, milestoneCount - 1)
-        return Math.round((clampedIndex / (milestoneCount - 1)) * 100)
-    }, [activeMilestoneIndex])
+    }, [installStatus, progressPercent])
 
     const currentMilestone = useMemo(() => {
         if (installMilestones.length === 0) {
