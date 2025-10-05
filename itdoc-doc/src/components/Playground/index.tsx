@@ -702,6 +702,24 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
         }
     }, [installStatus])
 
+    useEffect(() => {
+        if (!canUseDom) {
+            return
+        }
+
+        if (!showRunModal && !showSwaggerPreview) {
+            return
+        }
+
+        const { style } = document.body
+        const originalOverflow = style.overflow
+        style.overflow = "hidden"
+
+        return () => {
+            style.overflow = originalOverflow
+        }
+    }, [canUseDom, showRunModal, showSwaggerPreview])
+
     const runDisabled = installStatus !== "ready" || isRunning
 
     const statusLabel = useMemo(() => {
@@ -848,14 +866,6 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                     <span className={styles.statusChip} data-status={installStatus}>
                         {statusLabel}
                     </span>
-                    <button
-                        className={styles.runButton}
-                        type="button"
-                        onClick={handleRun}
-                        disabled={runDisabled}
-                    >
-                        {isRunning ? "Running..." : "Run"}
-                    </button>
                     {onRequestHelp ? (
                         <button
                             type="button"
@@ -865,6 +875,14 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                             How to use
                         </button>
                     ) : null}
+                    <button
+                        className={styles.runButton}
+                        type="button"
+                        onClick={handleRun}
+                        disabled={runDisabled}
+                    >
+                        {isRunning ? "Running..." : "Run"}
+                    </button>
                 </div>
             </header>
             {showWorkspace && errorMessage ? (
@@ -1090,8 +1108,7 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                                                         )
                                                     ) : (
                                                         <p className={styles.oasEmpty}>
-                                                            Preview will appear here after a
-                                                            successful run.
+                                                            {swaggerInlineFallbackMessage}
                                                         </p>
                                                     )}
                                                 </div>

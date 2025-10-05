@@ -105,25 +105,35 @@
     transform: translateY(-1px);
 }
 
-.runButton {
+.topHelpButton {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 1.5rem;
-    border-radius: 0.5rem;
-    border: none;
-    background-color: var(--ifm-color-primary);
-    color: var(--ifm-font-color-base-inverse);
+    padding: 0.45rem 1.15rem;
+    border-radius: 999px;
+    border: 1px solid rgba(50, 122, 224, 0.55);
+    background: rgba(247, 248, 250, 0.71);
+    color: rgba(58, 53, 53, 0.92);
     font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     cursor: pointer;
     transition:
         background-color 0.2s ease,
+        color 0.2s ease,
         transform 0.2s ease;
 }
 
-.runButton:not(:disabled):hover {
-    background-color: color-mix(in srgb, var(--ifm-color-primary) 88%, black 12%);
+.topHelpButton:hover {
+    background: rgba(226, 232, 240, 0.24);
+    color: #ffffff;
     transform: translateY(-1px);
+}
+
+.topHelpButton:focus-visible {
+    outline: 2px solid rgba(226, 232, 240, 0.85);
+    outline-offset: 2px;
 }
 
 .runButton:disabled {
