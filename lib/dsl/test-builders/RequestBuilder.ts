@@ -137,8 +137,12 @@ export class RequestBuilder extends AbstractTestBuilder {
     }
 
     private applyFile(requestFile: DSLRequestFile | undefined): this {
-        if (this.config.requestHeaders) {
-            throw new Error("already defined headers. can't use file()")
+        const existingHeaders = this.config.requestHeaders ?? {}
+        const hasContentType = Object.keys(existingHeaders).some(
+            (key) => key.toLowerCase() === "content-type",
+        )
+        if (hasContentType) {
+            throw new Error('You cannot set "Content-Type" header when using file().')
         }
 
         if (!requestFile || typeof requestFile !== "object") {
