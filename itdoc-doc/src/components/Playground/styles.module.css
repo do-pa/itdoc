@@ -19,7 +19,7 @@
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 6rem);
-    background-color: var(--ifm-color-emphasis-0);
+    background-color: var(--ifm-color-emphasis-0, #f8fafc);
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 1rem;
     box-shadow: 0 28px 60px rgba(15, 23, 42, 0.12);
@@ -29,14 +29,14 @@
 .browserOnly {
     padding: clamp(3rem, 6vw, 5rem);
     text-align: center;
-    color: var(--ifm-color-content-secondary);
+    color: var(--ifm-color-content-secondary, #64748b);
 }
 
 .topBar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ifm-spacing-lg);
+    gap: var(--ifm-spacing-lg, 1.5rem);
     padding: 1.1rem clamp(1.2rem, 4vw, 2rem);
     background: linear-gradient(135deg, #0f172a, #1e293b);
     color: #e2e8f0;
@@ -46,14 +46,14 @@
 .brandGroup {
     display: flex;
     align-items: center;
-    gap: var(--ifm-spacing-md);
+    gap: var(--ifm-spacing-md, 1rem);
 }
 
 .brandMark {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 50%;
-    background: var(--ifm-color-primary);
+    background: var(--ifm-color-primary, #6366f1);
     box-shadow: 0 0 18px rgba(99, 102, 241, 0.65);
 }
 
@@ -81,7 +81,7 @@
 .topActions {
     display: flex;
     align-items: center;
-    gap: var(--ifm-spacing-md);
+    gap: var(--ifm-spacing-md, 1rem);
 }
 
 .previewToggle {
@@ -190,7 +190,7 @@
     width: 0.55rem;
     height: 0.55rem;
     border-radius: 50%;
-    background: var(--ifm-color-success);
+    background: var(--ifm-color-success, #16a34a);
     box-shadow: 0 0 12px rgba(34, 197, 94, 0.65);
 }
 
@@ -253,14 +253,14 @@
     gap: 0.75rem;
     padding: clamp(2.5rem, 6vw, 4rem);
     text-align: center;
-    color: var(--ifm-color-content-secondary);
+    color: var(--ifm-color-content-secondary, #64748b);
 }
 
 .placeholderTitle {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--ifm-color-emphasis-800);
+    color: var(--ifm-color-emphasis-800, #1f2937);
 }
 
 .placeholderCopy {
@@ -272,7 +272,7 @@
     grid-column: span 12;
     display: flex;
     flex-direction: column;
-    background: var(--ifm-color-white);
+    background: var(--ifm-color-white, #ffffff);
     border-radius: 0.9rem;
     border: 1px solid rgba(15, 23, 42, 0.08);
     box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
@@ -283,7 +283,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ifm-spacing-md);
+    gap: var(--ifm-spacing-md, 1rem);
     padding: 1rem 1.25rem;
     border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     background: rgba(248, 250, 252, 0.9);
@@ -299,7 +299,7 @@
     margin: 0;
     font-weight: 600;
     font-size: 0.95rem;
-    color: var(--ifm-color-emphasis-800);
+    color: var(--ifm-color-emphasis-800, #1f2937);
 }
 
 .columnMeta {
@@ -307,7 +307,7 @@
     font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ifm-color-content-secondary);
+    color: var(--ifm-color-content-secondary, #64748b);
 }
 
 .columnActions {
@@ -358,7 +358,7 @@
     max-height: calc(100vh - 3rem);
     display: flex;
     flex-direction: column;
-    background: var(--ifm-color-white);
+    background: var(--ifm-color-white, #ffffff);
     border-radius: 1rem;
     box-shadow: 0 40px 80px rgba(15, 23, 42, 0.2);
     overflow: auto;
@@ -368,7 +368,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ifm-spacing-lg);
+    gap: var(--ifm-spacing-lg, 1.5rem);
     padding: 1.25rem 1.5rem 1rem;
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
     background: linear-gradient(135deg, #0f172a, #1e293b);
@@ -441,7 +441,7 @@
 .runModalCard {
     display: flex;
     flex-direction: column;
-    background: var(--ifm-color-white);
+    background: var(--ifm-color-white, #ffffff);
     border-radius: 0.9rem;
     border: 1px solid rgba(15, 23, 42, 0.08);
     box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
@@ -452,7 +452,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ifm-spacing-md);
+    gap: var(--ifm-spacing-md, 1rem);
     padding: 1rem 1.25rem;
     border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     background: rgba(248, 250, 252, 0.92);
@@ -462,7 +462,7 @@
     margin: 0;
     font-size: 0.95rem;
     font-weight: 600;
-    color: var(--ifm-color-emphasis-800);
+    color: var(--ifm-color-emphasis-800, #1f2937);
 }
 
 .runModalChip {
@@ -492,7 +492,7 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--ifm-spacing-md);
+    gap: var(--ifm-spacing-md, 1rem);
     padding: 1.25rem 1.25rem 1.5rem;
 }
 
@@ -501,12 +501,12 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--ifm-spacing-sm);
+    gap: var(--ifm-spacing-sm, 0.5rem);
 }
 
 .codeEditor :global(.cm-editor) {
     border-radius: 0.75rem;
-    border: 1px solid var(--ifm-color-emphasis-300);
+    border: 1px solid var(--ifm-color-emphasis-300, #d1d5db);
     background-color: #1e1e1e;
     box-shadow: 0 4px 18px rgba(8, 15, 45, 0.25);
     height: 100%;
@@ -514,7 +514,7 @@
 }
 
 .codeEditor :global(.cm-scroller) {
-    font-family: var(--ifm-font-family-monospace);
+    font-family: var(--ifm-font-family-monospace, Menlo, Monaco, 'Courier New', monospace);
     font-size: 0.95rem;
     line-height: 1.5;
     min-height: 0;
@@ -528,12 +528,12 @@
 .hint {
     margin: 0;
     font-size: 0.9rem;
-    color: var(--ifm-color-content-secondary);
+    color: var(--ifm-color-content-secondary, #64748b);
 }
 
 .oasWorkspace {
     display: grid;
-    gap: var(--ifm-spacing-lg);
+    gap: var(--ifm-spacing-lg, 1.5rem);
     grid-template-columns: minmax(0, 1fr);
 }
 
@@ -546,10 +546,10 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: var(--ifm-spacing-md);
+    padding: var(--ifm-spacing-md, 1rem);
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 0 0 0.75rem 0.75rem;
-    gap: var(--ifm-spacing-md);
+    gap: var(--ifm-spacing-md, 1rem);
     min-height: 0;
     max-height: 420px;
     overflow: auto;
@@ -569,7 +569,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: var(--ifm-spacing-md);
+    padding: var(--ifm-spacing-md, 1rem);
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 0 0 0.75rem 0.75rem;
     min-height: 0;
@@ -593,11 +593,11 @@
 }
 
 .codeChrome {
-    font-family: var(--ifm-font-family-monospace);
+    font-family: var(--ifm-font-family-monospace, Menlo, Monaco, 'Courier New', monospace);
     font-size: 0.85rem;
     letter-spacing: 0.02em;
-    padding: 0.6rem var(--ifm-spacing-md);
-    color: var(--ifm-color-emphasis-700);
+    padding: 0.6rem var(--ifm-spacing-md, 1rem);
+    color: var(--ifm-color-emphasis-700, #334155);
     background: rgba(148, 163, 184, 0.25);
     border-bottom: 1px solid rgba(148, 163, 184, 0.4);
 }
@@ -605,7 +605,7 @@
 .oasEmpty {
     margin: auto;
     text-align: center;
-    color: var(--ifm-color-content-secondary);
+    color: var(--ifm-color-content-secondary, #64748b);
     max-width: 18rem;
     line-height: 1.5;
 }
@@ -669,7 +669,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.65rem var(--ifm-spacing-md);
+    padding: 0.65rem var(--ifm-spacing-md, 1rem);
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
     border-bottom: 1px solid rgba(148, 163, 184, 0.18);
 }
@@ -696,7 +696,7 @@
 
 .terminalOutput {
     background-color: rgba(15, 23, 42, 0.85);
-    padding: var(--ifm-spacing-md);
+    padding: var(--ifm-spacing-md, 1rem);
     flex: 1;
     display: flex;
     overflow: hidden;
@@ -726,7 +726,7 @@
         radial-gradient(circle at bottom right, rgba(14, 116, 144, 0.12), transparent 55%),
         linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.94));
     backdrop-filter: blur(6px);
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
     z-index: 20;
 }
 
@@ -746,20 +746,20 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ifm-spacing-lg);
+    gap: var(--ifm-spacing-lg, 1.5rem);
 }
 
 .progressContext {
     display: flex;
     align-items: center;
-    gap: var(--ifm-spacing-md);
+    gap: var(--ifm-spacing-md, 1rem);
 }
 
 .progressSpinner {
     width: 2.5rem;
     height: 2.5rem;
     border: 3px solid rgba(15, 23, 42, 0.1);
-    border-top-color: var(--ifm-color-primary);
+    border-top-color: var(--ifm-color-primary, #6366f1);
     border-radius: 50%;
     animation: installSpinner 1s linear infinite;
 }
@@ -775,7 +775,7 @@
 .progressTitle {
     margin: 0;
     font-weight: 600;
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
 }
 
 .progressPercent {
@@ -801,7 +801,7 @@
     grid-column: span 7;
     display: flex;
     flex-direction: column;
-    gap: var(--ifm-spacing-lg);
+    gap: var(--ifm-spacing-lg, 1.5rem);
 }
 
 .installBody .tipCard {
@@ -824,8 +824,8 @@
     width: 0;
     background: linear-gradient(
         135deg,
-        var(--ifm-color-primary),
-        color-mix(in srgb, var(--ifm-color-primary) 82%, white 18%)
+        var(--ifm-color-primary, #6366f1),
+        color-mix(in srgb, var(--ifm-color-primary, #6366f1) 82%, white 18%)
     );
     transition: width 0.6s ease;
 }
@@ -858,16 +858,16 @@
 }
 
 .milestoneItemActive .milestoneBullet {
-    background-color: var(--ifm-color-primary);
+    background-color: var(--ifm-color-primary, #6366f1);
 }
 
 .milestoneItemActive .milestoneLabel {
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
     font-weight: 600;
 }
 
 .milestoneItemComplete .milestoneBullet {
-    background-color: color-mix(in srgb, var(--ifm-color-primary) 65%, black 35%);
+    background-color: color-mix(in srgb, var(--ifm-color-primary, #6366f1) 65%, black 35%);
 }
 
 .milestoneItemComplete .milestoneLabel {
@@ -905,7 +905,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ifm-spacing-sm);
+    gap: var(--ifm-spacing-sm, 0.5rem);
 }
 
 .tipLabel {
@@ -918,7 +918,7 @@
 .tipButton {
     border: none;
     background: rgba(15, 118, 110, 0.25);
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
@@ -937,7 +937,7 @@
 .tipTitle {
     margin: 0;
     font-weight: 600;
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
 }
 
 .tipBody {
@@ -953,7 +953,7 @@
     background: linear-gradient(145deg, rgba(190, 18, 60, 0.12), rgba(220, 38, 38, 0.18));
     border: 1px solid rgba(248, 113, 113, 0.45);
     box-shadow: 0 24px 48px rgba(76, 29, 29, 0.35);
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -1004,9 +1004,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ifm-spacing-md);
+    gap: var(--ifm-spacing-md, 1rem);
     padding: clamp(1.5rem, 3vw, 2rem) clamp(2rem, 4vw, 2.5rem);
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
 }
 
 .previewModalHeader h2 {
@@ -1017,7 +1017,7 @@
 .previewModalClose {
     border: 1px solid rgba(148, 163, 184, 0.5);
     background: rgba(15, 23, 42, 0.6);
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
     border-radius: 999px;
     padding: 0.35rem 0.9rem;
     font-size: 0.85rem;
@@ -1044,7 +1044,7 @@
 
 .previewModalCanvas {
     min-height: 420px;
-    color: var(--ifm-color-white);
+    color: var(--ifm-color-white, #ffffff);
 }
 
 .previewModalCanvas :global(.redoc-wrap) {
@@ -1097,7 +1097,7 @@
     .progressIntro {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--ifm-spacing-md);
+        gap: var(--ifm-spacing-md, 1rem);
     }
 
     .progressPercent {

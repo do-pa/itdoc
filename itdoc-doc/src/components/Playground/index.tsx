@@ -1099,27 +1099,6 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                                                 <div className={styles.codeChrome}>
                                                     Swagger Preview
                                                 </div>
-                                                <div className={styles.oasPreviewContainer}>
-                                                    {oasOutput ? (
-                                                        showSwaggerPreview ? (
-                                                            <p className={styles.oasEmpty}>
-                                                                The preview is open in a fullscreen
-                                                                window.
-                                                            </p>
-                                                        ) : (
-                                                            <div
-                                                                ref={redocContainerRef}
-                                                                className={styles.oasPreviewCanvas}
-                                                            >
-                                                                Loading preview…
-                                                            </div>
-                                                        )
-                                                    ) : (
-                                                        <p className={styles.oasEmpty}>
-                                                            {swaggerInlineFallbackMessage}
-                                                        </p>
-                                                    )}
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
