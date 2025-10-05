@@ -601,7 +601,11 @@
                 "tags": ["Secret"],
                 "description": "비밀 API 입니다. 인증이 필요합니다.",
                 "operationId": "getSecret",
-                "security": [{}],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "인증 토큰이 있으면 접근할 수 있다.",
@@ -642,7 +646,7 @@
                 "operationId": "postOrders",
                 "parameters": [
                     {
-                        "name": "X-Request-ID",
+                        "name": "x-request-id",
                         "in": "header",
                         "schema": {
                             "type": "string",
@@ -861,7 +865,11 @@
                     },
                     "required": true
                 },
-                "security": [{}],
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "복잡한 주문 생성 성공",
@@ -1180,7 +1188,7 @@
                         "required": false
                     },
                     {
-                        "name": "Accept",
+                        "name": "accept",
                         "in": "header",
                         "schema": {
                             "type": "string",
@@ -1189,7 +1197,7 @@
                         "required": false
                     },
                     {
-                        "name": "Accept-Language",
+                        "name": "accept-language",
                         "in": "header",
                         "schema": {
                             "type": "string",
@@ -1354,6 +1362,15 @@
                         }
                     }
                 }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     },

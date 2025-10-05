@@ -58,7 +58,6 @@ export class RequestBuilder extends AbstractTestBuilder {
         if (normalizedHeaders["content-type"]) {
             throw new Error('You cannot set "Content-Type" header using header().')
         }
-        this.config.requestHeaders = headers
         return this
     }
 
