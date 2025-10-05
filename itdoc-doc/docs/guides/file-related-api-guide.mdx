@@ -1,0 +1,77 @@
+---
+sidebar_position: 4
+---
+
+# Working with File APIs
+
+> This guide explains how to test APIs that upload or download files.
+
+## Single File Upload (Binary Body)
+
+`itdoc` handles binary uploads through the `req().file()` DSL. You cannot combine `req().file()` with `req().body()` in the same request.
+
+**Supported signatures**
+
+- `req().file("description", { path: string, filename?, contentType? })`
+- `req().file("description", { buffer: Buffer, filename?, contentType? })`
+- `req().file("description", { stream: Readable, filename?, contentType? })`
+
+Choose exactly one of `path`, `buffer`, or `stream` to supply the file. The default `contentType` is `application/octet-stream`.
+
+```ts title="Upload via file path"
+await apiDoc
+    .test()
+    .req()
+    .file("File to upload", {
+        path: path.join(__dirname, "fixtures/sample.bin"),
+    })
+    .res()
+    .status(HttpStatus.CREATED)
+```
+
+```ts title="Upload via stream"
+await apiDoc
+    .test()
+    .req()
+    .file("File to upload", {
+        stream: fs.createReadStream(filePath),
+        filename: "sample.bin",
+        contentType: "application/pdf",
+    })
+    .res()
+    .status(HttpStatus.CREATED)
+```
+
+```ts title="Upload via buffer"
+await apiDoc
+    .test()
+    .req()
+    .file("File to upload", {
+        buffer: fs.readFileSync(filePath),
+        filename: "sample.bin",
+    })
+    .res()
+    .status(HttpStatus.CREATED)
+```
+
+:::tip
+Calling `.file()` without a source sends an empty body with only the `Content-Type` header set. This is handy when you need to assert a failure path.
+
+```js
+itDoc("fail when no file is provided", () => {
+    return apiDoc
+        .test()
+        .req()
+        .file()
+        .res()
+        .status(HttpStatus.BAD_REQUEST)
+        .body({
+            error: field("Error message", "No file uploaded"),
+        })
+})
+```
+:::
+
+## Multipart Upload
+
+> Not supported yet.
