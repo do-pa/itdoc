@@ -206,15 +206,6 @@ export class ResponseBuilder extends AbstractTestBuilder {
             },
         }
 
-        // let requestType: string = ""
-        // if (this.config.requestFile) {
-        //     requestType = "binary"
-        // } else if (this.config.requestBody) {
-        //     requestType = "body"
-        // } else {
-        //     throw new Error("Could not define requestType")
-        // }
-
         try {
             const res = await req
             logToPrint.response = {
