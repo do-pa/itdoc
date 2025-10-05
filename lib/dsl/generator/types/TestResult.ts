@@ -15,7 +15,7 @@
  */
 
 import { HttpMethod } from "../../enums"
-import { ApiDocOptions } from "../../interface"
+import { ApiDocOptions, DSLRequestFile } from "../../interface"
 
 /**
  * Test result interface
@@ -41,7 +41,7 @@ export interface TestResult {
     url: string
     options: ApiDocOptions
     request: {
-        file?: unknown
+        file?: DSLRequestFile
         body?: unknown
         headers?: Record<string, string | unknown>
         queryParams?: Record<string, string | unknown>
