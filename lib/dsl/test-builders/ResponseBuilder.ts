@@ -116,7 +116,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 if (!hasContentType) {
                     req.set("Content-Type", contentType)
                 }
-                const buf = fs.readFileSync(requestFile.file.path)
+                const buf = await fs.promises.readFile(requestFile.file.path)
                 req = req.send(buf)
             } else if (requestFile.file.buffer) {
                 const hasContentType =
