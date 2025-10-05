@@ -581,7 +581,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
      * @returns {string} Normalized OpenAPI path
      */
     private normalizePathTemplate(path: string): string {
-        return path.replace(/:([A-Za-z0-9_]+)/g, "{$1}")
+        return path.replace(/:([A-Za-z0-9_-]+)/g, "{$1}")
     }
 
     /**

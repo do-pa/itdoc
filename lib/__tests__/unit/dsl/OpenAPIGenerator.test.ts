@@ -231,4 +231,24 @@ describe("OpenAPIGenerator", () => {
             assert.isUndefined(spec.paths["/test/no-body-responses"].get.responses["400"].content)
         })
     })
+
+    describe("normalizePathTemplate", () => {
+        it("should convert Express-style params to OpenAPI format", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("/users/:userId/posts/:postId")
+            assert.strictEqual(normalized, "/users/{userId}/posts/{postId}")
+        })
+
+        it("should handle already normalized paths", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("/users/{userId}")
+            assert.strictEqual(normalized, "/users/{userId}")
+        })
+
+        it("should handle already normalized paths", () => {
+            const generator = OpenAPIGenerator.getInstance()
+            const normalized = generator["normalizePathTemplate"]("/files/:file-name")
+            assert.strictEqual(normalized, "/files/{file-name}")
+        })
+    })
 })
