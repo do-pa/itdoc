@@ -105,7 +105,7 @@
     transform: translateY(-1px);
 }
 
-.topHelpButton {
+.runButton {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -125,13 +125,13 @@
         transform 0.2s ease;
 }
 
-.topHelpButton:hover {
+.runButton:hover {
     background: rgba(226, 232, 240, 0.24);
     color: #ffffff;
     transform: translateY(-1px);
 }
 
-.topHelpButton:focus-visible {
+.runButton:focus-visible {
     outline: 2px solid rgba(226, 232, 240, 0.85);
     outline-offset: 2px;
 }
