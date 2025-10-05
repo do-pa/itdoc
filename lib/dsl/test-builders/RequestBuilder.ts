@@ -188,7 +188,7 @@ export class RequestBuilder extends AbstractTestBuilder {
      * @returns {this} Request builder instance
      */
     public body(body: Record<string, DSLField<FIELD_TYPES> | FIELD_TYPES>): this {
-        if (this.config.requestBody) {
+        if (this.config.requestBody || this.config.requestFile) {
             throw new Error(
                 [
                     "❌ Conflict: request body has already been set using .body().",
