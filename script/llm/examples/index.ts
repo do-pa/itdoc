@@ -19,39 +19,39 @@ describeAPI(
     HttpMethod.POST,
     "signup",
     {
-        summary: "회원 가입 API",
+        summary: "User Signup API",
         tag: "Auth",
-        description: "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+        description: "Registers a user by receiving a username and password.",
     },
     targetApp,
     (apiDoc) => {
-        itDoc("회원가입 성공", async () => {
+        itDoc("Sign up successfully", async () => {
             await apiDoc
                 .test()
                 .prettyPrint()
                 .req()
                 .body({
-                    username: field("사용자 이름", "username"),
-                    password: field("패스워드", "P@ssw0rd123!@#"),
+                    username: field("User name", "username"),
+                    password: field("Password", "P@ssw0rd123!@#"),
                 })
                 .res()
                 .status(HttpStatus.CREATED)
         })
 
-        itDoc("아이디를 입력하지 않으면 회원가입 실패한다.", async () => {
+        itDoc("Fail to sign up without a username", async () => {
             await apiDoc
                 .test()
                 .req()
                 .body({
-                    password: field("패스워드", "P@ssw0rd123!@#"),
+                    password: field("Password", "P@ssw0rd123!@#"),
                 })
                 .res()
                 .status(HttpStatus.BAD_REQUEST)
                 .body({
-                    error: field("에러 메세지", "username is required"),
+                    error: field("Error message", "username is required"),
                 })
         })
-        itDoc("에러가 발생할 경우, 500 응답을 반환한다.", async () => {
+        itDoc("Return a 500 response when an error occurs", async () => {
             const layer = getRouteLayer(targetApp, "post", "/signup")
             sandbox.stub(layer, "handle").callsFake((req, res, next) => {
                 return res.status(500).json({ error: "Internal Server Error" })
@@ -60,13 +60,13 @@ describeAPI(
                 .test()
                 .req()
                 .body({
-                    username: field("사용자 이름", "hun"),
-                    password: field("패스워드(8자 이상)", "12345678"),
+                    username: field("User name", "hun"),
+                    password: field("Password (8 characters minimum)", "12345678"),
                 })
                 .res()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body({
-                    error: field("에러 메시지", "Internal Server Error"),
+                    error: field("Error message", "Internal Server Error"),
                 })
         })
     },
@@ -76,38 +76,38 @@ describeAPI(
     HttpMethod.GET,
     "/users/:userId",
     {
-        summary: "사용자 조회 API",
+        summary: "User Lookup API",
         tag: "User",
-        description: "특정 사용자의 상세 정보를 조회하는 API입니다.",
+        description: "Retrieves detailed information for a specific user.",
     },
     targetApp,
     (apiDoc) => {
-        itDoc("유효한 사용자 ID가 주어지면 200 응답을 반환한다.", async () => {
+        itDoc("Return 200 when a valid user ID is provided", async () => {
             await apiDoc
                 .test()
                 .req()
                 .pathParam({
-                    userId: field("유효한 사용자 ID", "penek"),
+                    userId: field("Valid user ID", "penek"),
                 })
                 .res()
                 .status(HttpStatus.OK)
                 .body({
-                    userId: field("유저 ID", "penek"),
-                    username: field("유저 이름", "hun"),
-                    email: field("유저 이메일", "penekhun@gmail.com"),
-                    friends: field("유저의 친구", ["zagabi", "json"]),
+                    userId: field("User ID", "penek"),
+                    username: field("User name", "hun"),
+                    email: field("User email", "penekhun@gmail.com"),
+                    friends: field("User friends", ["zagabi", "json"]),
                 })
         })
 
-        itDoc("유효한 헤더로 접근하면 200 응답을 반환한다.", async () => {
+        itDoc("Return 200 when valid headers are provided", async () => {
             await apiDoc
                 .test()
                 .req()
                 .queryParam({
-                    token: field("인증 토큰A", 123456)
+                    token: field("Auth token A", 123456)
                 })
                 .header({
-                    Authorization: field("인증 토큰B", "Bearer 123456"),
+                    Authorization: field("Auth token B", "Bearer 123456"),
                 })
                 .res()
                 .status(HttpStatus.OK) 
