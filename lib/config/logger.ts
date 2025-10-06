@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-console */
-
 import { ConsolaReporter, createConsola, LogObject, consola as defaultConsola } from "consola"
 import chalk from "chalk"
 import { LoggerInterface } from "./LoggerInterface"
 
-// 테스트 환경 감지
+// Detect whether the current execution is a test environment.
 const isTestEnv = (): boolean => {
     return (
         process.env.NODE_ENV === "test" ||
@@ -31,10 +29,10 @@ const isTestEnv = (): boolean => {
     )
 }
 
-// 테스트 완료 여부 추적 (Jest 환경에서만 사용)
+// Track whether tests have finished (used only in Jest environments).
 let testsCompleted = false
 
-// Jest 환경에서 테스트 완료 후 로그 안전하게 처리
+// Safely handle logs after tests finish in Jest environments.
 try {
     if (isTestEnv() && typeof (global as any).afterAll === "function") {
         ;(global as any).afterAll(() => {
@@ -42,7 +40,7 @@ try {
         })
     }
 } catch {
-    // 무시
+    // Ignore on purpose.
 }
 
 const DEFAULT_LOG_LEVEL = process.env.ITDOC_DEBUG ? 0 : 4
@@ -66,16 +64,16 @@ const levels = {
 } as const
 const MAX_LOG_LEVEL_LABEL_LENGTH = Math.max(...Object.keys(levels).map((key) => key.length))
 
-// 안전한 로그 출력 함수
+// Provide a safe logging helper.
 const safeConsoleLog = (message: string, ...args: any[]): void => {
-    // 테스트 모드이고 테스트가 완료된 상태라면 로그 출력 안함
+    // Skip logging when running in test mode after tests complete.
     if (isTestEnv() && testsCompleted) {
         return
     }
 
-    // 테스트 모드이지만 테스트가 아직 완료되지 않았으면, 콘솔 사용
+    // Use the console when tests are still running in test mode.
     if (isTestEnv()) {
-        // 테스트 중에는 stdout에 직접 쓰기 (Jest의 console.log 대체)
+        // Write directly to stdout during tests as a console.log replacement.
         process.stdout.write(message + "\n")
         if (args.length > 0) {
             args.forEach((arg) => {
@@ -83,12 +81,12 @@ const safeConsoleLog = (message: string, ...args: any[]): void => {
                     const str = typeof arg === "string" ? arg : JSON.stringify(arg, null, 2)
                     process.stdout.write(str + "\n")
                 } catch {
-                    // 무시
+                    // Ignore on purpose.
                 }
             })
         }
     } else {
-        // 일반 환경에서는 console.log 사용
+        // Use console.log in non-test environments.
         console.log(message, ...args)
     }
 }
@@ -139,7 +137,7 @@ const formatExtra = (extra: unknown[]): string[] => {
 }
 
 const itdocLoggerInstance = createConsola({
-    level: isTestEnv() ? 5 : DEFAULT_LOG_LEVEL, // 테스트 환경에서는 로깅 레벨을 더 높게 설정 (오류만 표시)
+    level: isTestEnv() ? 5 : DEFAULT_LOG_LEVEL, // Raise the log level in test environments to show only errors.
     reporters: [customReporter],
 })
 
