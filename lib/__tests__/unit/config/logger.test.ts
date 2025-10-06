@@ -30,21 +30,23 @@ describe("logger", () => {
         consoleStub.restore()
     })
 
-    context("info 호출시", () => {
-        it("로그가 잘 출력된다.", () => {
+    context("when info is called", () => {
+        it("prints formatted logs", () => {
             logger.info(
-                "회원 가입 성공",
+                "User sign-up succeeded",
                 {
                     username: "penekhun",
                     name: "MoonSeonghun",
                 },
-                "가입 시기 : 2025-01-01",
+                "Joined at: 2025-01-01",
             )
 
             const [labelLine, ...extraLines] = consoleStub.getCalls().map((c) => c.args[0])
 
             expect(labelLine).to.equal(
-                chalk.bgBlue(chalk.white.bold("[INFO]")) + "  " + chalk.blue("회원 가입 성공"),
+                chalk.bgBlue(chalk.white.bold("[INFO]")) +
+                    "  " +
+                    chalk.blue("User sign-up succeeded"),
             )
 
             expect(extraLines).to.deep.equal([
@@ -52,19 +54,19 @@ describe("logger", () => {
                     '         "username": "penekhun",\n' +
                     '         "name": "MoonSeonghun"\n' +
                     "       }",
-                "       ↳ 가입 시기 : 2025-01-01",
+                "       ↳ Joined at: 2025-01-01",
             ])
         })
     })
 
-    context("ITDOC_DEBUG 환경변수가 ", () => {
-        it("설정되지 않으면 로그레벨이 4가 된다.", async () => {
+    context("when ITDOC_DEBUG is toggled", () => {
+        it("sets the log level to 4 when the variable is unset", async () => {
             delete process.env.ITDOC_DEBUG
             const { default: logger } = await import("../../../config/logger?" + Date.now())
             expect(logger.level).to.equal(4)
         })
 
-        it("설정되면 로그레벨이 0이 된다.", async () => {
+        it("sets the log level to 0 when the variable is enabled", async () => {
             process.env.ITDOC_DEBUG = "true"
             const { default: logger } = await import("../../../config/logger?" + Date.now())
             expect(logger.level).to.equal(0)
