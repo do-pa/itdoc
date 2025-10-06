@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.2](https://github.com/do-pa/itdoc/compare/v0.4.1...v0.4.2) (2025-10-06)
+
+
+### 🩹 Fixes
+
+* ensure header keys are case-insensitive ([#251](https://github.com/do-pa/itdoc/issues/251)) ([db8251a](https://github.com/do-pa/itdoc/commit/db8251aa4a8de3b51cebcae0d48b4d653e445d5d))
+* functional response validation failure ([#246](https://github.com/do-pa/itdoc/issues/246)) ([e1dc575](https://github.com/do-pa/itdoc/commit/e1dc57509f47fa559c0e0eb40ce18274f438d4f9))
+* resolve syntax error in generated openapi json ([#253](https://github.com/do-pa/itdoc/issues/253)) ([fd47b61](https://github.com/do-pa/itdoc/commit/fd47b61056d6cc21ad4b85e154a41184d4a186e8))
+
 ## [0.4.1](https://github.com/do-pa/itdoc/compare/v0.4.0...v0.4.1) (2025-08-21)
 
 
