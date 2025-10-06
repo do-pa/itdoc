@@ -43,7 +43,7 @@ const program = new Command()
 
 program
     .name("itdoc")
-    .usage("A CLI tool for generating ITDOC test code using LLM") // ✅ 직접 Usage 설정
+    .usage("A CLI tool for generating ITDOC test code using LLM")
     .addHelpText(
         "after",
         `

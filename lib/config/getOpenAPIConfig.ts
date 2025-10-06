@@ -17,21 +17,21 @@
 import { readItdocConfig } from "./readPackageJson"
 
 /**
- * 생성될 OAS에 설정된 서버 주소를 가져옴.
+ * Retrieve the configured server URL for the generated OAS.
  */
 export function getOpenAPIBaseUrl(): string {
     return readItdocConfig("document.baseUrl", "http://localhost:8080")
 }
 
 /**
- * 생성될 OAS에 설정될 TITLE을 가져옴.,
+ * Retrieve the title that will be applied to the generated OAS.
  */
 export function getOpenAPITitle(): string {
     return readItdocConfig("document.title", "API Document")
 }
 
 /**
- * 생성될 OAS에 설정될 Top-Level 문서 설명을 가져옴.
+ * Retrieve the top-level description for the generated OAS document.
  */
 export function getOpenAPIDocumentDescription(): string {
     return readItdocConfig(

@@ -32,13 +32,13 @@ const validateDSLField = (expectedDSL: any, actualVal: any, path: string): void 
         )
     }
 
-    // DSL Field의 example이 함수인 경우
+    // Handle a DSL field whose example is a function.
     if (typeof expectedDSL.example === "function") {
         validateFunction(expectedDSL.example, actualVal)
         return
     }
 
-    // DSL Field의 example이 객체인 경우
+    // Handle a DSL field whose example is an object.
     if (example && typeof example === "object") {
         if (isDSLField(actualVal)) {
             validateResponse(expectedDSL.example, actualVal.example, path)
@@ -48,7 +48,7 @@ const validateDSLField = (expectedDSL: any, actualVal: any, path: string): void 
         return
     }
 
-    // DSL Field의 example이 원시값인 경우
+    // Handle a DSL field whose example is a primitive value.
     if (isDSLField(actualVal)) {
         if (actualVal.example !== expectedDSL.example) {
             throw new Error(
@@ -107,13 +107,13 @@ const validateFunction = (func: (actualValue: any) => any, actualVal: any): void
  * @see {ResponseBuilder}
  */
 export const validateResponse = (expected: any, actual: any, path: string = ""): void => {
-    // 배열인 경우
+    // Handle array comparisons.
     if (Array.isArray(expected)) {
         validateArray(expected, actual, path)
         return
     }
 
-    // 객체인 경우 (null 제외)
+    // Handle objects except for null.
     if (expected && typeof expected === "object") {
         for (const key in expected) {
             const currentPath = path ? `${path}.${key}` : key
@@ -142,7 +142,7 @@ export const validateResponse = (expected: any, actual: any, path: string = ""):
         return
     }
 
-    // 원시 타입인 경우 직접 비교
+    // Compare primitive types directly.
     if (actual !== expected) {
         throw new Error(`Expected response body[${path}] to be ${expected} but got ${actual}`)
     }

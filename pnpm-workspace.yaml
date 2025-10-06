@@ -1,10 +1,10 @@
 packages:
-    # 모든 패키지 포함
+    # Include every package.
     - "scripts/*"
     - "lib/**"
     - "examples/**"
     - "itdoc-doc/**"
-    # test 디렉토리 제외
+    # Exclude test directories.
     - "!**/test/**"
-    # 빌드 출력 디렉토리 제외
+    # Exclude build output directories.
     - "!**/dist/**"

@@ -44,7 +44,7 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
     private version: string = "1.0.0"
     private description: string = getOpenAPIDocumentDescription()
     private servers: Array<{ url: string; description?: string }> = []
-    private defaultSecurity: Record<string, string[]>[] = [{}] // 기본값은 빈 보안 요구사항 (선택적 보안)
+    private defaultSecurity: Record<string, string[]>[] = [{}] // Default to an empty optional security requirement.
     private operationBuilder = new OperationBuilder()
     private utilityBuilder = new UtilityBuilder()
 

@@ -74,28 +74,28 @@ export class SchemaFactory implements ISchemaFactory {
             return { type: "null" }
         }
 
-        // DSL 필드 처리
+        // Handle DSL fields.
         if (isDSLField(value)) {
             return this.generators["dslfield"].generateSchema(value, includeExample)
         }
 
-        // 배열 처리
+        // Handle arrays.
         if (Array.isArray(value)) {
             return this.generators["array"].generateSchema(value, includeExample)
         }
 
-        // 객체 처리
+        // Handle objects.
         if (typeof value === "object") {
             return this.generators["object"].generateSchema(value, includeExample)
         }
 
-        // 기본 타입 처리 (문자열, 숫자, 불리언)
+        // Handle primitive types such as string, number, and boolean.
         const type = typeof value
         if (this.generators[type]) {
             return this.generators[type].generateSchema(value, includeExample)
         }
 
-        // 알 수 없는 타입인 경우
+        // Fallback for unknown types.
         return { type: "string" }
     }
 }

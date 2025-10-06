@@ -15,7 +15,7 @@
  */
 
 import traversePkg, { NodePath } from "@babel/traverse"
-// @ts-expect-error - CommonJS/ES modules 호환성 이슈로 인한 타입 에러 무시
+// @ts-expect-error - Ignore the type error caused by a CommonJS/ES module compatibility issue.
 const traverse = traversePkg.default
 import * as t from "@babel/types"
 import { RoutePrefix } from "../type/interface"

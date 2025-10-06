@@ -178,7 +178,7 @@ export class ResponseBuilder extends AbstractTestBuilder {
                 },
                 response: {
                     status: res.status,
-                    body: this.config.expectedResponseBody || res.body, // 검증을 위한 예상 응답 본문을 우선으로 사용
+                    body: this.config.expectedResponseBody || res.body, // Prefer the expected response body for validation.
                     headers: res.headers,
                 },
                 testSuiteDescription: testContext.get() || "",
