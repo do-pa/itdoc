@@ -14,5 +14,4 @@
  * limitations under the License.
  */
 
-// 재구성된 모듈을 내보냅니다
 export * from "./operation"
