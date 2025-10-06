@@ -92,11 +92,11 @@ function createMemberAccessIdentifier(mem: t.MemberExpression | t.OptionalMember
     let propName = "<prop>"
     if (t.isIdentifier(mem.property)) propName = mem.property.name
     else if (t.isStringLiteral(mem.property)) propName = mem.property.value
-    else propName = toSig(exprToString(mem.property as t.Node)) // <- 안전 변환
+    else propName = toSig(exprToString(mem.property as t.Node)) // Perform a safe conversion.
 
     const sep = t.isOptionalMemberExpression(mem) ? "?." : "."
     const accessor = mem.computed
-        ? `${sep}[${toSig(exprToString(mem.property as t.Node))}]` // <- 안전 변환
+        ? `${sep}[${toSig(exprToString(mem.property as t.Node))}]` // Perform a safe conversion.
         : `${sep}${propName}`
 
     return {
@@ -479,9 +479,9 @@ export function extractValue(
                 return undefined
             })()
             if (sampleArr) {
-                info.samples = sampleArr // 주 출력
+                info.samples = sampleArr // Provide the primary output.
                 if (info.sample === undefined) {
-                    info.sample = sampleArr // 하위호환(단수 키도 채움)
+                    info.sample = sampleArr // Maintain backward compatibility by filling the singular key.
                 }
             }
         }

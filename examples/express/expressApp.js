@@ -201,13 +201,13 @@ app.get("/products", (req, res) => {
         products: [
             {
                 id: "prod1",
-                name: "무선 마우스",
+                name: "Wireless Mouse",
                 price: 50000,
                 brand: "samsung",
             },
             {
                 id: "prod2",
-                name: "블루투스 키보드",
+                name: "Bluetooth Keyboard",
                 price: 120000,
                 brand: "lg",
             },
@@ -238,7 +238,7 @@ app.get("/cached-data", (req, res) => {
         return res.status(200).json({
             data: {
                 version: "1.0",
-                content: "캐시 가능한 데이터",
+                content: "Cacheable data",
             },
             timestamp: 1697873280000,
         })

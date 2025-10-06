@@ -19,13 +19,13 @@ export default tseslint.config(
             "output/**",
         ],
     },
-    // ESLint 기본 추천 규칙
+    // Apply the default ESLint recommended rules.
     eslint.configs.recommended,
-    // TypeScript 추천 규칙
+    // Apply the TypeScript recommended rules.
     ...tseslint.configs.recommended,
-    // JSDoc 문서화 추천 규칙
+    // Apply the recommended JSDoc documentation rules.
     jsdoc.configs["flat/recommended"],
-    // Mocha 플러그인 설정
+    // Configure the Mocha plugin.
     {
         plugins: {
             mocha: mochaPlugin,
@@ -34,17 +34,17 @@ export default tseslint.config(
     {
         files: ["**/*.ts"],
         languageOptions: {
-            // 사용할 JavaScript 버전 지정
+            // Target the specified JavaScript version.
             ecmaVersion: 2022,
-            // ESM 모듈 시스템 사용
+            // Use the ESM module system.
             sourceType: "module",
-            // TypeScript 파서 사용
+            // Use the TypeScript parser.
             parser: tseslint.parser,
             parserOptions: {
-                // TypeScript 설정 파일 지정
+                // Reference the TypeScript project configuration files.
                 project: ["./tsconfig.json", "./tsconfig.test.json"],
             },
-            // env 대신 globals 사용
+            // Provide globals instead of using env shortcuts.
             globals: {
                 ...globals.node,
                 ...globals.es2022,
@@ -56,45 +56,45 @@ export default tseslint.config(
             "license-header": licenseHeader,
         },
         rules: {
-            // TypeScript 관련 규칙
-            // 함수의 반환 타입 명시 필수 -> widdershins 모듈문제로 임시 비활성화
+            // Configure TypeScript-specific rules.
+            // Require explicit return types, temporarily disabled due to the widdershins module.
             "@typescript-eslint/explicit-function-return-type": "off",
-            // 사용하지 않는 변수 에러 처리 (_로 시작하는 변수는 제외)
-            "@typescript-eslint/no-explicit-any": "warn", // error에서 warn으로 변경
+            // Flag unused variables while allowing names that start with an underscore.
+            "@typescript-eslint/no-explicit-any": "warn", // Set severity to warn instead of error.
             "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-            // 클래스 멤버의 접근 제한자 명시 필수
+            // Require explicit access modifiers on class members.
             "@typescript-eslint/explicit-member-accessibility": [
                 "error",
                 { accessibility: "explicit" },
             ],
-            "@typescript-eslint/no-require-imports": "warn", // error에서 warn으로 변경
+            "@typescript-eslint/no-require-imports": "warn", // Set severity to warn instead of error.
 
-            // JSDoc 규칙 완화
+            // Relax certain JSDoc rules.
             "jsdoc/require-description": "warn",
             "jsdoc/require-param-description": "warn",
             "jsdoc/require-returns-description": "warn",
-            "jsdoc/require-example": "off", // 필수 예제 비활성화
-            "jsdoc/check-examples": "off", // 예제 검사 비활성화
+            "jsdoc/require-example": "off", // Disable mandatory examples.
+            "jsdoc/check-examples": "off", // Disable example validation.
             "jsdoc/require-throws": "warn",
             "jsdoc/require-param": "warn",
             "jsdoc/require-returns": "warn",
             "jsdoc/require-param-type": "warn",
 
-            // 코드 품질 규칙
-            // 중첩 콜백 최대 3개까지 허용
+            // Configure code-quality rules.
+            // Allow up to three nested callbacks.
             "max-nested-callbacks": ["error", 3],
-            // 함수당 최대 50줄 제한 (빈 줄과 주석 제외)
+            // Warn when a function exceeds 150 lines excluding blanks and comments.
             "max-lines-per-function": [
-                "warn", // error에서 warn으로 변경
+                "warn", // Set severity to warn instead of error.
                 { max: 150, skipBlankLines: true, skipComments: true },
             ],
 
-            // Mocha 테스트 규칙
+            // Configure Mocha test rules.
             "mocha/no-skipped-tests": "warn",
-            // 단독 실행 테스트 금지
+            // Forbid exclusive tests.
             "mocha/no-exclusive-tests": "error",
 
-            // 라이센스 헤더 규칙
+            // Enforce the license header rule.
             "license-header/header": [
                 "error",
                 [
@@ -116,14 +116,14 @@ export default tseslint.config(
                 ],
             ],
 
-            // no-console 규칙: widdershins 모듈문제로 임시 비활성화
+            // Temporarily disable no-console because of the widdershins module.
             "no-console": "off",
         },
-        // JSDoc 설정
+        // Configure JSDoc settings.
         settings: {
             jsdoc: {
                 mode: "typescript",
-                // 태그 이름 설정
+                // Configure tag name preferences.
                 tagNamePreference: {
                     returns: "returns",
                     example: "example",
@@ -138,6 +138,6 @@ export default tseslint.config(
             "max-nested-callbacks": "off",
         },
     },
-    // Prettier와의 충돌 방지
+    // Prevent conflicts with Prettier.
     eslintConfigPrettier,
 )
