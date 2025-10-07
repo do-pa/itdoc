@@ -85,6 +85,7 @@ const config: Config = {
                         execFileSync("pnpm", ["run", "build"], {
                             cwd: repoRoot,
                             stdio: "inherit",
+                            shell: process.platform === "win32",
                         })
                         const packOutput = execFileSync(
                             "pnpm",
@@ -92,8 +93,10 @@ const config: Config = {
                             {
                                 cwd: repoRoot,
                                 stdio: "pipe",
+                                shell: process.platform === "win32",
                             },
                         )
+
                         const packResult = packOutput.toString().trim().split("\n")
                         const tarballName = packResult.pop()?.trim()
                         if (!tarballName) {
