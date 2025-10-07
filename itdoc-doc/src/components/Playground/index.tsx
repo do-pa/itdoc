@@ -1093,13 +1093,6 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                                                     )}
                                                 </div>
                                             </div>
-                                            <div
-                                                className={`${styles.codeSurface} ${styles.oasPreviewCard}`}
-                                            >
-                                                <div className={styles.codeChrome}>
-                                                    Swagger Preview
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
