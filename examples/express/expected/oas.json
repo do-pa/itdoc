@@ -14,9 +14,9 @@
     "paths": {
         "/signup": {
             "post": {
-                "summary": "회원 가입 API",
+                "summary": "User Signup API",
                 "tags": ["Auth"],
-                "description": "사용자로 부터 아이디와 패스워드를 받아 회원가입을 수행합니다.",
+                "description": "Registers a user by receiving a username and password.",
                 "operationId": "postSignup",
                 "requestBody": {
                     "content": {
@@ -27,12 +27,12 @@
                                     "username": {
                                         "type": "string",
                                         "example": "username",
-                                        "description": "사용자 이름"
+                                        "description": "Username"
                                     },
                                     "password": {
                                         "type": "string",
                                         "example": "P@ssw0rd123!@#",
-                                        "description": "패스워드"
+                                        "description": "Password"
                                     }
                                 },
                                 "required": ["username", "password"]
@@ -48,10 +48,10 @@
                 "security": [{}],
                 "responses": {
                     "201": {
-                        "description": "회원가입 성공"
+                        "description": "Sign up successfully"
                     },
                     "400": {
-                        "description": "아이디를 입력하지 않으면 회원가입 실패한다.",
+                        "description": "Fail to sign up without a username.",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -60,24 +60,24 @@
                                         "error": {
                                             "type": "string",
                                             "example": "username is required",
-                                            "description": "에러 메시지"
+                                            "description": "Error message"
                                         }
                                     },
                                     "required": ["error"]
                                 },
                                 "examples": {
-                                    "아이디를 입력하지 않으면 회원가입 실패한다.": {
+                                    "Fail to sign up without a username.": {
                                         "value": {
                                             "error": {
-                                                "message": "아이디를 입력하지 않으면 회원가입 실패한다.",
+                                                "message": "Fail to sign up without a username.",
                                                 "code": "ERROR_400"
                                             }
                                         }
                                     },
-                                    "패스워드가 8자 미만이면 회원가입 실패한다.": {
+                                    "Fail to sign up if the password is shorter than eight characters.": {
                                         "value": {
                                             "error": {
-                                                "message": "패스워드가 8자 미만이면 회원가입 실패한다.",
+                                                "message": "Fail to sign up if the password is shorter than eight characters.",
                                                 "code": "ERROR_400"
                                             }
                                         }
@@ -89,11 +89,11 @@
                 }
             }
         },
-        "/users/{userId}": {
+        "/users/:userId": {
             "get": {
-                "summary": "사용자 조회 API",
+                "summary": "User lookup API",
                 "tags": ["User"],
-                "description": "특정 사용자의 상세 정보를 조회하는 API입니다.",
+                "description": "Retrieves detailed information about a specific user.",
                 "operationId": "getUsersByuserid",
                 "parameters": [
                     {
@@ -103,14 +103,14 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "유효한 사용자 ID",
+                        "description": "Valid user ID",
                         "example": "penek"
                     }
                 ],
                 "security": [{}],
                 "responses": {
                     "200": {
-                        "description": "유효한 사용자 ID가 주어지면 200 응답을 반환한다.",
+                        "description": "Return 200 when a valid user ID is provided.",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -119,18 +119,18 @@
                                         "userId": {
                                             "type": "string",
                                             "example": "penek",
-                                            "description": "유저 ID"
+                                            "description": "User ID"
                                         },
                                         "username": {
                                             "type": "string",
                                             "example": "hun",
-                                            "description": "유저 이름"
+                                            "description": "User name"
                                         },
                                         "email": {
                                             "type": "string",
                                             "format": "email",
                                             "example": "penekhun@gmail.com",
-                                            "description": "유저 이메일"
+                                            "description": "User email"
                                         },
                                         "friends": {
                                             "type": "array",
@@ -138,14 +138,14 @@
                                                 "type": "string",
                                                 "example": "zagabi"
                                             },
-                                            "description": "유저의 친구",
+                                            "description": "User friends",
                                             "example": ["zagabi", "json"]
                                         }
                                     },
                                     "required": ["userId", "username", "email", "friends"]
                                 },
                                 "examples": {
-                                    "유효한 사용자 ID가 주어지면 200 응답을 반환한다.": {
+                                    "Return 200 when a valid user ID is provided.": {
                                         "value": {
                                             "userId": "penek",
                                             "username": "hun",
@@ -158,14 +158,14 @@
                         }
                     },
                     "404": {
-                        "description": "존재하지 않는 사용자 ID가 주어지면 404 응답을 반환한다."
+                        "description": "Return 404 when the user ID does not exist."
                     }
                 }
             },
             "put": {
-                "summary": "사용자 정보 수정 API",
+                "summary": "User update API",
                 "tags": ["User"],
-                "description": "사용자 ID를 받아 해당 사용자의 정보를 전체 수정합니다.",
+                "description": "Updates a user's information entirely by user ID.",
                 "operationId": "putUsersByuserid",
                 "parameters": [
                     {
@@ -175,7 +175,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "유효한 사용자 ID",
+                        "description": "Valid user ID",
                         "example": "user123"
                     }
                 ],
@@ -187,37 +187,37 @@
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "example": "홍길동",
-                                        "description": "이름"
+                                        "example": "Hong Gil-dong",
+                                        "description": "Name"
                                     },
                                     "email": {
                                         "type": "string",
                                         "format": "email",
                                         "example": "hong@example.com",
-                                        "description": "이메일"
+                                        "description": "Email"
                                     },
                                     "age": {
                                         "type": "integer",
                                         "example": 30,
-                                        "description": "나이"
+                                        "description": "Age"
                                     },
                                     "address": {
                                         "type": "object",
                                         "properties": {
                                             "city": {
                                                 "type": "string",
-                                                "example": "서울",
-                                                "description": "도시"
+                                                "example": "Seoul",
+                                                "description": "City"
                                             },
                                             "street": {
                                                 "type": "string",
-                                                "example": "강남대로 123",
-                                                "description": "거리"
+                                                "example": "123 Gangnam-daero",
+                                                "description": "Street"
                                             },
                                             "zipcode": {
                                                 "type": "string",
                                                 "example": "06000",
-                                                "description": "우편번호"
+                                                "description": "Postal code"
                                             }
                                         },
                                         "required": ["city", "street", "zipcode"]
@@ -226,12 +226,12 @@
                                 "required": ["name", "email", "age"]
                             },
                             "example": {
-                                "name": "홍길동",
+                                "name": "Hong Gil-dong",
                                 "email": "hong@example.com",
                                 "age": 30,
                                 "address": {
-                                    "city": "서울",
-                                    "street": "강남대로 123",
+                                    "city": "Seoul",
+                                    "street": "123 Gangnam-daero",
                                     "zipcode": "06000"
                                 }
                             }
@@ -242,7 +242,7 @@
                 "security": [{}],
                 "responses": {
                     "200": {
-                        "description": "유효한 사용자 정보로 수정 성공",
+                        "description": "Update successfully with valid user information",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -259,7 +259,7 @@
                                     }
                                 },
                                 "examples": {
-                                    "유효한 사용자 정보로 수정 성공": {
+                                    "Update successfully with valid user information": {
                                         "value": {
                                             "success": true,
                                             "message": "User updated successfully"
@@ -270,7 +270,7 @@
                         }
                     },
                     "404": {
-                        "description": "존재하지 않는 사용자 수정 시도",
+                        "description": "Attempt to update a nonexistent user",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -283,16 +283,16 @@
                                         "message": {
                                             "type": "string",
                                             "example": "User not found",
-                                            "description": "에러 메시지"
+                                            "description": "Error message"
                                         }
                                     },
                                     "required": ["message"]
                                 },
                                 "examples": {
-                                    "존재하지 않는 사용자 수정 시도": {
+                                    "Attempt to update a nonexistent user": {
                                         "value": {
                                             "error": {
-                                                "message": "존재하지 않는 사용자 수정 시도",
+                                                "message": "Attempt to update a nonexistent user",
                                                 "code": "ERROR_404"
                                             }
                                         }
@@ -304,9 +304,9 @@
                 }
             },
             "patch": {
-                "summary": "사용자 부분 정보 수정 API",
+                "summary": "User partial update API",
                 "tags": ["User"],
-                "description": "사용자 ID를 받아 해당 사용자의 정보를 부분적으로 수정합니다.",
+                "description": "Updates a user's information partially by user ID.",
                 "operationId": "patchUsersByuserid",
                 "parameters": [
                     {
@@ -316,7 +316,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "유효한 사용자 ID",
+                        "description": "Valid user ID",
                         "example": "user123"
                     }
                 ],
@@ -330,7 +330,7 @@
                                         "type": "string",
                                         "format": "email",
                                         "example": "newemail@example.com",
-                                        "description": "새 이메일"
+                                        "description": "New email"
                                     }
                                 },
                                 "required": ["email"]
@@ -345,7 +345,7 @@
                 "security": [{}],
                 "responses": {
                     "200": {
-                        "description": "이메일만 수정 성공",
+                        "description": "Update only the email successfully",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -369,7 +369,7 @@
                                     }
                                 },
                                 "examples": {
-                                    "이메일만 수정 성공": {
+                                    "Update only the email successfully": {
                                         "value": {
                                             "success": true,
                                             "message": "User partially updated",
@@ -383,11 +383,11 @@
                 }
             }
         },
-        "/users/{userId}/friends/{friendName}": {
+        "/users/:userId/friends/:friendName": {
             "delete": {
-                "summary": "특정 사용자의 친구를 삭제합니다.",
+                "summary": "Deletes a specific user's friend.",
                 "tags": ["User"],
-                "description": "특정 사용자의 특정 친구 삭제 API",
+                "description": "Delete a specific friend for a user.",
                 "operationId": "deleteUsersByuseridFriendsByfriendname",
                 "parameters": [
                     {
@@ -397,7 +397,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "존재하지 않는 사용자 ID",
+                        "description": "Nonexistent user ID",
                         "example": "invalid-user-id"
                     },
                     {
@@ -413,22 +413,22 @@
                 "security": [{}],
                 "responses": {
                     "204": {
-                        "description": "유효한 사용자 ID와 친구 ID가 주어지면 정상 삭제된다."
+                        "description": "Delete successfully when both the user ID and friend ID are valid."
                     },
                     "400": {
-                        "description": "존재 하지 않는 사용자 ID가 주어지면 400 응답을 반환한다."
+                        "description": "Return 400 when the user ID does not exist."
                     },
                     "404": {
-                        "description": "존재하지 않는 친구 ID가 주어지면 404 응답을 반환한다."
+                        "description": "Return 404 when the friend ID does not exist."
                     }
                 }
             }
         },
         "/users": {
             "get": {
-                "summary": "회원 목록 조회 API",
+                "summary": "User list API",
                 "tags": ["User"],
-                "description": "회원 목록을 조회합니다.",
+                "description": "Retrieve the user list.",
                 "operationId": "getUsers",
                 "parameters": [
                     {
@@ -437,10 +437,10 @@
                         "schema": {
                             "type": "integer",
                             "example": 1,
-                            "description": "페이지"
+                            "description": "Page"
                         },
                         "required": true,
-                        "description": "페이지"
+                        "description": "Page"
                     },
                     {
                         "name": "size",
@@ -448,16 +448,16 @@
                         "schema": {
                             "type": "integer",
                             "example": 3,
-                            "description": "페이지 사이즈"
+                            "description": "Page size"
                         },
                         "required": true,
-                        "description": "페이지 사이즈"
+                        "description": "Page size"
                     }
                 ],
                 "security": [{}],
                 "responses": {
                     "200": {
-                        "description": "회원 목록을 조회한다.",
+                        "description": "Retrieve the user list.",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -470,12 +470,12 @@
                                         "size": {
                                             "type": "integer",
                                             "example": 3,
-                                            "description": "페이지 사이즈"
+                                            "description": "Page size"
                                         },
                                         "total": {
                                             "type": "integer",
                                             "example": 6,
-                                            "description": "전체 회원 수"
+                                            "description": "Total number of users"
                                         },
                                         "members": {
                                             "type": "array",
@@ -485,26 +485,26 @@
                                                     "username": {
                                                         "type": "string",
                                                         "example": "penekhun",
-                                                        "description": "사용자 아이디"
+                                                        "description": "User ID"
                                                     },
                                                     "name": {
                                                         "type": "string",
                                                         "example": "seonghun",
-                                                        "description": "사용자 이름(본명)"
+                                                        "description": "User real name"
                                                     }
                                                 },
                                                 "required": ["username", "name"]
                                             },
-                                            "description": "회원 목록",
+                                            "description": "User list",
                                             "example": [
                                                 {
                                                     "username": {
-                                                        "description": "사용자 아이디",
+                                                        "description": "User ID",
                                                         "example": "penekhun",
                                                         "required": true
                                                     },
                                                     "name": {
-                                                        "description": "사용자 이름(본명)",
+                                                        "description": "User real name",
                                                         "example": "seonghun",
                                                         "required": true
                                                     }
@@ -523,7 +523,7 @@
                                     "required": ["size", "total", "members"]
                                 },
                                 "examples": {
-                                    "회원 목록을 조회한다.": {
+                                    "Retrieve the user list.": {
                                         "value": {
                                             "page": 1,
                                             "size": 3,
@@ -531,12 +531,12 @@
                                             "members": [
                                                 {
                                                     "username": {
-                                                        "description": "사용자 아이디",
+                                                        "description": "User ID",
                                                         "example": "penekhun",
                                                         "required": true
                                                     },
                                                     "name": {
-                                                        "description": "사용자 이름(본명)",
+                                                        "description": "User real name",
                                                         "example": "seonghun",
                                                         "required": true
                                                     }
@@ -557,7 +557,7 @@
                         }
                     },
                     "400": {
-                        "description": "페이지 번호가 누락 되면 400 응답을 반환한다.",
+                        "description": "Return 400 when the page number is missing.",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -566,24 +566,24 @@
                                         "error": {
                                             "type": "string",
                                             "example": "page are required",
-                                            "description": "에러 메시지"
+                                            "description": "Error message"
                                         }
                                     },
                                     "required": ["error"]
                                 },
                                 "examples": {
-                                    "페이지 번호가 누락 되면 400 응답을 반환한다.": {
+                                    "Return 400 when the page number is missing.": {
                                         "value": {
                                             "error": {
-                                                "message": "페이지 번호가 누락 되면 400 응답을 반환한다.",
+                                                "message": "Return 400 when the page number is missing.",
                                                 "code": "ERROR_400"
                                             }
                                         }
                                     },
-                                    "페이지 사이즈가 누락 되면 400 응답을 반환한다.": {
+                                    "Return 400 when the page size is missing.": {
                                         "value": {
                                             "error": {
-                                                "message": "페이지 사이즈가 누락 되면 400 응답을 반환한다.",
+                                                "message": "Return 400 when the page size is missing.",
                                                 "code": "ERROR_400"
                                             }
                                         }
@@ -597,9 +597,9 @@
         },
         "/secret": {
             "get": {
-                "summary": "비밀 API",
+                "summary": "Secret API",
                 "tags": ["Secret"],
-                "description": "비밀 API 입니다. 인증이 필요합니다.",
+                "description": "Secret API that requires authentication.",
                 "operationId": "getSecret",
                 "security": [
                     {
@@ -608,7 +608,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "인증 토큰이 있으면 접근할 수 있다.",
+                        "description": "Allow access when the auth token is present.",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -617,13 +617,13 @@
                                         "message": {
                                             "type": "string",
                                             "example": "This is a secret message",
-                                            "description": "비밀 메시지"
+                                            "description": "Secret message"
                                         }
                                     },
                                     "required": ["message"]
                                 },
                                 "examples": {
-                                    "인증 토큰이 있으면 접근할 수 있다.": {
+                                    "Allow access when the auth token is present.": {
                                         "value": {
                                             "message": "This is a secret message"
                                         }
@@ -633,16 +633,16 @@
                         }
                     },
                     "401": {
-                        "description": "인증 토큰이 없으면 접근할 수 없다."
+                        "description": "Deny access when the auth token is missing."
                     }
                 }
             }
         },
         "/orders": {
             "post": {
-                "summary": "주문 생성 API",
+                "summary": "Order creation API",
                 "tags": ["Order"],
-                "description": "새로운 주문을 생성합니다.",
+                "description": "Creates a new order.",
                 "operationId": "postOrders",
                 "parameters": [
                     {
@@ -667,12 +667,12 @@
                                             "id": {
                                                 "type": "string",
                                                 "example": "cust123",
-                                                "description": "고객 ID"
+                                                "description": "Customer ID"
                                             },
                                             "name": {
                                                 "type": "string",
-                                                "example": "홍길동",
-                                                "description": "고객명"
+                                                "example": "Hong Gil-dong",
+                                                "description": "Customer name"
                                             },
                                             "contact": {
                                                 "type": "object",
@@ -681,12 +681,12 @@
                                                         "type": "string",
                                                         "format": "email",
                                                         "example": "hong@example.com",
-                                                        "description": "이메일"
+                                                        "description": "Email"
                                                     },
                                                     "phone": {
                                                         "type": "string",
                                                         "example": "010-1234-5678",
-                                                        "description": "전화번호"
+                                                        "description": "Phone number"
                                                     }
                                                 },
                                                 "required": ["email", "phone"]
@@ -705,7 +705,7 @@
                                                 },
                                                 "name": {
                                                     "type": "string",
-                                                    "example": "노트북"
+                                                    "example": "Laptop"
                                                 },
                                                 "price": {
                                                     "type": "integer",
@@ -724,18 +724,18 @@
                                                 }
                                             }
                                         },
-                                        "description": "주문 상품 목록",
+                                        "description": "Order item list",
                                         "example": [
                                             {
                                                 "productId": "prod1",
-                                                "name": "노트북",
+                                                "name": "Laptop",
                                                 "price": 1500000,
                                                 "quantity": 1,
                                                 "options": ["8GB RAM", "512GB SSD"]
                                             },
                                             {
                                                 "productId": "prod2",
-                                                "name": "마우스",
+                                                "name": "Mouse",
                                                 "price": 30000,
                                                 "quantity": 2,
                                                 "options": []
@@ -751,17 +751,17 @@
                                                     "zipcode": {
                                                         "type": "string",
                                                         "example": "06000",
-                                                        "description": "우편번호"
+                                                        "description": "Postal code"
                                                     },
                                                     "city": {
                                                         "type": "string",
-                                                        "example": "서울",
-                                                        "description": "도시"
+                                                        "example": "Seoul",
+                                                        "description": "City"
                                                     },
                                                     "street": {
                                                         "type": "string",
-                                                        "example": "강남대로 123",
-                                                        "description": "상세주소"
+                                                        "example": "123 Gangnam-daero",
+                                                        "description": "Detailed address"
                                                     }
                                                 },
                                                 "required": ["zipcode", "city", "street"]
@@ -769,12 +769,12 @@
                                             "method": {
                                                 "type": "string",
                                                 "example": "express",
-                                                "description": "배송 방법"
+                                                "description": "Delivery method"
                                             },
                                             "instructions": {
                                                 "type": "string",
-                                                "example": "부재시 경비실에 맡겨주세요",
-                                                "description": "배송 지침"
+                                                "example": "Leave it with security when absent.",
+                                                "description": "Delivery instructions"
                                             }
                                         },
                                         "required": ["method", "instructions"]
@@ -785,7 +785,7 @@
                                             "method": {
                                                 "type": "string",
                                                 "example": "credit_card",
-                                                "description": "결제 방법"
+                                                "description": "Payment method"
                                             },
                                             "details": {
                                                 "type": "object",
@@ -793,12 +793,12 @@
                                                     "cardType": {
                                                         "type": "string",
                                                         "example": "visa",
-                                                        "description": "카드 종류"
+                                                        "description": "Card type"
                                                     },
                                                     "lastFourDigits": {
                                                         "type": "string",
                                                         "example": "1234",
-                                                        "description": "마지막 4자리"
+                                                        "description": "Last four digits"
                                                     }
                                                 },
                                                 "required": ["cardType", "lastFourDigits"]
@@ -812,7 +812,7 @@
                                             "type": "string",
                                             "example": "SUMMER10"
                                         },
-                                        "description": "쿠폰 코드",
+                                        "description": "Coupon codes",
                                         "example": ["SUMMER10", "WELCOME"]
                                     }
                                 },
@@ -821,7 +821,7 @@
                             "example": {
                                 "customer": {
                                     "id": "cust123",
-                                    "name": "홍길동",
+                                    "name": "Hong Gil-dong",
                                     "contact": {
                                         "email": "hong@example.com",
                                         "phone": "010-1234-5678"
@@ -830,14 +830,14 @@
                                 "items": [
                                     {
                                         "productId": "prod1",
-                                        "name": "노트북",
+                                        "name": "Laptop",
                                         "price": 1500000,
                                         "quantity": 1,
                                         "options": ["8GB RAM", "512GB SSD"]
                                     },
                                     {
                                         "productId": "prod2",
-                                        "name": "마우스",
+                                        "name": "Mouse",
                                         "price": 30000,
                                         "quantity": 2,
                                         "options": []
@@ -846,11 +846,11 @@
                                 "shipping": {
                                     "address": {
                                         "zipcode": "06000",
-                                        "city": "서울",
-                                        "street": "강남대로 123"
+                                        "city": "Seoul",
+                                        "street": "123 Gangnam-daero"
                                     },
                                     "method": "express",
-                                    "instructions": "부재시 경비실에 맡겨주세요"
+                                    "instructions": "Leave it with security when absent."
                                 },
                                 "payment": {
                                     "method": "credit_card",
@@ -872,7 +872,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "복잡한 주문 생성 성공",
+                        "description": "Create a complex order successfully",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -881,23 +881,23 @@
                                         "orderId": {
                                             "type": "string",
                                             "example": "order123",
-                                            "description": "주문 ID"
+                                            "description": "Order ID"
                                         },
                                         "totalAmount": {
                                             "type": "integer",
                                             "example": 1560000,
-                                            "description": "총 금액"
+                                            "description": "Total amount"
                                         },
                                         "estimatedDelivery": {
                                             "type": "string",
                                             "format": "date",
                                             "example": "2023-09-15",
-                                            "description": "예상 배송일"
+                                            "description": "Estimated delivery date"
                                         },
                                         "status": {
                                             "type": "string",
                                             "example": "PAYMENT_PENDING",
-                                            "description": "주문 상태"
+                                            "description": "Order status"
                                         }
                                     },
                                     "required": [
@@ -908,7 +908,7 @@
                                     ]
                                 },
                                 "examples": {
-                                    "복잡한 주문 생성 성공": {
+                                    "Create a complex order successfully": {
                                         "value": {
                                             "orderId": "order123",
                                             "totalAmount": 1560000,
@@ -925,9 +925,9 @@
         },
         "/products": {
             "get": {
-                "summary": "상품 검색 API",
+                "summary": "Product search API",
                 "tags": ["Product"],
-                "description": "다양한 조건으로 상품을 검색합니다.",
+                "description": "Search products with a variety of conditions.",
                 "operationId": "getProducts",
                 "parameters": [
                     {
@@ -936,10 +936,10 @@
                         "schema": {
                             "type": "string",
                             "example": "electronics",
-                            "description": "카테고리"
+                            "description": "Category"
                         },
                         "required": true,
-                        "description": "카테고리"
+                        "description": "Category"
                     },
                     {
                         "name": "minPrice",
@@ -947,10 +947,10 @@
                         "schema": {
                             "type": "integer",
                             "example": 50000,
-                            "description": "최소 가격"
+                            "description": "Minimum price"
                         },
                         "required": true,
-                        "description": "최소 가격"
+                        "description": "Minimum price"
                     },
                     {
                         "name": "maxPrice",
@@ -958,10 +958,10 @@
                         "schema": {
                             "type": "integer",
                             "example": 2000000,
-                            "description": "최대 가격"
+                            "description": "Maximum price"
                         },
                         "required": true,
-                        "description": "최대 가격"
+                        "description": "Maximum price"
                     },
                     {
                         "name": "brands",
@@ -972,11 +972,11 @@
                                 "type": "string",
                                 "example": "samsung"
                             },
-                            "description": "브랜드 목록",
+                            "description": "Brand list",
                             "example": ["samsung", "lg", "apple"]
                         },
                         "required": true,
-                        "description": "브랜드 목록"
+                        "description": "Brand list"
                     },
                     {
                         "name": "sort",
@@ -984,10 +984,10 @@
                         "schema": {
                             "type": "string",
                             "example": "price_asc",
-                            "description": "정렬 기준"
+                            "description": "Sort order"
                         },
                         "required": true,
-                        "description": "정렬 기준"
+                        "description": "Sort order"
                     },
                     {
                         "name": "inStock",
@@ -995,10 +995,10 @@
                         "schema": {
                             "type": "boolean",
                             "example": true,
-                            "description": "재고 있음 여부"
+                            "description": "In-stock status"
                         },
                         "required": true,
-                        "description": "재고 있음 여부"
+                        "description": "In-stock status"
                     },
                     {
                         "name": "page",
@@ -1006,10 +1006,10 @@
                         "schema": {
                             "type": "integer",
                             "example": 1,
-                            "description": "페이지 번호"
+                            "description": "Page number"
                         },
                         "required": true,
-                        "description": "페이지 번호"
+                        "description": "Page number"
                     },
                     {
                         "name": "pageSize",
@@ -1017,10 +1017,10 @@
                         "schema": {
                             "type": "integer",
                             "example": 20,
-                            "description": "페이지 크기"
+                            "description": "Page size"
                         },
                         "required": true,
-                        "description": "페이지 크기"
+                        "description": "Page size"
                     },
                     {
                         "name": "features",
@@ -1028,16 +1028,16 @@
                         "schema": {
                             "type": "string",
                             "example": "wireless,bluetooth",
-                            "description": "특징"
+                            "description": "Features"
                         },
                         "required": true,
-                        "description": "특징"
+                        "description": "Features"
                     }
                 ],
                 "security": [{}],
                 "responses": {
                     "200": {
-                        "description": "다양한 검색 조건으로 상품 검색",
+                        "description": "Search products with diverse filters",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -1054,7 +1054,7 @@
                                                     },
                                                     "name": {
                                                         "type": "string",
-                                                        "example": "무선 마우스"
+                                                        "example": "Wireless Mouse"
                                                     },
                                                     "price": {
                                                         "type": "integer",
@@ -1066,17 +1066,17 @@
                                                     }
                                                 }
                                             },
-                                            "description": "상품 목록",
+                                            "description": "Product list",
                                             "example": [
                                                 {
                                                     "id": "prod1",
-                                                    "name": "무선 마우스",
+                                                    "name": "Wireless Mouse",
                                                     "price": 50000,
                                                     "brand": "samsung"
                                                 },
                                                 {
                                                     "id": "prod2",
-                                                    "name": "블루투스 키보드",
+                                                    "name": "Bluetooth Keyboard",
                                                     "price": 120000,
                                                     "brand": "lg"
                                                 }
@@ -1096,12 +1096,12 @@
                                                 "totalItems": {
                                                     "type": "integer",
                                                     "example": 42,
-                                                    "description": "전체 상품 수"
+                                                    "description": "Total number of products"
                                                 },
                                                 "totalPages": {
                                                     "type": "integer",
                                                     "example": 3,
-                                                    "description": "전체 페이지 수"
+                                                    "description": "Total number of pages"
                                                 }
                                             },
                                             "required": ["totalItems", "totalPages"]
@@ -1115,7 +1115,7 @@
                                                         "type": "string",
                                                         "example": "category"
                                                     },
-                                                    "description": "적용된 필터",
+                                                    "description": "Applied filters",
                                                     "example": [
                                                         "category",
                                                         "minPrice",
@@ -1131,18 +1131,18 @@
                                     "required": ["products"]
                                 },
                                 "examples": {
-                                    "다양한 검색 조건으로 상품 검색": {
+                                    "Search products with diverse filters": {
                                         "value": {
                                             "products": [
                                                 {
                                                     "id": "prod1",
-                                                    "name": "무선 마우스",
+                                                    "name": "Wireless Mouse",
                                                     "price": 50000,
                                                     "brand": "samsung"
                                                 },
                                                 {
                                                     "id": "prod2",
-                                                    "name": "블루투스 키보드",
+                                                    "name": "Bluetooth Keyboard",
                                                     "price": 120000,
                                                     "brand": "lg"
                                                 }
@@ -1173,9 +1173,9 @@
         },
         "/cached-data": {
             "get": {
-                "summary": "캐시된 데이터 조회 API",
+                "summary": "Cached data API",
                 "tags": ["System"],
-                "description": "HTTP 캐싱 메커니즘을 활용하여 데이터를 조회합니다.",
+                "description": "Retrieves data using HTTP caching mechanisms.",
                 "operationId": "getCached-data",
                 "parameters": [
                     {
@@ -1209,7 +1209,7 @@
                 "security": [{}],
                 "responses": {
                     "200": {
-                        "description": "신선한 데이터 조회",
+                        "description": "Retrieve fresh data",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -1224,29 +1224,29 @@
                                                 },
                                                 "content": {
                                                     "type": "string",
-                                                    "example": "캐시 가능한 데이터"
+                                                    "example": "Cacheable data"
                                                 }
                                             },
-                                            "description": "데이터",
+                                            "description": "Data",
                                             "example": {
                                                 "version": "1.0",
-                                                "content": "캐시 가능한 데이터"
+                                                "content": "Cacheable data"
                                             }
                                         },
                                         "timestamp": {
                                             "type": "integer",
                                             "example": 1697873280000,
-                                            "description": "타임스탬프"
+                                            "description": "Timestamp"
                                         }
                                     },
                                     "required": ["data", "timestamp"]
                                 },
                                 "examples": {
-                                    "신선한 데이터 조회": {
+                                    "Retrieve fresh data": {
                                         "value": {
                                             "data": {
                                                 "version": "1.0",
-                                                "content": "캐시 가능한 데이터"
+                                                "content": "Cacheable data"
                                             },
                                             "timestamp": 1697873280000
                                         }
@@ -1256,21 +1256,21 @@
                         }
                     },
                     "304": {
-                        "description": "If-None-Match 헤더로 캐시 활용"
+                        "description": "Leverage the If-None-Match header for caching"
                     }
                 }
             }
         },
         "/failed-test": {
             "get": {
-                "summary": "테스트 실패 유도 API",
+                "summary": "Failure-inducing API",
                 "tags": ["Test"],
-                "description": "일부러 실패하는 응답을 주는 API입니다.",
+                "description": "Deliberately returns a failing response.",
                 "operationId": "getFailed-test",
                 "security": [{}],
                 "responses": {
                     "404": {
-                        "description": "404 응답을 의도적으로 반환",
+                        "description": "Intentionally return a 404 response",
                         "content": {
                             "application/json; charset=utf-8": {
                                 "schema": {
@@ -1279,16 +1279,16 @@
                                         "message": {
                                             "type": "string",
                                             "example": "This endpoint is designed to make tests fail",
-                                            "description": "실패 메시지"
+                                            "description": "Failure message"
                                         }
                                     },
                                     "required": ["message"]
                                 },
                                 "examples": {
-                                    "404 응답을 의도적으로 반환": {
+                                    "Intentionally return a 404 response": {
                                         "value": {
                                             "error": {
-                                                "message": "404 응답을 의도적으로 반환",
+                                                "message": "Intentionally return a 404 response",
                                                 "code": "ERROR_404"
                                             }
                                         }

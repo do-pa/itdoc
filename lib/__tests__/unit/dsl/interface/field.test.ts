@@ -17,8 +17,8 @@
 import { expect } from "chai"
 import { field } from "../../../../dsl"
 
-describe("field() 는", () => {
-    it("3번째 인자를 생략하면 required가 true로 설정된다.", () => {
+describe("field()", () => {
+    it("sets required to true when the third argument is omitted.", () => {
         expect(field("description", "example")).deep.equal({
             description: "description",
             example: "example",
@@ -26,7 +26,7 @@ describe("field() 는", () => {
         })
     })
 
-    it("3번째 인자를 false로 설정하면 required가 false로 설정된다.", () => {
+    it("sets required to false when the third argument is false.", () => {
         expect(field("description", "example", false)).deep.equal({
             description: "description",
             example: "example",
@@ -34,7 +34,7 @@ describe("field() 는", () => {
         })
     })
 
-    it("null 값을 example로 사용할 수 있다.", () => {
+    it("allows using null as the example value.", () => {
         expect(field("nullable field", null)).deep.equal({
             description: "nullable field",
             example: null,
@@ -42,7 +42,7 @@ describe("field() 는", () => {
         })
     })
 
-    it("null 값을 example로 사용하고 required를 false로 설정할 수 있다.", () => {
+    it("allows using null as the example value while setting required to false.", () => {
         expect(field("optional nullable field", null, false)).deep.equal({
             description: "optional nullable field",
             example: null,

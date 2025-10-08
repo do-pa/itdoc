@@ -40,8 +40,8 @@ describe("OpenAPIGenerator", () => {
         Object.defineProperty(OpenAPIGenerator, "getInstance", { value: originalGetInstance })
     })
 
-    describe("응답 본문 처리", () => {
-        it("응답 본문이 비어있으면 content를 포함하지 않아야 한다", () => {
+    describe("response body handling", () => {
+        it("does not include content when the response body is empty", () => {
             const testResult: TestResult = {
                 method: HttpMethod.GET,
                 url: "/test/empty",
@@ -51,7 +51,7 @@ describe("OpenAPIGenerator", () => {
                     status: 200,
                     body: {},
                 },
-                testSuiteDescription: "빈 응답 본문",
+                testSuiteDescription: "Empty response body",
             }
 
             generator.collectTestResult(testResult)
@@ -59,10 +59,13 @@ describe("OpenAPIGenerator", () => {
 
             assert.isDefined(spec.paths["/test/empty"].get.responses["200"])
             assert.isUndefined(spec.paths["/test/empty"].get.responses["200"].content)
-            assert.equal(spec.paths["/test/empty"].get.responses["200"].description, "빈 응답 본문")
+            assert.equal(
+                spec.paths["/test/empty"].get.responses["200"].description,
+                "Empty response body",
+            )
         })
 
-        it("응답 본문이 null이면 content를 포함하지 않아야 한다", () => {
+        it("does not include content when the response body is null", () => {
             const testResult: TestResult = {
                 method: HttpMethod.GET,
                 url: "/test/null",
@@ -72,7 +75,7 @@ describe("OpenAPIGenerator", () => {
                     status: 200,
                     body: null,
                 },
-                testSuiteDescription: "null 응답 본문",
+                testSuiteDescription: "Null response body",
             }
 
             generator.collectTestResult(testResult)
@@ -82,11 +85,11 @@ describe("OpenAPIGenerator", () => {
             assert.isUndefined(spec.paths["/test/null"].get.responses["200"].content)
             assert.equal(
                 spec.paths["/test/null"].get.responses["200"].description,
-                "null 응답 본문",
+                "Null response body",
             )
         })
 
-        it("응답 본문이 명시적으로 정의되지 않으면 content가 생성되지 않아야 한다", () => {
+        it("does not create content when the response body is undefined", () => {
             const testResult: TestResult = {
                 method: HttpMethod.GET,
                 url: "/test/undefined-body",
@@ -95,7 +98,7 @@ describe("OpenAPIGenerator", () => {
                 response: {
                     status: 400,
                 },
-                testSuiteDescription: "응답 본문 미정의 에러",
+                testSuiteDescription: "Undefined response body error",
             }
 
             generator.collectTestResult(testResult)
@@ -105,11 +108,11 @@ describe("OpenAPIGenerator", () => {
             assert.isUndefined(spec.paths["/test/undefined-body"].get.responses["400"].content)
             assert.equal(
                 spec.paths["/test/undefined-body"].get.responses["400"].description,
-                "응답 본문 미정의 에러",
+                "Undefined response body error",
             )
         })
 
-        it("명시적으로 응답 본문이 정의된 에러 응답은 error 객체 구조로 생성되어야 한다", () => {
+        it("creates an error object when the error response body is defined", () => {
             const testResult: TestResult = {
                 method: HttpMethod.GET,
                 url: "/test/error",
@@ -117,9 +120,9 @@ describe("OpenAPIGenerator", () => {
                 request: {},
                 response: {
                     status: 404,
-                    body: { message: "리소스를 찾을 수 없습니다" },
+                    body: { message: "Resource not found" },
                 },
-                testSuiteDescription: "존재하지 않는 리소스 요청",
+                testSuiteDescription: "Missing resource request",
             }
 
             generator.collectTestResult(testResult)
@@ -131,32 +134,32 @@ describe("OpenAPIGenerator", () => {
             const contentTypeKey = Object.keys(
                 spec.paths["/test/error"].get.responses["404"].content,
             )[0]
-            assert.isDefined(contentTypeKey, "content-type 키가 존재해야 합니다")
+            assert.isDefined(contentTypeKey, "content-type key should exist")
 
             const content = spec.paths["/test/error"].get.responses["404"].content[contentTypeKey]
-            assert.isDefined(content, "content 객체가 존재해야 합니다")
-            assert.isDefined(content.schema, "schema가 존재해야 합니다")
+            assert.isDefined(content, "content object should exist")
+            assert.isDefined(content.schema, "schema should exist")
 
             if (content.schema.properties && content.schema.properties.error) {
-                assert.isDefined(content.examples, "examples가 존재해야 합니다")
+                assert.isDefined(content.examples, "examples should exist")
                 const exampleKey = Object.keys(content.examples)[0]
-                assert.isDefined(exampleKey, "example 키가 존재해야 합니다")
+                assert.isDefined(exampleKey, "example key should exist")
 
                 const exampleValue = content.examples[exampleKey].value
-                assert.isDefined(exampleValue, "example 값이 존재해야 합니다")
+                assert.isDefined(exampleValue, "example value should exist")
 
-                assert.isDefined(exampleValue.error, "error 객체가 존재해야 합니다")
-                assert.isDefined(exampleValue.error.message, "error.message가 존재해야 합니다")
-                assert.equal(exampleValue.error.message, "존재하지 않는 리소스 요청")
+                assert.isDefined(exampleValue.error, "error object should exist")
+                assert.isDefined(exampleValue.error.message, "error.message should exist")
+                assert.equal(exampleValue.error.message, "Missing resource request")
             } else {
-                assert.isDefined(content.examples, "examples가 존재해야 합니다")
+                assert.isDefined(content.examples, "examples should exist")
                 const exampleKey = Object.keys(content.examples)[0]
-                assert.isDefined(content.examples[exampleKey], "example이 존재해야 합니다")
+                assert.isDefined(content.examples[exampleKey], "example should exist")
             }
         })
 
-        it("명시적으로 응답 본문이 정의된 성공 응답은 원본 응답 구조를 유지해야 한다", () => {
-            const responseBody = { id: 1, name: "테스트 데이터" }
+        it("retains the original shape when a success response body is defined", () => {
+            const responseBody = { id: 1, name: "test data" }
             const testResult: TestResult = {
                 method: HttpMethod.GET,
                 url: "/test/success",
@@ -166,7 +169,7 @@ describe("OpenAPIGenerator", () => {
                     status: 200,
                     body: responseBody,
                 },
-                testSuiteDescription: "성공적인 응답",
+                testSuiteDescription: "Successful response",
             }
 
             generator.collectTestResult(testResult)
@@ -178,17 +181,17 @@ describe("OpenAPIGenerator", () => {
             const contentTypeKey = Object.keys(
                 spec.paths["/test/success"].get.responses["200"].content,
             )[0]
-            assert.isDefined(contentTypeKey, "content-type 키가 존재해야 합니다")
+            assert.isDefined(contentTypeKey, "content-type key should exist")
 
             const content = spec.paths["/test/success"].get.responses["200"].content[contentTypeKey]
-            assert.isDefined(content, "content 객체가 존재해야 합니다")
-            assert.isDefined(content.schema, "schema가 존재해야 합니다")
+            assert.isDefined(content, "content object should exist")
+            assert.isDefined(content.schema, "schema should exist")
 
-            assert.isDefined(content.examples, "examples가 존재해야 합니다")
+            assert.isDefined(content.examples, "examples should exist")
             const exampleKey = Object.keys(content.examples)[0]
-            assert.isDefined(exampleKey, "example 키가 존재해야 합니다")
-            assert.isDefined(content.examples[exampleKey], "example이 존재해야 합니다")
-            assert.isDefined(content.examples[exampleKey].value, "example 값이 존재해야 합니다")
+            assert.isDefined(exampleKey, "example key should exist")
+            assert.isDefined(content.examples[exampleKey], "example should exist")
+            assert.isDefined(content.examples[exampleKey].value, "example value should exist")
 
             if (
                 typeof content.examples[exampleKey].value === "object" &&
@@ -200,7 +203,7 @@ describe("OpenAPIGenerator", () => {
             }
         })
 
-        it("동일한 상태 코드에 대해 모든 테스트 케이스가 본문을 정의하지 않으면 content가 생성되지 않아야 한다", () => {
+        it("does not create content when no test case defines a body for the same status", () => {
             const testResult1: TestResult = {
                 method: HttpMethod.GET,
                 url: "/test/no-body-responses",
@@ -209,7 +212,7 @@ describe("OpenAPIGenerator", () => {
                 response: {
                     status: 400,
                 },
-                testSuiteDescription: "본문 없는 테스트 1",
+                testSuiteDescription: "Bodyless test #1",
             }
 
             const testResult2: TestResult = {
@@ -220,7 +223,7 @@ describe("OpenAPIGenerator", () => {
                 response: {
                     status: 400,
                 },
-                testSuiteDescription: "본문 없는 테스트 2",
+                testSuiteDescription: "Bodyless test #2",
             }
 
             generator.collectTestResult(testResult1)

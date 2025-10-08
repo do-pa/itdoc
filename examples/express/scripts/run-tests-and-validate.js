@@ -28,8 +28,8 @@ const OUTPUT_FILENAME = "oas.json"
  * <b>NOTE</b>
  *
  * This script is used to run the tests and validate the OpenAPI Specification (OAS) output.
- * 생성되는 OpenAPI.JSON과 예상되는 OpenAPI.JSON을 비교합니다.
- * 만약 두 파일이 다르면 에러가 발생하니, OpenAPI 생성 로직이 변경되면 expected 파일도 변경해야 합니다.
+ * Compare the generated OpenAPI JSON with the expected OpenAPI JSON.
+ * If the files differ, throw an error and update the expected file whenever the OpenAPI generation logic changes.
  */
 
 const cleanOutputDir = () => {

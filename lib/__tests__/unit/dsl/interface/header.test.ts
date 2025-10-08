@@ -17,8 +17,8 @@
 import { expect } from "chai"
 import { header } from "../../../../dsl/interface/header"
 
-describe("header() 는", () => {
-    it("3번째 인자를 생략하면 required가 true로 설정된다.", () => {
+describe("header()", () => {
+    it("sets required to true when the third argument is omitted.", () => {
         expect(header("description", "example")).deep.equal({
             description: "description",
             example: "example",
@@ -26,7 +26,7 @@ describe("header() 는", () => {
         })
     })
 
-    it("3번째 인자를 false로 설정하면 required가 false로 설정된다.", () => {
+    it("sets required to false when the third argument is false.", () => {
         expect(header("description", "example", false)).deep.equal({
             description: "description",
             example: "example",

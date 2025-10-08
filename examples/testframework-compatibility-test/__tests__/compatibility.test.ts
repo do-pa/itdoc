@@ -15,7 +15,7 @@
  */
 
 /**
- * 어댑터를 통해 제공받은 테스트 프레임워크의 DSL 기능을 테스트하는 코드
+ * Validate the DSL features exposed by the adapter-provided test framework.
  * @see {@link https://github.com/do-pa/itdoc/issues/35}
  */
 
@@ -75,7 +75,7 @@ describeCommon("TestFramework DSL Functionality", () => {
             "afterCommon",
         ]
 
-        // 실행 순서 검증
+        // Verify the execution order.
         if (hookOrder.join(",") !== expectedHookOrder.join(",")) {
             throw new Error(
                 `Hook order mismatch.\nExpected: ${expectedHookOrder.join(
