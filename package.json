@@ -1,6 +1,6 @@
 {
     "name": "itdoc",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "description": "Test-driven documentation for RESTful services",
     "license": "Apache-2.0",
     "bin": {
