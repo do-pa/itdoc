@@ -49,7 +49,7 @@
     "scripts": {
         "build": "pnpm run clean && tsup",
         "ci": "pnpm run prettier:check && pnpm run lint && pnpm run test && pnpm run build",
-        "clean": "rimraf build",
+        "clean": "node ./script/clean.mjs",
         "lint": "eslint .",
         "lint-staged": "lint-staged",
         "prepare": "husky && husky install",
@@ -82,6 +82,7 @@
     "dependencies": {
         "@redocly/cli": "^1.34.0",
         "@redocly/openapi-core": "^1.34.2",
+        "@webcontainer/env": "^1.1.1",
         "chalk": "^4.1.2",
         "commander": "^13.1.0",
         "consola": "^3.4.2",
