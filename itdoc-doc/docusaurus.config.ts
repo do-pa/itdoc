@@ -1,6 +1,10 @@
 import { themes as prismThemes } from "prism-react-renderer"
 import type { Config } from "@docusaurus/types"
 import type * as Preset from "@docusaurus/preset-classic"
+import fs from "fs"
+import path from "path"
+import os from "os"
+import { execFileSync } from "child_process"
 
 const config: Config = {
     title: "itdoc documentation",
@@ -32,6 +36,90 @@ const config: Config = {
                 anonymizeIP: true,
             },
         ],
+        function webcontainerAliasPlugin() {
+            return {
+                name: "webcontainer-alias",
+                configureWebpack(_config, isServer) {
+                    if (!isServer) {
+                        return {}
+                    }
+
+                    return {
+                        resolve: {
+                            alias: {
+                                "@webcontainer/api":
+                                    "@site/src/components/Playground/webcontainerStub",
+                            },
+                        },
+                    }
+                },
+            }
+        },
+        function webcontainerLocalItdocPlugin() {
+            return {
+                name: "webcontainer-local-itdoc",
+                async loadContent() {
+                    const repoRoot = path.resolve(__dirname, "..")
+                    const staticDir = path.resolve(__dirname, "static", "playground")
+                    const targetTarball = path.join(staticDir, "itdoc.tgz")
+                    const buildDir = path.join(repoRoot, "build")
+
+                    fs.mkdirSync(staticDir, { recursive: true })
+
+                    const forceRepack = process.env.ITDOC_PLAYGROUND_FORCE_REPACK === "true"
+                    const shouldRepack =
+                        forceRepack ||
+                        !fs.existsSync(targetTarball) ||
+                        !fs.existsSync(buildDir) ||
+                        fs.statSync(buildDir).mtimeMs > fs.statSync(targetTarball).mtimeMs
+
+                    if (!shouldRepack) {
+                        return
+                    }
+
+                    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "itdoc-pack-"))
+                    try {
+                        console.log(
+                            "[webcontainer-local-itdoc] Rebuilding itdoc package for playground...",
+                        )
+                        execFileSync("pnpm", ["run", "build"], {
+                            cwd: repoRoot,
+                            stdio: "inherit",
+                            shell: process.platform === "win32",
+                        })
+                        const packOutput = execFileSync(
+                            "pnpm",
+                            ["pack", "--pack-destination", tempDir],
+                            {
+                                cwd: repoRoot,
+                                stdio: "pipe",
+                                shell: process.platform === "win32",
+                            },
+                        )
+
+                        const packResult = packOutput.toString().trim().split("\n")
+                        const tarballName = packResult.pop()?.trim()
+                        if (!tarballName) {
+                            throw new Error(
+                                "Unable to determine tarball name from pnpm pack output",
+                            )
+                        }
+                        const tarballPath = path.isAbsolute(tarballName)
+                            ? tarballName
+                            : path.join(tempDir, tarballName)
+                        fs.copyFileSync(tarballPath, targetTarball)
+                        console.log(
+                            "[webcontainer-local-itdoc] Packaged",
+                            tarballName,
+                            "→",
+                            targetTarball,
+                        )
+                    } finally {
+                        fs.rmSync(tempDir, { recursive: true, force: true })
+                    }
+                },
+            }
+        },
     ],
     presets: [
         [
@@ -58,6 +146,7 @@ const config: Config = {
             } satisfies Preset.Options,
         ],
     ],
+
     themeConfig: {
         image: "img/logo.png",
         navbar: {
@@ -73,6 +162,7 @@ const config: Config = {
                     position: "left",
                     label: "Docs",
                 },
+                { to: "/playground", label: "Playground", position: "left" },
                 { to: "/blog", label: "Blog", position: "left" },
                 {
                     href: "https://github.com/do-pa/itdoc",

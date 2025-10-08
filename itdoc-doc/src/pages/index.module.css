@@ -4,20 +4,32 @@
  */
 
 .heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+    padding: 4rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
 @media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+    .heroBanner {
+        padding: 2rem;
+    }
 }
 
 .buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.playgroundButton {
+    background-color: var(--ifm-color-primary-light);
+    color: white;
+    border: none;
+}
+
+.playgroundButton:hover,
+.playgroundButton:focus {
+    background-color: var(--ifm-color-primary-darker);
+    color: white;
 }
