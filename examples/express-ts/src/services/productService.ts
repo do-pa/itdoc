@@ -5,10 +5,12 @@ export interface Product {
     category: string
 }
 
-const products: Product[] = [
+let products: Product[] = [
     { id: 1, name: "Laptop", price: 999.99, category: "Electronics" },
     { id: 2, name: "Smartphone", price: 699.99, category: "Electronics" },
 ]
+
+let nextId = 3
 
 export const ProductService = {
     getAllProducts: async (): Promise<Product[]> => {
@@ -21,7 +23,7 @@ export const ProductService = {
 
     createProduct: async (productData: Omit<Product, "id">): Promise<Product> => {
         const newProduct = {
-            id: 3,
+            id: nextId++,
             ...productData,
         }
         products.push(newProduct)
@@ -45,5 +47,13 @@ export const ProductService = {
 
         products.splice(index, 1)
         return true
+    },
+
+    resetProducts: () => {
+        products = [
+            { id: 1, name: "Laptop", price: 999.99, category: "Electronics" },
+            { id: 2, name: "Smartphone", price: 699.99, category: "Electronics" },
+        ]
+        nextId = 3
     },
 }

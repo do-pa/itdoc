@@ -17,18 +17,17 @@
 import { describe, it, beforeEach } from "mocha"
 import { expect } from "chai"
 import express from "express"
-import { request } from "../core/interceptedRequest"
+import { createClient } from "../adapters"
 import { CaptureContext } from "../core/CaptureContext"
 
-describe("interceptedRequest", () => {
+describe("createClient.supertest adapter", () => {
     let app: express.Application
 
     beforeEach(() => {
         app = express()
         app.use(express.json())
 
-        // Test routes
-        app.get("/users", (req, res) => {
+        app.get("/users", (_req, res) => {
             res.status(200).json({ users: [] })
         })
 
@@ -43,14 +42,14 @@ describe("interceptedRequest", () => {
 
     describe("without capture context", () => {
         it("should work as normal supertest", async () => {
-            const response = await request(app).get("/users")
+            const response = await createClient.supertest(app).get("/users")
 
             expect(response.status).to.equal(200)
             expect(response.body).to.deep.equal({ users: [] })
         })
 
         it("should not capture any data", async () => {
-            await request(app).get("/users")
+            await createClient.supertest(app).get("/users")
 
             void expect(CaptureContext.getCapturedRequests()).to.be.empty
         })
@@ -59,7 +58,7 @@ describe("interceptedRequest", () => {
     describe("with capture context", () => {
         it("should capture GET request", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).get("/users")
+                await createClient.supertest(app).get("/users")
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured).to.have.lengthOf(1)
@@ -70,7 +69,10 @@ describe("interceptedRequest", () => {
 
         it("should capture POST request with body", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).post("/users").send({ name: "John", email: "john@test.com" })
+                await createClient
+                    .supertest(app)
+                    .post("/users")
+                    .send({ name: "John", email: "john@test.com" })
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured).to.have.lengthOf(1)
@@ -85,7 +87,8 @@ describe("interceptedRequest", () => {
 
         it("should capture request headers", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app)
+                await createClient
+                    .supertest(app)
                     .get("/users")
                     .set("Authorization", "Bearer token123")
                     .set("Accept", "application/json")
@@ -100,7 +103,7 @@ describe("interceptedRequest", () => {
 
         it("should capture query parameters", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).get("/users").query({ page: 1, limit: 10 })
+                await createClient.supertest(app).get("/users").query({ page: 1, limit: 10 })
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured[0].queryParams).to.deep.equal({
@@ -112,7 +115,7 @@ describe("interceptedRequest", () => {
 
         it("should capture response status and body", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).get("/users")
+                await createClient.supertest(app).get("/users")
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured[0].response?.status).to.equal(200)
@@ -122,7 +125,7 @@ describe("interceptedRequest", () => {
 
         it("should capture response headers", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).get("/users")
+                await createClient.supertest(app).get("/users")
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured[0].response?.headers).to.be.an("object")
@@ -132,8 +135,8 @@ describe("interceptedRequest", () => {
 
         it("should capture multiple requests in order", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).post("/users").send({ name: "John" })
-                await request(app).get("/users/1")
+                await createClient.supertest(app).post("/users").send({ name: "John" })
+                await createClient.supertest(app).get("/users/1")
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured).to.have.lengthOf(2)
@@ -144,7 +147,8 @@ describe("interceptedRequest", () => {
 
         it("should handle request chain methods", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app)
+                await createClient
+                    .supertest(app)
                     .post("/users")
                     .set("Authorization", "Bearer token")
                     .send({ name: "John" })
@@ -168,7 +172,7 @@ describe("interceptedRequest", () => {
             })
 
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).put("/users/1").send({ name: "Jane" })
+                await createClient.supertest(app).put("/users/1").send({ name: "Jane" })
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured[0].method).to.equal("PUT")
@@ -177,12 +181,12 @@ describe("interceptedRequest", () => {
         })
 
         it("should capture DELETE requests", async () => {
-            app.delete("/users/:id", (req, res) => {
+            app.delete("/users/:id", (_req, res) => {
                 res.status(204).send()
             })
 
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).delete("/users/1")
+                await createClient.supertest(app).delete("/users/1")
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured[0].method).to.equal("DELETE")
@@ -192,7 +196,7 @@ describe("interceptedRequest", () => {
 
         it("should work with expect() assertions", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                const response = await request(app).get("/users").expect(200)
+                const response = await createClient.supertest(app).get("/users").expect(200)
 
                 expect(response.body).to.deep.equal({ users: [] })
 
@@ -202,12 +206,12 @@ describe("interceptedRequest", () => {
         })
 
         it("should capture even when request fails", async () => {
-            app.get("/error", (req, res) => {
+            app.get("/error", (_req, res) => {
                 res.status(500).json({ error: "Server error" })
             })
 
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).get("/error")
+                await createClient.supertest(app).get("/error")
 
                 const captured = CaptureContext.getCapturedRequests()
                 expect(captured[0].response?.status).to.equal(500)
@@ -221,7 +225,7 @@ describe("interceptedRequest", () => {
     describe("header setting variations", () => {
         it("should capture headers set as object", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app).get("/users").set({
+                await createClient.supertest(app).get("/users").set({
                     Authorization: "Bearer token",
                     "X-Custom": "value",
                 })
@@ -236,7 +240,8 @@ describe("interceptedRequest", () => {
 
         it("should merge multiple set() calls", async () => {
             await CaptureContext.run("test", undefined, async () => {
-                await request(app)
+                await createClient
+                    .supertest(app)
                     .get("/users")
                     .set("Authorization", "Bearer token")
                     .set("Accept", "application/json")

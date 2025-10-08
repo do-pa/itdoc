@@ -17,7 +17,7 @@
 import { describe, it } from "mocha"
 import { expect } from "chai"
 import express from "express"
-import { wrapTest, request } from "../index"
+import { wrapTest, createClient } from "../index"
 
 describe("wrapTest integration", () => {
     let app: express.Application
@@ -26,23 +26,24 @@ describe("wrapTest integration", () => {
         app = express()
         app.use(express.json())
 
-        // Setup test routes
         app.post("/auth/signup", (req, res) => {
             const { username, password } = req.body
             if (!username || !password) {
-                return res.status(400).json({ error: "Missing fields" })
+                res.status(400).json({ error: "Missing fields" })
+                return
             }
             res.status(201).json({ id: 1, username })
         })
 
-        app.post("/auth/login", (req, res) => {
+        app.post("/auth/login", (_req, res) => {
             res.status(200).json({ token: "jwt-token-123" })
         })
 
         app.get("/users/profile", (req, res) => {
             const auth = req.headers.authorization
             if (!auth) {
-                return res.status(401).json({ error: "Unauthorized" })
+                res.status(401).json({ error: "Unauthorized" })
+                return
             }
             res.status(200).json({ id: 1, username: "john" })
         })
@@ -52,7 +53,7 @@ describe("wrapTest integration", () => {
         const apiTest = wrapTest(it)
 
         apiTest("should register new user successfully", async () => {
-            const response = await request(app).post("/auth/signup").send({
+            const response = await createClient.supertest(app).post("/auth/signup").send({
                 username: "john",
                 password: "password123",
             })
@@ -63,7 +64,7 @@ describe("wrapTest integration", () => {
         })
 
         apiTest("should handle validation errors", async () => {
-            const response = await request(app).post("/auth/signup").send({
+            const response = await createClient.supertest(app).post("/auth/signup").send({
                 username: "john",
                 // missing password
             })
@@ -73,8 +74,7 @@ describe("wrapTest integration", () => {
         })
 
         apiTest("should login and get profile", async () => {
-            // First login
-            const loginRes = await request(app).post("/auth/login").send({
+            const loginRes = await createClient.supertest(app).post("/auth/login").send({
                 username: "john",
                 password: "password123",
             })
@@ -82,8 +82,8 @@ describe("wrapTest integration", () => {
             expect(loginRes.status).to.equal(200)
             const token = loginRes.body.token
 
-            // Then get profile with token
-            const profileRes = await request(app)
+            const profileRes = await createClient
+                .supertest(app)
                 .get("/users/profile")
                 .set("Authorization", `Bearer ${token}`)
 
@@ -96,7 +96,7 @@ describe("wrapTest integration", () => {
             tags: ["Auth", "Users"],
             description: "Register a new user account",
         })("should create user with metadata", async () => {
-            const response = await request(app).post("/auth/signup").send({
+            const response = await createClient.supertest(app).post("/auth/signup").send({
                 username: "jane",
                 password: "secure123",
             })
@@ -121,7 +121,7 @@ describe("wrapTest integration", () => {
             // Example usage (commented out for now):
             // const apiTest = wrapTest(it)
             // apiTest('should create user', async () => {
-            //   const response = await request(app)
+            //   const response = await createClient.supertest(app)
             //     .post('/users')
             //     .send({ name: 'John' })
             //

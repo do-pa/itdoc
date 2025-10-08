@@ -3,12 +3,15 @@ import type { Config } from "jest"
 const jestConfig: Config = {
     testEnvironment: "node",
     roots: ["<rootDir>/src"],
-    testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+    testMatch: ["**/__tests__/jest/**/*.spec.ts"],
     transform: {
         "^.+\\.ts$": [
             "ts-jest",
             {
                 tsconfig: "tsconfig.json",
+                diagnostics: {
+                    ignoreCodes: [18046],
+                },
             },
         ],
     },

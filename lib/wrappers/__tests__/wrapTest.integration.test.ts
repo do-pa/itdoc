@@ -17,7 +17,7 @@
 import { describe, it } from "mocha"
 import { expect } from "chai"
 import express from "express"
-import { wrapTest, request } from "../index"
+import { wrapTest, createClient } from "../index"
 
 describe("wrapTest integration", () => {
     let app: express.Application
@@ -43,14 +43,14 @@ describe("wrapTest integration", () => {
         const apiTest = wrapTest(it)
 
         apiTest("should make GET request successfully", async () => {
-            const response = await request(app).get("/users")
+            const response = await createClient.supertest(app).get("/users")
 
             expect(response.status).to.equal(200)
             expect(response.body).to.deep.equal({ users: [] })
         })
 
         apiTest("should make POST request with body", async () => {
-            const response = await request(app).post("/users").send({
+            const response = await createClient.supertest(app).post("/users").send({
                 name: "John",
                 email: "john@test.com",
             })
@@ -61,7 +61,8 @@ describe("wrapTest integration", () => {
         })
 
         apiTest("should send headers", async () => {
-            const response = await request(app)
+            const response = await createClient
+                .supertest(app)
                 .get("/users")
                 .set("Authorization", "Bearer token123")
 
@@ -69,16 +70,22 @@ describe("wrapTest integration", () => {
         })
 
         apiTest("should send query parameters", async () => {
-            const response = await request(app).get("/users").query({ page: 1, limit: 10 })
+            const response = await createClient
+                .supertest(app)
+                .get("/users")
+                .query({ page: 1, limit: 10 })
 
             expect(response.status).to.equal(200)
         })
 
         apiTest("should handle multiple requests in one test", async () => {
-            const createRes = await request(app).post("/users").send({ name: "John" })
+            const createRes = await createClient
+                .supertest(app)
+                .post("/users")
+                .send({ name: "John" })
             expect(createRes.status).to.equal(201)
 
-            const getRes = await request(app).get("/users/1")
+            const getRes = await createClient.supertest(app).get("/users/1")
             expect(getRes.status).to.equal(200)
         })
     })
@@ -90,7 +97,7 @@ describe("wrapTest integration", () => {
             summary: "Create User",
             tags: ["Users", "Registration"],
         })("should create user with metadata", async () => {
-            const response = await request(app).post("/users").send({
+            const response = await createClient.supertest(app).post("/users").send({
                 name: "Jane",
                 email: "jane@test.com",
             })
@@ -102,7 +109,7 @@ describe("wrapTest integration", () => {
             description: "Custom description for API",
             deprecated: false,
         })("should use custom description", async () => {
-            const response = await request(app).get("/users")
+            const response = await createClient.supertest(app).get("/users")
 
             expect(response.status).to.equal(200)
         })
@@ -112,7 +119,7 @@ describe("wrapTest integration", () => {
         const apiTest = wrapTest(it)
 
         apiTest("should handle successful requests", async () => {
-            const response = await request(app).get("/users")
+            const response = await createClient.supertest(app).get("/users")
 
             expect(response.status).to.equal(200)
             expect(response.body).to.have.property("users")
@@ -123,7 +130,7 @@ describe("wrapTest integration", () => {
         const apiTest = wrapTest(it)
 
         apiTest("should work with chai expect", async () => {
-            const response = await request(app).get("/users")
+            const response = await createClient.supertest(app).get("/users")
 
             expect(response.status).to.equal(200)
             expect(response.body).to.be.an("object")
@@ -131,13 +138,17 @@ describe("wrapTest integration", () => {
         })
 
         apiTest("should work with supertest expect()", async () => {
-            await request(app).get("/users").expect(200).expect("Content-Type", /json/)
+            await createClient
+                .supertest(app)
+                .get("/users")
+                .expect(200)
+                .expect("Content-Type", /json/)
         })
     })
 
     describe("without capture (regular it)", () => {
         it("should work as normal test", async () => {
-            const response = await request(app).get("/users")
+            const response = await createClient.supertest(app).get("/users")
 
             expect(response.status).to.equal(200)
         })

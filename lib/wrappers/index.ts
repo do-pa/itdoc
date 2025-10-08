@@ -19,16 +19,15 @@
  *
  * This module provides a high-order function approach to automatically capture
  * HTTP requests and responses from your tests and generate API documentation.
- *
  * @example Basic usage
  * ```typescript
- * import { wrapTest, request } from 'itdoc/wrappers'
+ * import { wrapTest, createClient } from 'itdoc/wrappers'
  *
  * const apiTest = wrapTest(it)
  *
  * describe('User API', () => {
  *   apiTest('should create user', async () => {
- *     const response = await request(app)
+ *     const response = await createClient.supertest(app)
  *       .post('/users')
  *       .send({ name: 'John' })
  *
@@ -36,14 +35,13 @@
  *   })
  * })
  * ```
- *
  * @example With metadata
  * ```typescript
  * apiTest.withMeta({
  *   summary: 'Create User',
  *   tags: ['Users', 'Registration']
  * })('should create user', async () => {
- *   const response = await request(app)
+ *   const response = await createClient.supertest(app)
  *     .post('/users')
  *     .send({ name: 'John' })
  *
@@ -53,5 +51,12 @@
  */
 
 export { wrapTest } from "./wrapTest"
-export { request } from "./core/interceptedRequest"
+export { createClient } from "./adapters"
 export type { ApiDocMetadata, WrappedTestFunction, TestFunction } from "./types"
+export type {
+    HttpClient,
+    HttpAdapter,
+    RequestBuilder,
+    CapturedResponse,
+    CapturedRequest,
+} from "./adapters/types"

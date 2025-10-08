@@ -5,20 +5,25 @@
  * that automatically captures HTTP requests/responses
  */
 
-import { app } from "../index"
-import { wrapTest, request } from "itdoc"
+import { app } from "../../index"
+import { wrapTest, createClient } from "itdoc"
+import { ProductService } from "../../services/productService"
 
-// Create wrapped test function
 const apiTest = wrapTest(it)
 
+const request = createClient.supertest(app)
+
 describe("Product API - Wrapper Approach", () => {
+    beforeEach(() => {
+        ProductService.resetProducts()
+    })
     describe("GET /api/products/:id", () => {
         apiTest.withMeta({
             summary: "Get product by ID",
             tags: ["Products"],
             description: "Retrieves a specific product by its ID",
         })("should return a specific product", async () => {
-            const response = await request(app).get("/api/products/1")
+            const response = await request.get("/api/products/1")
 
             expect(response.status).toBe(200)
             expect(response.body).toHaveProperty("id", 1)
@@ -28,11 +33,11 @@ describe("Product API - Wrapper Approach", () => {
         })
 
         apiTest("should return product with different ID", async () => {
-            const response = await request(app).get("/api/products/2")
+            const response = await request.get("/api/products/2")
 
             expect(response.status).toBe(200)
             expect(response.body).toHaveProperty("id", 2)
-            expect(response.body).toHaveProperty("name", "Phone")
+            expect(response.body).toHaveProperty("name", "Smartphone")
         })
     })
 
@@ -42,7 +47,7 @@ describe("Product API - Wrapper Approach", () => {
             tags: ["Products", "Create"],
             description: "Creates a new product with the provided information",
         })("should create a new product", async () => {
-            const response = await request(app).post("/api/products").send({
+            const response = await request.post("/api/products").send({
                 name: "Test Product",
                 price: 99.99,
                 category: "Test Category",
@@ -59,7 +64,7 @@ describe("Product API - Wrapper Approach", () => {
             summary: "Create product with different data",
             tags: ["Products", "Create"],
         })("should create another product", async () => {
-            const response = await request(app).post("/api/products").send({
+            const response = await request.post("/api/products").send({
                 name: "Another Product",
                 price: 199.99,
                 category: "Another Category",
@@ -76,7 +81,7 @@ describe("Product API - Wrapper Approach", () => {
             tags: ["Products", "Update"],
             description: "Updates an existing product with the provided information",
         })("should update a product", async () => {
-            const response = await request(app).put("/api/products/1").send({
+            const response = await request.put("/api/products/1").send({
                 name: "Updated Product",
                 price: 199.99,
                 category: "Updated Category",
@@ -90,7 +95,7 @@ describe("Product API - Wrapper Approach", () => {
         })
 
         apiTest("should update product with partial data", async () => {
-            const response = await request(app).put("/api/products/2").send({
+            const response = await request.put("/api/products/2").send({
                 name: "Partially Updated",
                 price: 299.99,
                 category: "Electronics",
@@ -101,32 +106,13 @@ describe("Product API - Wrapper Approach", () => {
         })
     })
 
-    describe("DELETE /api/products/:id", () => {
-        apiTest.withMeta({
-            summary: "Delete product",
-            tags: ["Products", "Delete"],
-            description: "Deletes a product by its ID",
-        })("should delete a product", async () => {
-            const response = await request(app).delete("/api/products/1")
-
-            expect(response.status).toBe(204)
-        })
-
-        apiTest("should delete another product", async () => {
-            const response = await request(app).delete("/api/products/2")
-
-            expect(response.status).toBe(204)
-        })
-    })
-
     describe("Complete product CRUD workflow", () => {
         apiTest.withMeta({
             summary: "Product CRUD workflow",
             tags: ["Products", "Workflow", "CRUD"],
             description: "Complete create, read, update, delete workflow for products",
         })("should perform complete CRUD operations", async () => {
-            // Step 1: Create a product
-            const createResponse = await request(app).post("/api/products").send({
+            const createResponse = await request.post("/api/products").send({
                 name: "Workflow Product",
                 price: 149.99,
                 category: "Test",
@@ -135,14 +121,12 @@ describe("Product API - Wrapper Approach", () => {
             expect(createResponse.status).toBe(201)
             const productId = createResponse.body.id
 
-            // Step 2: Read the product
-            const getResponse = await request(app).get(`/api/products/${productId}`)
+            const getResponse = await request.get(`/api/products/${productId}`)
 
             expect(getResponse.status).toBe(200)
             expect(getResponse.body.name).toBe("Workflow Product")
 
-            // Step 3: Update the product
-            const updateResponse = await request(app).put(`/api/products/${productId}`).send({
+            const updateResponse = await request.put(`/api/products/${productId}`).send({
                 name: "Updated Workflow Product",
                 price: 179.99,
                 category: "Updated Test",
@@ -151,8 +135,7 @@ describe("Product API - Wrapper Approach", () => {
             expect(updateResponse.status).toBe(200)
             expect(updateResponse.body.name).toBe("Updated Workflow Product")
 
-            // Step 4: Delete the product
-            const deleteResponse = await request(app).delete(`/api/products/${productId}`)
+            const deleteResponse = await request.delete(`/api/products/${productId}`)
 
             expect(deleteResponse.status).toBe(204)
         })
@@ -163,7 +146,7 @@ describe("Product API - Wrapper Approach", () => {
             summary: "Filter products by category",
             tags: ["Products", "Filter"],
         })("should filter products with query params", async () => {
-            const response = await request(app)
+            const response = await request
                 .get("/api/products/1")
                 .query({ category: "Electronics", minPrice: 500 })
 
@@ -171,7 +154,7 @@ describe("Product API - Wrapper Approach", () => {
         })
 
         apiTest("should search products with multiple params", async () => {
-            const response = await request(app).get("/api/products/1").query({
+            const response = await request.get("/api/products/1").query({
                 search: "laptop",
                 sortBy: "price",
                 order: "asc",
@@ -186,7 +169,7 @@ describe("Product API - Wrapper Approach", () => {
             summary: "Create product with auth",
             tags: ["Products", "Authentication"],
         })("should create product with authorization header", async () => {
-            const response = await request(app)
+            const response = await request
                 .post("/api/products")
                 .set("Authorization", "Bearer fake-token-123")
                 .send({
@@ -199,13 +182,31 @@ describe("Product API - Wrapper Approach", () => {
         })
 
         apiTest("should include custom headers", async () => {
-            const response = await request(app)
+            const response = await request
                 .get("/api/products/1")
                 .set("Authorization", "Bearer token")
                 .set("X-Client-ID", "test-client")
                 .set("Accept", "application/json")
 
             expect(response.status).toBe(200)
+        })
+    })
+
+    describe("DELETE /api/products/:id", () => {
+        apiTest.withMeta({
+            summary: "Delete product",
+            tags: ["Products", "Delete"],
+            description: "Deletes a product by its ID",
+        })("should delete a product", async () => {
+            const response = await request.delete("/api/products/1")
+
+            expect(response.status).toBe(204)
+        })
+
+        apiTest("should delete another product", async () => {
+            const response = await request.delete("/api/products/2")
+
+            expect(response.status).toBe(204)
         })
     })
 })

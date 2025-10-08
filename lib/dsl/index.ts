@@ -19,6 +19,5 @@ export { HttpStatus } from "./enums/HttpStatus"
 export { describeAPI, itDoc, field } from "./interface"
 export type { ApiDocOptions } from "./interface/ItdocBuilderEntry"
 
-// Wrapper-based API testing (new approach)
-export { wrapTest, request } from "../wrappers"
+export { wrapTest, createClient } from "../wrappers"
 export type { ApiDocMetadata, WrappedTestFunction } from "../wrappers"

@@ -31,10 +31,18 @@ export interface ApiDocMetadata {
 export interface CapturedRequest {
     method?: string
     url?: string
-    body?: unknown
+    body?: any
     headers?: Record<string, string>
-    queryParams?: Record<string, unknown>
-    pathParams?: Record<string, unknown>
+    queryParams?: Record<string, any>
+    pathParams?: Record<string, any>
+    formData?: {
+        fields: Record<string, any>
+        files: Array<{
+            field: string
+            filename: string
+            mimetype?: string
+        }>
+    }
     response?: CapturedResponse
 }
 
@@ -43,8 +51,10 @@ export interface CapturedRequest {
  */
 export interface CapturedResponse {
     status: number
-    body?: unknown
-    headers?: Record<string, string>
+    statusText?: string
+    body?: any
+    headers?: Record<string, string | string[]>
+    text?: string
 }
 
 /**
