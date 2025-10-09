@@ -17,9 +17,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment"
 import useBaseUrl from "@docusaurus/useBaseUrl"
-import CodeMirror from "@uiw/react-codemirror"
-import { javascript } from "@codemirror/lang-javascript"
-import { oneDark } from "@codemirror/theme-one-dark"
+import Editor, { OnMount } from "@monaco-editor/react"
 import { Terminal } from "@xterm/xterm"
 import { FitAddon } from "@xterm/addon-fit"
 import "@xterm/xterm/css/xterm.css"
@@ -177,6 +175,75 @@ const waitingTips = [
     },
 ]
 
+type PlaygroundFileId = "app" | "test" | "package"
+
+interface PlaygroundFileDefinition {
+    id: PlaygroundFileId
+    label: string
+    path: string
+    description: string
+    language: "javascript" | "json"
+    monacoUri: string
+    editable: boolean
+}
+
+interface ExplorerFileNode {
+    type: "file"
+    fileId: PlaygroundFileId
+    label: string
+    depth: number
+}
+
+interface ExplorerFolderNode {
+    type: "folder"
+    label: string
+    depth: number
+    children: ExplorerFileNode[]
+}
+
+type ExplorerNode = ExplorerFileNode | ExplorerFolderNode
+
+const PLAYGROUND_FILES: Record<PlaygroundFileId, PlaygroundFileDefinition> = {
+    app: {
+        id: "app",
+        label: "app.js",
+        path: "app.js",
+        description: "Express entry point",
+        language: "javascript",
+        monacoUri: "file:///app.js",
+        editable: true,
+    },
+    test: {
+        id: "test",
+        label: "app.test.js",
+        path: "__tests__/app.test.js",
+        description: "Test code with itdoc",
+        language: "javascript",
+        monacoUri: "file:///__tests__/app.test.js",
+        editable: true,
+    },
+    package: {
+        id: "package",
+        label: "package.json",
+        path: "package.json",
+        description: "Playground dependencies and scripts",
+        language: "json",
+        monacoUri: "file:///package.json",
+        editable: false,
+    },
+}
+
+const EXPLORER_NODES: ExplorerNode[] = [
+    { type: "file", fileId: "app", label: "app.js", depth: 0 },
+    { type: "file", fileId: "package", label: "package.json", depth: 0 },
+    {
+        type: "folder",
+        label: "__tests__",
+        depth: 0,
+        children: [{ type: "file", fileId: "test", label: "app.test.js", depth: 1 }],
+    },
+]
+
 function formatDuration(milliseconds: number): string {
     const bounded = Math.max(0, milliseconds)
     const totalSeconds = Math.floor(bounded / 1000)
@@ -217,11 +284,11 @@ function createPackageJson(): string {
     return JSON.stringify(packageJson, null, 4)
 }
 
-function createProjectFiles(code: string, tests: string): FileSystemTree {
+function createProjectFiles(code: string, tests: string, packageJson: string): FileSystemTree {
     return {
         "package.json": {
             file: {
-                contents: createPackageJson(),
+                contents: packageJson,
             },
         },
         "app.js": {
@@ -347,9 +414,12 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
     const [elapsedInstallMs, setElapsedInstallMs] = useState(0)
     const [showSwaggerPreview, setShowSwaggerPreview] = useState(false)
     const [showRunModal, setShowRunModal] = useState(false)
+    const [openFiles, setOpenFiles] = useState<PlaygroundFileId[]>(["app"])
+    const [activeFileId, setActiveFileId] = useState<PlaygroundFileId>("app")
 
     const initialCodeRef = useRef(initialExpressCode)
     const initialTestCodeRef = useRef(initialTestCode)
+    const packageJsonRef = useRef<string>(createPackageJson())
     const webcontainerRef = useRef<WebContainerInstance | null>(null)
     const runningProcessRef = useRef<WebContainerProcess | null>(null)
     const terminalHostRef = useRef<HTMLDivElement | null>(null)
@@ -358,10 +428,9 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
     const pendingTerminalChunksRef = useRef<string[]>([])
     const redocContainerRef = useRef<HTMLDivElement | null>(null)
     const redocScriptReadyRef = useRef<Promise<void> | null>(null)
+    const didAutofocusEditorRef = useRef(false)
 
     const textDecoder = useMemo(() => new TextDecoder(), [])
-    const codeMirrorExtensions = useMemo(() => [javascript({ typescript: false, jsx: false })], [])
-    const jsonCodeMirrorExtensions = useMemo(() => [javascript({ json: true })], [])
     const appendTerminalOutput = useCallback((chunk: string) => {
         if (terminalRef.current) {
             terminalRef.current.write(chunk)
@@ -381,6 +450,72 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                     /* no-op */
                 }
             }
+        }
+    }, [])
+
+    const activeFile = PLAYGROUND_FILES[activeFileId]
+    const activeFileValue = useMemo(() => {
+        switch (activeFileId) {
+            case "app":
+                return expressCode
+            case "test":
+                return testCode
+            case "package":
+            default:
+                return packageJsonRef.current
+        }
+    }, [activeFileId, expressCode, testCode])
+
+    const handleSelectFile = useCallback((fileId: PlaygroundFileId) => {
+        setActiveFileId(fileId)
+        setOpenFiles((files) => (files.includes(fileId) ? files : [...files, fileId]))
+    }, [])
+
+    const handleCloseTab = useCallback(
+        (fileId: PlaygroundFileId) => {
+            setOpenFiles((files) => {
+                if (files.length <= 1 || !files.includes(fileId)) {
+                    return files
+                }
+
+                const closingIndex = files.indexOf(fileId)
+                const nextFiles = files.filter((id) => id !== fileId)
+
+                if (fileId === activeFileId) {
+                    const fallbackIndex = closingIndex > 0 ? closingIndex - 1 : 0
+                    const fallbackFile = nextFiles[fallbackIndex] ?? nextFiles[0]
+                    if (fallbackFile) {
+                        setActiveFileId(fallbackFile)
+                    }
+                }
+
+                return nextFiles
+            })
+        },
+        [activeFileId],
+    )
+
+    const handleEditorChange = useCallback(
+        (value: string | undefined) => {
+            if (!activeFile || !activeFile.editable) {
+                return
+            }
+
+            const nextValue = value ?? ""
+
+            if (activeFile.id === "app") {
+                setExpressCode(nextValue)
+            } else if (activeFile.id === "test") {
+                setTestCode(nextValue)
+            }
+        },
+        [activeFile],
+    )
+
+    const handleEditorMount = useCallback<OnMount>((editor) => {
+        if (!didAutofocusEditorRef.current) {
+            editor.focus()
+            didAutofocusEditorRef.current = true
         }
     }, [])
 
@@ -529,7 +664,11 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                 webcontainerRef.current = instance
 
                 await instance.mount(
-                    createProjectFiles(initialCodeRef.current, initialTestCodeRef.current),
+                    createProjectFiles(
+                        initialCodeRef.current,
+                        initialTestCodeRef.current,
+                        packageJsonRef.current,
+                    ),
                 )
                 if (cancelled) {
                     return
@@ -862,15 +1001,20 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
 
     return (
         <div className={styles.appShell}>
-            <header className={styles.topBar}>
-                <div className={styles.brandGroup}>
-                    <span className={styles.brandMark} />
-                    <div className={styles.brandText}>
-                        <p className={styles.brandTitle}>itdoc playground</p>
-                        <p className={styles.brandSubtitle}>Express · Mocha · WebContainer</p>
-                    </div>
+            <header className={styles.commandBar}>
+                <div className={styles.commandContext}>
+                    <p className={styles.commandTitle}>itdoc playground</p>
+                    {activeFile ? (
+                        <div className={styles.commandMeta}>
+                            <span className={styles.commandMetaLabel}>Editing</span>
+                            <span className={styles.commandPath}>{activeFile.path}</span>
+                            <span className={styles.commandDescription}>
+                                {activeFile.description}
+                            </span>
+                        </div>
+                    ) : null}
                 </div>
-                <div className={styles.topActions}>
+                <div className={styles.commandActions}>
                     <span className={styles.statusChip} data-status={installStatus}>
                         {statusLabel}
                     </span>
@@ -899,101 +1043,191 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                     {errorMessage}
                 </div>
             ) : null}
-            <main className={styles.mainArea}>
-                <div className={styles.workspace}>
-                    {showWorkspace ? (
-                        <>
-                            <section className={`${styles.column} ${styles.codeColumn}`}>
-                                <div className={styles.columnHeader}>
-                                    <div className={styles.columnHeading}>
-                                        <span className={styles.columnTitle}>app.js</span>
-                                        <span className={styles.columnMeta}>
-                                            Express entry point
-                                        </span>
-                                    </div>
+            <main className={styles.workspaceMain}>
+                {showWorkspace ? (
+                    <div className={styles.workspaceInner}>
+                        <aside className={styles.explorer}>
+                            <div className={styles.explorerHeader}>Explorer</div>
+                            <nav aria-label="Playground files" className={styles.tree}>
+                                <div className={styles.treeRoot} aria-hidden="true">
+                                    /
                                 </div>
-                                <div className={styles.columnBody}>
-                                    <div className={styles.editorWrapper}>
-                                        <CodeMirror
-                                            value={expressCode}
-                                            height="100%"
-                                            extensions={codeMirrorExtensions}
-                                            theme={oneDark}
-                                            basicSetup={{
-                                                lineNumbers: true,
-                                                highlightActiveLine: true,
-                                                highlightActiveLineGutter: true,
-                                            }}
-                                            onChange={(value) => setExpressCode(value)}
-                                            className={styles.codeEditor}
-                                        />
-                                    </div>
-                                    <p className={styles.hint}>
-                                        Tip: Try sketching an Express-powered server API above
-                                        before writing test with itdoc.
-                                    </p>
-                                </div>
-                            </section>
-                            <section className={`${styles.column} ${styles.codeColumn}`}>
-                                <div className={styles.columnHeader}>
-                                    <div className={styles.columnHeading}>
-                                        <span className={styles.columnTitle}>
-                                            __tests__/app.test.js
-                                        </span>
-                                        <span className={styles.columnMeta}>
-                                            Mocha + itdoc suite
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className={styles.columnBody}>
-                                    <div className={styles.editorWrapper}>
-                                        <CodeMirror
-                                            value={testCode}
-                                            height="100%"
-                                            extensions={codeMirrorExtensions}
-                                            theme={oneDark}
-                                            basicSetup={{
-                                                lineNumbers: true,
-                                                highlightActiveLine: true,
-                                                highlightActiveLineGutter: true,
-                                            }}
-                                            onChange={(value) => setTestCode(value)}
-                                            className={styles.codeEditor}
-                                        />
-                                    </div>
-                                    <p className={styles.hint}>
-                                        Tip: Write an Itdoc DSL to test the implemented Express API
-                                        before running the tests.
-                                    </p>
-                                </div>
-                            </section>
-                        </>
-                    ) : (
-                        <div className={styles.workspacePlaceholder}>
-                            <p className={styles.placeholderTitle}>Booting your sandbox…</p>
-                            <p className={styles.placeholderCopy}>
-                                WebContainer is preparing the environment. Dependencies install
-                                automatically the first time the playground loads.
-                            </p>
-                            {waitingTip ? (
-                                <aside className={styles.tipCard}>
-                                    <div className={styles.tipHeader}>
-                                        <span className={styles.tipLabel}>While you wait</span>
+                                {EXPLORER_NODES.map((node) => {
+                                    if (node.type === "folder") {
+                                        return (
+                                            <div className={styles.treeFolder} key={node.label}>
+                                                <div className={styles.treeFolderLabel}>
+                                                    <span
+                                                        className={`${styles.treeIcon} ${styles.treeIconFolder}`}
+                                                        aria-hidden="true"
+                                                    />
+                                                    {node.label}
+                                                </div>
+                                                <div className={styles.treeChildren}>
+                                                    {node.children.map((child) => {
+                                                        const file = PLAYGROUND_FILES[child.fileId]
+                                                        const isActive =
+                                                            activeFileId === child.fileId
+                                                        const isOpen = openFiles.includes(
+                                                            child.fileId,
+                                                        )
+                                                        return (
+                                                            <button
+                                                                key={child.fileId}
+                                                                type="button"
+                                                                className={`${styles.treeItem} ${
+                                                                    isActive
+                                                                        ? styles.treeItemActive
+                                                                        : ""
+                                                                } ${isOpen ? styles.treeItemOpen : ""}`}
+                                                                onClick={() =>
+                                                                    handleSelectFile(child.fileId)
+                                                                }
+                                                                aria-current={
+                                                                    isActive ? true : undefined
+                                                                }
+                                                            >
+                                                                <span
+                                                                    className={`${styles.treeIcon} ${styles.treeIconFile}`}
+                                                                    aria-hidden="true"
+                                                                />
+                                                                <span className={styles.treeLabel}>
+                                                                    {file.label}
+                                                                </span>
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+
+                                    const file = PLAYGROUND_FILES[node.fileId]
+                                    const isActive = activeFileId === node.fileId
+                                    const isOpen = openFiles.includes(node.fileId)
+
+                                    return (
                                         <button
+                                            key={node.fileId}
                                             type="button"
-                                            className={styles.tipButton}
-                                            onClick={handleNextTip}
+                                            className={`${styles.treeItem} ${
+                                                isActive ? styles.treeItemActive : ""
+                                            } ${isOpen ? styles.treeItemOpen : ""}`}
+                                            onClick={() => handleSelectFile(node.fileId)}
+                                            aria-current={isActive ? true : undefined}
                                         >
-                                            Show another idea
+                                            <span
+                                                className={`${styles.treeIcon} ${styles.treeIconFile}`}
+                                                aria-hidden="true"
+                                            />
+                                            <span className={styles.treeLabel}>{file.label}</span>
                                         </button>
-                                    </div>
-                                    <p className={styles.tipTitle}>{waitingTip.title}</p>
-                                    <p className={styles.tipBody}>{waitingTip.body}</p>
-                                </aside>
-                            ) : null}
-                        </div>
-                    )}
-                </div>
+                                    )
+                                })}
+                            </nav>
+                        </aside>
+                        <section className={styles.editorPane}>
+                            <div className={styles.tabBar} role="tablist">
+                                {openFiles.map((fileId) => {
+                                    const file = PLAYGROUND_FILES[fileId]
+                                    const isActive = activeFileId === fileId
+                                    const tabId = `editor-tab-${file.id}`
+                                    const panelId = `editor-panel-${file.id}`
+                                    return (
+                                        <div
+                                            key={fileId}
+                                            className={`${styles.tabItem} ${
+                                                isActive ? styles.tabItemActive : ""
+                                            }`}
+                                            role="presentation"
+                                        >
+                                            <button
+                                                type="button"
+                                                className={styles.tabButton}
+                                                role="tab"
+                                                id={tabId}
+                                                aria-controls={isActive ? panelId : undefined}
+                                                aria-selected={isActive}
+                                                tabIndex={isActive ? 0 : -1}
+                                                onClick={() => handleSelectFile(fileId)}
+                                            >
+                                                {file.label}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.tabClose}
+                                                onClick={() => handleCloseTab(fileId)}
+                                                aria-label={`Close ${file.label}`}
+                                                disabled={openFiles.length <= 1}
+                                            >
+                                                x
+                                            </button>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            <div
+                                className={styles.editorSurface}
+                                role="tabpanel"
+                                id={activeFile ? `editor-panel-${activeFile.id}` : undefined}
+                                aria-labelledby={
+                                    activeFile ? `editor-tab-${activeFile.id}` : undefined
+                                }
+                                tabIndex={activeFile ? 0 : -1}
+                            >
+                                {activeFile ? (
+                                    <Editor
+                                        key={activeFile.id}
+                                        value={activeFileValue}
+                                        language={activeFile.language}
+                                        path={activeFile.monacoUri}
+                                        onMount={handleEditorMount}
+                                        onChange={handleEditorChange}
+                                        theme="vs-dark"
+                                        options={{
+                                            minimap: { enabled: false },
+                                            fontSize: 14,
+                                            scrollBeyondLastLine: false,
+                                            readOnly: !activeFile.editable,
+                                            automaticLayout: true,
+                                            tabSize: 4,
+                                        }}
+                                    />
+                                ) : null}
+                            </div>
+                            <div className={styles.editorFooter}>
+                                <p className={styles.hint}>
+                                    Tip: Keep the Express app and itdoc tests aligned before you run
+                                    the suite.
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                ) : (
+                    <div className={styles.workspacePlaceholder}>
+                        <p className={styles.placeholderTitle}>Booting your sandbox…</p>
+                        <p className={styles.placeholderCopy}>
+                            WebContainer is preparing the environment. Dependencies install
+                            automatically the first time the playground loads.
+                        </p>
+                        {waitingTip ? (
+                            <aside className={styles.tipCard}>
+                                <div className={styles.tipHeader}>
+                                    <span className={styles.tipLabel}>While you wait</span>
+                                    <button
+                                        type="button"
+                                        className={styles.tipButton}
+                                        onClick={handleNextTip}
+                                    >
+                                        Show another idea
+                                    </button>
+                                </div>
+                                <p className={styles.tipTitle}>{waitingTip.title}</p>
+                                <p className={styles.tipBody}>{waitingTip.body}</p>
+                            </aside>
+                        ) : null}
+                    </div>
+                )}
             </main>
             {showRunModal ? (
                 <div
@@ -1072,18 +1306,20 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                                                 <div className={styles.codeChrome}>oas.json</div>
                                                 <div className={styles.oasEditorSurface}>
                                                     {oasOutput ? (
-                                                        <CodeMirror
+                                                        <Editor
                                                             value={oasOutput}
+                                                            language="json"
+                                                            path="file:///output/oas.json"
+                                                            theme="vs-dark"
                                                             height="100%"
-                                                            extensions={jsonCodeMirrorExtensions}
-                                                            theme={oneDark}
-                                                            editable={false}
-                                                            basicSetup={{
-                                                                lineNumbers: true,
-                                                                highlightActiveLine: false,
-                                                                highlightActiveLineGutter: false,
+                                                            options={{
+                                                                readOnly: true,
+                                                                minimap: { enabled: false },
+                                                                lineNumbers: "on",
+                                                                scrollBeyondLastLine: false,
+                                                                automaticLayout: true,
+                                                                fontSize: 13,
                                                             }}
-                                                            className={styles.codeEditor}
                                                         />
                                                     ) : (
                                                         <p className={styles.oasEmpty}>
