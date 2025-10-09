@@ -17,7 +17,6 @@
 import type { ExplorerNode, PlaygroundFileMap } from "./types"
 
 export const ITDOC_TARBALL_ASSET = "/playground/itdoc.tgz"
-export const FALLBACK_ITDOC_VERSION = "^0.4.1"
 
 export const initialExpressCode = `const express = require("express")
 

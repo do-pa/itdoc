@@ -31,7 +31,6 @@ import TopBar from "./TopBar"
 import WorkspacePlaceholder from "./WorkspacePlaceholder"
 import {
     EXPLORER_NODES,
-    FALLBACK_ITDOC_VERSION,
     ITDOC_TARBALL_ASSET,
     PLAYGROUND_FILES,
     initialExpressCode,
@@ -196,24 +195,6 @@ async function provisionLocalItDocPackage(
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         log(`\nFailed to load local itdoc build (${message}). Falling back to npm registry...\n`)
-        return false
-    }
-}
-
-async function switchItDocDependencyToRegistry(
-    instance: WebContainerInstance,
-    log: (chunk: string) => void,
-): Promise<boolean> {
-    try {
-        const packageJsonRaw = await instance.fs.readFile("package.json", "utf-8")
-        const packageJson = JSON.parse(packageJsonRaw.toString())
-        packageJson.dependencies.itdoc = FALLBACK_ITDOC_VERSION
-        await instance.fs.writeFile("package.json", JSON.stringify(packageJson, null, 4))
-        log(`Updated package.json to use itdoc@${FALLBACK_ITDOC_VERSION} from npm registry.\n`)
-        return true
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error)
-        log(`\nUnable to reconfigure package.json for registry install (${message}).\n`)
         return false
     }
 }
@@ -492,24 +473,7 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                     return
                 }
 
-                const tarballReady = await provisionLocalItDocPackage(
-                    instance,
-                    itdocTarballUrl,
-                    appendTerminalOutput,
-                )
-                if (!tarballReady) {
-                    const switched = await switchItDocDependencyToRegistry(
-                        instance,
-                        appendTerminalOutput,
-                    )
-                    if (!switched) {
-                        setInstallStatus("error")
-                        setErrorMessage(
-                            "Failed to provision the itdoc dependency. Check the terminal output for details.",
-                        )
-                        return
-                    }
-                }
+                await provisionLocalItDocPackage(instance, itdocTarballUrl, appendTerminalOutput)
 
                 const installProcess = await instance.spawn("npm", ["install"])
                 runningProcessRef.current = installProcess
