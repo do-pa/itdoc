@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/do-pa/itdoc/compare/v0.4.2...v0.4.3) (2025-10-09)
+
+
+### 📚 Documentation
+
+* create itdoc playground pages on official documentation ([#254](https://github.com/do-pa/itdoc/issues/254)) ([a5f197b](https://github.com/do-pa/itdoc/commit/a5f197b5d95a651018060177f6db5a7c120784ad))
+
 ## [0.4.2](https://github.com/do-pa/itdoc/compare/v0.4.1...v0.4.2) (2025-10-06)
 
 
