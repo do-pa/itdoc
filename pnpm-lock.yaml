@@ -168,7 +168,7 @@ importers:
         version: link:../..
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@20.17.24)(supports-color@10.0.0)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@20.17.24)(typescript@5.7.3))
+        version: 29.7.0(@types/node@22.15.21)(supports-color@10.0.0)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@22.15.21)(typescript@5.7.3))
       jest-diff:
         specifier: ^29.7.0
         version: 29.7.0
@@ -200,9 +200,6 @@ importers:
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10
-      '@types/multer':
-        specifier: ^2.0.0
-        version: 2.0.0
       '@types/node':
         specifier: ^20.10.5
         version: 20.17.24
@@ -245,7 +242,7 @@ importers:
         version: link:../..
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@22.15.21)(supports-color@10.0.0)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@22.15.21)(typescript@5.7.3))
+        version: 29.7.0(@types/node@20.17.24)(supports-color@10.0.0)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@20.17.24)(typescript@5.7.3))
 
   examples/nestjs:
     dependencies:
@@ -3194,9 +3191,6 @@ packages:
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
-
-  '@types/multer@2.0.0':
-    resolution: {integrity: sha512-C3Z9v9Evij2yST3RSBktxP9STm6OdMc5uR1xF1SGr98uv8dUlAL2hqwrZ3GVB3uyMyiegnscEK6PGtYvNrjTjw==}
 
   '@types/node-fetch@2.6.12':
     resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
@@ -16054,10 +16048,6 @@ snapshots:
   '@types/mocha@10.0.10': {}
 
   '@types/ms@2.1.0': {}
-
-  '@types/multer@2.0.0':
-    dependencies:
-      '@types/express': 5.0.2
 
   '@types/node-fetch@2.6.12':
     dependencies:
