@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-import type {
-    ExplorerNode,
-    PlaygroundFileDefinition,
-    PlaygroundFileId,
-    PlaygroundFileMap,
-} from "./types"
+import type { ExplorerNode, PlaygroundFileMap } from "./types"
 
 export const ITDOC_TARBALL_ASSET = "/playground/itdoc.tgz"
 export const FALLBACK_ITDOC_VERSION = "^0.4.1"
@@ -165,7 +160,7 @@ const fileDefinitions: PlaygroundFileMap = {
         id: "test",
         label: "app.test.js",
         path: "__tests__/app.test.js",
-        description: "Mocha scenario powered by itdoc",
+        description: "Test code using itdoc",
         language: "javascript",
         monacoUri: "file:///__tests__/app.test.js",
         editable: true,
@@ -192,7 +187,3 @@ export const EXPLORER_NODES: ExplorerNode[] = [
         children: [{ type: "file", fileId: "test", label: "app.test.js" }],
     },
 ]
-
-export function resolveFileDefinition(fileId: PlaygroundFileId): PlaygroundFileDefinition {
-    return PLAYGROUND_FILES[fileId]
-}
