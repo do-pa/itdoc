@@ -18,3 +18,6 @@ export { HttpMethod } from "./enums/HttpMethod"
 export { HttpStatus } from "./enums/HttpStatus"
 export { describeAPI, itDoc, field } from "./interface"
 export type { ApiDocOptions } from "./interface/ItdocBuilderEntry"
+
+export { wrapTest, createClient } from "../wrappers"
+export type { ApiDocMetadata, WrappedTestFunction } from "../wrappers"

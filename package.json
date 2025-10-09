@@ -92,25 +92,28 @@
         "fast-glob": "^3.3.3",
         "lodash": "^4.17.21",
         "openai": "^4.90.0",
+        "sinon": "^20.0.0",
         "supertest": "^7.0.0",
-        "widdershins": "^4.0.1",
-        "sinon": "^20.0.0"
+        "widdershins": "^4.0.1"
     },
     "devDependencies": {
         "@eslint/js": "~9.17",
         "@types/chai": "^5.0.1",
         "@types/eslint__js": "~8.42",
+        "@types/lodash": "^4.17.20",
         "@types/mocha": "^10.0.10",
         "@types/node": "~20",
         "@types/sinon": "^17.0.2",
         "@types/supertest": "^6.0.2",
         "@typescript-eslint/parser": "~8.19",
+        "axios": "^1.12.2",
         "chai": "^5.2.0",
         "eslint": "~9.17",
         "eslint-config-prettier": "~9.1",
         "eslint-plugin-jsdoc": "^50.6.0",
         "eslint-plugin-license-header": "^0.8.0",
         "eslint-plugin-mocha": "^10.5.0",
+        "form-data": "^4.0.4",
         "globals": "~15.14",
         "husky": "^8.0.0",
         "lint-staged": "^15.4.3",
@@ -125,8 +128,18 @@
         "typescript-eslint": "~8.19"
     },
     "peerDependencies": {
+        "axios": "^1.0.0",
+        "form-data": "^4.0.0",
         "jest": "^29.0.0",
         "mocha": "^11.0.0"
+    },
+    "peerDependenciesMeta": {
+        "axios": {
+            "optional": true
+        },
+        "form-data": {
+            "optional": true
+        }
     },
     "packageManager": "pnpm@10.15.0",
     "engines": {

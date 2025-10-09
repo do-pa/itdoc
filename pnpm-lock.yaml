@@ -69,6 +69,9 @@ importers:
       '@types/eslint__js':
         specifier: ~8.42
         version: 8.42.3
+      '@types/lodash':
+        specifier: ^4.17.20
+        version: 4.17.20
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10
@@ -84,6 +87,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ~8.19
         version: 8.19.1(eslint@9.17.0(jiti@1.21.7)(supports-color@10.0.0))(supports-color@10.0.0)(typescript@5.7.3)
+      axios:
+        specifier: ^1.12.2
+        version: 1.12.2
       chai:
         specifier: ^5.2.0
         version: 5.2.0
@@ -102,6 +108,9 @@ importers:
       eslint-plugin-mocha:
         specifier: ^10.5.0
         version: 10.5.0(eslint@9.17.0(jiti@1.21.7)(supports-color@10.0.0))
+      form-data:
+        specifier: ^4.0.4
+        version: 4.0.4
       globals:
         specifier: ~15.14
         version: 15.14.0
@@ -162,7 +171,7 @@ importers:
         version: link:../..
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@20.17.24)(supports-color@10.0.0)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@20.17.24)(typescript@5.7.3))
+        version: 29.7.0(@types/node@22.15.21)(supports-color@10.0.0)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@22.15.21)(typescript@5.7.3))
       jest-diff:
         specifier: ^29.7.0
         version: 29.7.0
@@ -236,7 +245,7 @@ importers:
         version: link:../..
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@22.15.21)(supports-color@10.0.0)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@22.15.21)(typescript@5.7.3))
+        version: 29.7.0(@types/node@20.17.24)(supports-color@10.0.0)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@20.17.24)(typescript@5.7.3))
 
   examples/nestjs:
     dependencies:
@@ -3225,6 +3234,9 @@ packages:
   '@types/keyv@3.1.4':
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
 
+  '@types/lodash@4.17.20':
+    resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
+
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
 
@@ -4046,6 +4058,9 @@ packages:
 
   aws4@1.13.2:
     resolution: {integrity: sha512-lHe62zvbTB5eEABUVi/AwVh0ZKY9rMMDhmm+eeyuuUQbQ3+J+fONVQOZyj+DdrvD4BY33uYniyRJ4UJIaSKAfw==}
+
+  axios@1.12.2:
+    resolution: {integrity: sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==}
 
   b4a@1.6.7:
     resolution: {integrity: sha512-OnAYlL5b7LEkALw87fUVafQw5rVR9RjwGd4KUwNQ6DrrNmaVaUCgLipfVlzrPQ4tWOR9P0IXGNOx50jYCCdSJg==}
@@ -6203,10 +6218,6 @@ packages:
 
   form-data@4.0.0:
     resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
-    engines: {node: '>= 6'}
-
-  form-data@4.0.2:
-    resolution: {integrity: sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w==}
     engines: {node: '>= 6'}
 
   form-data@4.0.4:
@@ -9850,6 +9861,9 @@ packages:
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
+
+  proxy-from-env@1.1.0:
+    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
   pseudomap@1.0.2:
     resolution: {integrity: sha512-b/YwNhb8lk1Zz2+bXXpS/LK9OisiZZ1SNsSLxN1x2OXVEhW2Ckr/7mWE5vrC1ZTiJlD9g19jWszTmJsB+oEpFQ==}
@@ -15685,7 +15699,7 @@ snapshots:
       colorette: 1.4.0
       core-js: 3.41.0
       dotenv: 16.4.7
-      form-data: 4.0.2
+      form-data: 4.0.4
       get-port-please: 3.1.2
       glob: 7.2.3
       handlebars: 4.7.8
@@ -16211,6 +16225,8 @@ snapshots:
     dependencies:
       '@types/node': 20.17.24
 
+  '@types/lodash@4.17.20': {}
+
   '@types/mdast@4.0.4':
     dependencies:
       '@types/unist': 3.0.3
@@ -16228,7 +16244,7 @@ snapshots:
   '@types/node-fetch@2.6.12':
     dependencies:
       '@types/node': 20.17.24
-      form-data: 4.0.2
+      form-data: 4.0.4
 
   '@types/node-forge@1.3.11':
     dependencies:
@@ -16296,7 +16312,7 @@ snapshots:
 
   '@types/serve-index@1.9.4':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.2
 
   '@types/serve-static@1.15.7':
     dependencies:
@@ -16323,7 +16339,7 @@ snapshots:
       '@types/cookiejar': 2.1.5
       '@types/methods': 1.1.4
       '@types/node': 20.17.24
-      form-data: 4.0.2
+      form-data: 4.0.4
 
   '@types/supertest@6.0.2':
     dependencies:
@@ -17134,6 +17150,14 @@ snapshots:
   aws-sign2@0.7.0: {}
 
   aws4@1.13.2: {}
+
+  axios@1.12.2:
+    dependencies:
+      follow-redirects: 1.15.9
+      form-data: 4.0.4
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
 
   b4a@1.6.7: {}
 
@@ -17993,7 +18017,7 @@ snapshots:
 
   compressible@2.0.18:
     dependencies:
-      mime-db: 1.52.0
+      mime-db: 1.54.0
 
   compression@1.8.0(supports-color@10.0.0):
     dependencies:
@@ -19549,7 +19573,7 @@ snapshots:
 
   ext-list@2.2.2:
     dependencies:
-      mime-db: 1.52.0
+      mime-db: 1.54.0
 
   ext-name@5.0.0:
     dependencies:
@@ -20001,13 +20025,6 @@ snapshots:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
-      mime-types: 2.1.35
-
-  form-data@4.0.2:
-    dependencies:
-      asynckit: 0.4.0
-      combined-stream: 1.0.8
-      es-set-tostringtag: 2.1.0
       mime-types: 2.1.35
 
   form-data@4.0.4:
@@ -24711,6 +24728,8 @@ snapshots:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
 
+  proxy-from-env@1.1.0: {}
+
   pseudomap@1.0.2: {}
 
   psl@1.15.0:
@@ -26271,7 +26290,7 @@ snapshots:
       cookiejar: 2.1.4
       debug: 4.4.0(supports-color@10.0.0)
       fast-safe-stringify: 2.1.1
-      form-data: 4.0.2
+      form-data: 4.0.4
       formidable: 3.5.2
       methods: 1.1.2
       mime: 2.6.0
