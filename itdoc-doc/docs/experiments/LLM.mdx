@@ -188,10 +188,29 @@ Currently, source code-based automatic test generation is only supported for the
 ```bash
 itdoc generate -a {YOUR_APP_FILE_PATH}
 itdoc generate --app {YOUR_APP_FILE_PATH}
+
+# Generate tests in English(default : korean)
+itdoc generate -a {YOUR_APP_FILE_PATH} -l en
+itdoc generate --app {YOUR_APP_FILE_PATH} --lang en 
 ```
 
 | Option                                                                 | Description                    |
 |------------------------------------------------------------------------|--------------------------------|
 | <span style={{color: '#0d6efd', fontWeight: 'bold'}}>--app (-a)</span> | Root app source code file path |
+| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>--lang (-l)</span> | Output language: `en` for English, `ko` for Korean (default: `ko`) |
 
-When you run this command, it analyzes the Express application defined in `{YOUR_APP_FILE_PATH}` and automatically generates tests for the API endpoints in that application. 
+When you run this command, it analyzes the Express application defined in `{YOUR_APP_FILE_PATH}` and automatically generates tests for the API endpoints in that application.
+
+:::tip[Language Selection]
+- By default, test descriptions and comments are generated in **Korean** (`ko`).
+- Use the `--lang en` (or `-l en`) option to generate all test content in **English**.
+:::
+
+**Example:**
+```bash
+# Korean output (default)
+itdoc generate -a ./app.js
+
+# English output
+itdoc generate -a ./app.js --lang en
+``` 

@@ -1,15 +1,13 @@
 {
     // 파일 저장 시 자동 포맷팅
     "editor.formatOnSave": true,
-
     // TypeScript/JavaScript 파일에 대한 기본 포맷터로 Prettier 사용
     "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-
     // Markdown 및 MDX 파일에 대한 ESLint 및 Prettier 비활성화
     "[markdown]": {
         "editor.formatOnSave": false,
@@ -23,21 +21,17 @@
             "source.fixAll.eslint": "never"
         }
     },
-
     // ESLint 설정
     "eslint.enable": true,
     "eslint.validate": ["javascript", "typescript"],
-
     // 파일 저장 시 ESLint 자동 수정 (Markdown/MDX 제외)
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "explicit"
     },
-
     // Prettier 설정
     "prettier.requireConfig": true,
     "prettier.configPath": ".prettierrc",
     "prettier.disableLanguages": ["markdown", "mdx"],
-
     // TypeScript 설정
     "typescript.tsdk": "node_modules/typescript/lib"
 }
