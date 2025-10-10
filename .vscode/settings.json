@@ -3,7 +3,7 @@
     "editor.formatOnSave": true,
     // TypeScript/JavaScript 파일에 대한 기본 포맷터로 Prettier 사용
     "[typescript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
