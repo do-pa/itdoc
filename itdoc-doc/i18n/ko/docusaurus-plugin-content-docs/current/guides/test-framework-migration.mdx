@@ -1,0 +1,581 @@
+---
+sidebar_position: 4
+---
+
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
+# 테스트 프레임워크 마이그레이션 가이드
+
+> **이 가이드는 기존 Mocha 또는 Jest 테스트 케이스를 ITDoc 형식으로 마이그레이션하는 방법을 설명합니다.**
+
+## 왜 ITDoc으로 마이그레이션해야 하나요?
+
+ITDoc은 API 테스팅과 자동 문서 생성을 결합합니다. 기존 테스트 케이스를 마이그레이션하면:
+
+- **자동 OpenAPI 생성**: 테스트가 자동으로 OpenAPI 스펙, 마크다운 문서, HTML 문서를 생성합니다
+- **자체 문서화 테스트**: API 명세가 테스트 로직과 함께 존재하여 항상 동기화 상태를 유지합니다
+- **프레임워크 호환성**: 선호하는 테스트 러너(Mocha 또는 Jest)를 계속 사용할 수 있습니다
+- **향상된 API 가시성**: 태그, 설명, 예제가 포함된 구조화된 API 문서
+
+## 주요 차이점
+
+### 기존 테스트 프레임워크 vs ITDoc
+
+| 기능 | Mocha/Jest | ITDoc |
+|---------|------------|-------|
+| 테스트 그룹화 | `describe('API', ...)` | `describeAPI(HttpMethod.GET, '/path', {...}, app, ...)` |
+| 테스트 케이스 | `it('test name', ...)` | `itDoc('test name', ...)` |
+| API 메타데이터 | 주석 또는 외부 문서 | 구조화된 `summary`, `description`, `tags` |
+| 요청/응답 스펙 | 수동 검증 | `field()` 헬퍼를 사용한 빌더 패턴 |
+| 문서화 | 수동 또는 별도 도구 | 자동 생성된 OpenAPI, Markdown, HTML |
+
+## 마이그레이션 프로세스
+
+### 1단계: 구조 이해하기
+
+ITDoc은 표준 테스트 프레임워크 함수를 대체하는 두 가지 주요 함수를 사용합니다:
+
+1. **`describeAPI()`**: API 엔드포인트 테스트를 위해 `describe()`를 대체
+2. **`itDoc()`**: 개별 테스트 케이스를 위해 `it()`를 대체
+
+### 2단계: 마이그레이션할 API 테스트 식별
+
+모든 테스트를 마이그레이션할 필요는 없습니다. ITDoc은 **API 엔드포인트 테스팅**을 위해 설계되었습니다. 다음 테스트를 마이그레이션하는 것을 고려하세요:
+
+- ✅ REST API를 위한 통합 테스트
+- ✅ HTTP 엔드포인트를 위한 E2E 테스트
+- ✅ API 계약 테스트
+
+마이그레이션하지 말아야 할 테스트:
+
+- ❌ 순수 단위 테스트 (함수, 유틸리티, 서비스)
+- ❌ HTTP 요청이 없는 테스트
+- ❌ 내부 로직 테스트
+
+### 3단계: 테스트 구조 변환
+
+## Mocha에서 ITDoc으로 변환
+
+### 변환 전: 표준 Mocha 테스트
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+    ```js
+    const request = require('supertest');
+    const app = require('./app');
+    const { expect } = require('chai');
+
+    describe('User API', () => {
+      describe('POST /users', () => {
+        it('should create a new user', async () => {
+          const response = await request(app)
+            .post('/users')
+            .send({
+              username: 'johndoe',
+              email: 'john@example.com'
+            });
+
+          expect(response.status).to.equal(201);
+          expect(response.body).to.have.property('id');
+          expect(response.body).to.have.property('username', 'johndoe');
+        });
+
+        it('should return 400 when username is missing', async () => {
+          const response = await request(app)
+            .post('/users')
+            .send({
+              email: 'john@example.com'
+            });
+
+          expect(response.status).to.equal(400);
+          expect(response.body.error).to.equal('Username is required');
+        });
+      });
+    });
+    ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import request from 'supertest';
+    import app from './app';
+    import { expect } from 'chai';
+
+    describe('User API', () => {
+      describe('POST /users', () => {
+        it('should create a new user', async () => {
+          const response = await request(app)
+            .post('/users')
+            .send({
+              username: 'johndoe',
+              email: 'john@example.com'
+            });
+
+          expect(response.status).to.equal(201);
+          expect(response.body).to.have.property('id');
+          expect(response.body).to.have.property('username', 'johndoe');
+        });
+
+        it('should return 400 when username is missing', async () => {
+          const response = await request(app)
+            .post('/users')
+            .send({
+              email: 'john@example.com'
+            });
+
+          expect(response.status).to.equal(400);
+          expect(response.body.error).to.equal('Username is required');
+        });
+      });
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+### 변환 후: ITDoc 형식
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+    ```js
+    const app = require('./app');
+    const { describeAPI, itDoc, HttpMethod, HttpStatus, field } = require('itdoc');
+
+    describeAPI(
+      HttpMethod.POST,
+      '/users',
+      {
+        summary: '사용자 생성 API',
+        description: '사용자 이름과 이메일로 새 사용자를 생성합니다',
+        tag: 'Users'
+      },
+      app,
+      (apiDoc) => {
+        itDoc('should create a new user', () => {
+          return apiDoc
+            .test()
+            .req()
+            .body({
+              username: field('새 사용자의 사용자 이름', 'johndoe'),
+              email: field('사용자 이메일 주소', 'john@example.com')
+            })
+            .res()
+            .status(HttpStatus.CREATED)
+            .body({
+              id: field('고유 사용자 식별자', 1),
+              username: field('사용자 이름', 'johndoe'),
+              email: field('이메일 주소', 'john@example.com')
+            });
+        });
+
+        itDoc('should return 400 when username is missing', () => {
+          return apiDoc
+            .test()
+            .req()
+            .body({
+              email: field('사용자 이메일 주소', 'john@example.com')
+            })
+            .res()
+            .status(HttpStatus.BAD_REQUEST)
+            .body({
+              error: field('에러 메시지', 'Username is required')
+            });
+        });
+      }
+    );
+    ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import app from './app';
+    import { describeAPI, itDoc, HttpMethod, HttpStatus, field } from 'itdoc';
+
+    describeAPI(
+      HttpMethod.POST,
+      '/users',
+      {
+        summary: '사용자 생성 API',
+        description: '사용자 이름과 이메일로 새 사용자를 생성합니다',
+        tag: 'Users'
+      },
+      app,
+      (apiDoc) => {
+        itDoc('should create a new user', () => {
+          return apiDoc
+            .test()
+            .req()
+            .body({
+              username: field('새 사용자의 사용자 이름', 'johndoe'),
+              email: field('사용자 이메일 주소', 'john@example.com')
+            })
+            .res()
+            .status(HttpStatus.CREATED)
+            .body({
+              id: field('고유 사용자 식별자', 1),
+              username: field('사용자 이름', 'johndoe'),
+              email: field('이메일 주소', 'john@example.com')
+            });
+        });
+
+        itDoc('should return 400 when username is missing', () => {
+          return apiDoc
+            .test()
+            .req()
+            .body({
+              email: field('사용자 이메일 주소', 'john@example.com')
+            })
+            .res()
+            .status(HttpStatus.BAD_REQUEST)
+            .body({
+              error: field('에러 메시지', 'Username is required')
+            });
+        });
+      }
+    );
+    ```
+  </TabItem>
+</Tabs>
+
+## Jest에서 ITDoc으로 변환
+
+### 변환 전: 표준 Jest 테스트
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+    ```js
+    const request = require('supertest');
+    const app = require('./app');
+
+    describe('Product API', () => {
+      describe('GET /products/:id', () => {
+        it('should return product details', async () => {
+          const response = await request(app)
+            .get('/products/123')
+            .set('Authorization', 'Bearer token123');
+
+          expect(response.status).toBe(200);
+          expect(response.body.id).toBe(123);
+          expect(response.body.name).toBe('Test Product');
+          expect(response.body.price).toBe(99.99);
+        });
+
+        it('should return 404 for non-existent product', async () => {
+          const response = await request(app)
+            .get('/products/999')
+            .set('Authorization', 'Bearer token123');
+
+          expect(response.status).toBe(404);
+          expect(response.body.error).toBe('Product not found');
+        });
+      });
+    });
+    ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import request from 'supertest';
+    import app from './app';
+
+    describe('Product API', () => {
+      describe('GET /products/:id', () => {
+        it('should return product details', async () => {
+          const response = await request(app)
+            .get('/products/123')
+            .set('Authorization', 'Bearer token123');
+
+          expect(response.status).toBe(200);
+          expect(response.body.id).toBe(123);
+          expect(response.body.name).toBe('Test Product');
+          expect(response.body.price).toBe(99.99);
+        });
+
+        it('should return 404 for non-existent product', async () => {
+          const response = await request(app)
+            .get('/products/999')
+            .set('Authorization', 'Bearer token123');
+
+          expect(response.status).toBe(404);
+          expect(response.body.error).toBe('Product not found');
+        });
+      });
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+### 변환 후: ITDoc 형식
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+    ```js
+    const app = require('./app');
+    const { describeAPI, itDoc, HttpMethod, HttpStatus, field, header } = require('itdoc');
+
+    describeAPI(
+      HttpMethod.GET,
+      '/products/:id',
+      {
+        summary: '상품 상세 조회',
+        description: 'ID로 특정 상품의 상세 정보를 조회합니다',
+        tag: 'Products'
+      },
+      app,
+      (apiDoc) => {
+        itDoc('should return product details', () => {
+          return apiDoc
+            .test()
+            .req()
+            .headers({
+              Authorization: header('Bearer 인증 토큰', 'Bearer token123')
+            })
+            .params({
+              id: field('상품 ID', '123')
+            })
+            .res()
+            .status(HttpStatus.OK)
+            .body({
+              id: field('상품 ID', 123),
+              name: field('상품명', 'Test Product'),
+              price: field('상품 가격', 99.99)
+            });
+        });
+
+        itDoc('should return 404 for non-existent product', () => {
+          return apiDoc
+            .test()
+            .req()
+            .headers({
+              Authorization: header('Bearer 인증 토큰', 'Bearer token123')
+            })
+            .params({
+              id: field('상품 ID', '999')
+            })
+            .res()
+            .status(HttpStatus.NOT_FOUND)
+            .body({
+              error: field('에러 메시지', 'Product not found')
+            });
+        });
+      }
+    );
+    ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import app from './app';
+    import { describeAPI, itDoc, HttpMethod, HttpStatus, field, header } from 'itdoc';
+
+    describeAPI(
+      HttpMethod.GET,
+      '/products/:id',
+      {
+        summary: '상품 상세 조회',
+        description: 'ID로 특정 상품의 상세 정보를 조회합니다',
+        tag: 'Products'
+      },
+      app,
+      (apiDoc) => {
+        itDoc('should return product details', () => {
+          return apiDoc
+            .test()
+            .req()
+            .headers({
+              Authorization: header('Bearer 인증 토큰', 'Bearer token123')
+            })
+            .params({
+              id: field('상품 ID', '123')
+            })
+            .res()
+            .status(HttpStatus.OK)
+            .body({
+              id: field('상품 ID', 123),
+              name: field('상품명', 'Test Product'),
+              price: field('상품 가격', 99.99)
+            });
+        });
+
+        itDoc('should return 404 for non-existent product', () => {
+          return apiDoc
+            .test()
+            .req()
+            .headers({
+              Authorization: header('Bearer 인증 토큰', 'Bearer token123')
+            })
+            .params({
+              id: field('상품 ID', '999')
+            })
+            .res()
+            .status(HttpStatus.NOT_FOUND)
+            .body({
+              error: field('에러 메시지', 'Product not found')
+            });
+        });
+      }
+    );
+    ```
+  </TabItem>
+</Tabs>
+
+## 마이그레이션 체크리스트
+
+### 1. 테스트 함수 교체
+
+- [ ] `describe()`를 `describeAPI(method, url, options, app, callback)`로 교체
+- [ ] `it()`를 `itDoc(description, testFn)`로 교체
+- [ ] 수동 `supertest` import 제거 (ITDoc이 내부적으로 처리)
+
+### 2. API 메타데이터 추가
+
+- [ ] `summary` 추가 (필수): 간단한 API 이름
+- [ ] `description` 추가 (선택): 상세한 API 설명
+- [ ] `tag` 추가 (선택): API 그룹화를 위한 카테고리
+
+### 3. 요청 명세 변환
+
+- [ ] `.send()`를 `.req().body({})`로 교체
+- [ ] `.set()`을 `.req().headers({})`로 교체
+- [ ] `.query()`를 `.req().query({})`로 교체
+- [ ] `.req().params({})`로 URL 파라미터 추가
+
+### 4. 응답 검증 변환
+
+- [ ] `expect(response.status)`를 `.res().status(HttpStatus.XXX)`로 교체
+- [ ] body 검증을 `.res().body({})`로 교체
+- [ ] header 검증을 `.res().headers({})`로 교체
+
+### 5. Field 헬퍼 사용
+
+- [ ] 모든 요청/응답 필드를 `field(description, example)`로 감싸기
+- [ ] 헤더를 `header(description, example)`로 감싸기
+- [ ] `required` 플래그 설정: 선택적 필드는 `field(description, example, false)`
+
+## 일반적인 패턴
+
+### 선택적 필드
+
+```js
+// 세 번째 파라미터로 필드가 필수인지 제어 (기본값: true)
+field('선택적 설명', 'example', false)  // 선택적 필드
+field('필수 설명', 'example')           // 필수 필드 (기본값)
+field('필수 설명', 'example', true)     // 명시적으로 필수
+```
+
+### Nullable 필드
+
+```js
+// ITDoc은 null 값을 예제로 지원합니다
+field('Nullable 필드', null)         // 필수 nullable 필드
+field('선택적 nullable', null, false) // 선택적 nullable 필드
+```
+
+### 쿼리 파라미터
+
+```js
+itDoc('should filter by status', () => {
+  return apiDoc
+    .test()
+    .req()
+    .query({
+      status: field('상태로 필터링', 'active'),
+      page: field('페이지 번호', 1, false)  // 선택적 파라미터
+    })
+    .res()
+    .status(HttpStatus.OK)
+    .body({
+      items: field('필터링된 항목 목록', [])
+    });
+});
+```
+
+### 경로 파라미터
+
+```js
+describeAPI(
+  HttpMethod.GET,
+  '/users/:userId/posts/:postId',
+  { summary: '사용자 게시물 조회' },
+  app,
+  (apiDoc) => {
+    itDoc('should return specific post', () => {
+      return apiDoc
+        .test()
+        .req()
+        .params({
+          userId: field('사용자 ID', '123'),
+          postId: field('게시물 ID', '456')
+        })
+        .res()
+        .status(HttpStatus.OK)
+        .body({
+          post: field('게시물 내용', 'Hello World')
+        });
+    });
+  }
+);
+```
+
+### 인증 헤더
+
+```js
+import { header } from 'itdoc';
+
+itDoc('should require authentication', () => {
+  return apiDoc
+    .test()
+    .req()
+    .headers({
+      Authorization: header('Bearer 토큰', 'Bearer eyJhbGc...'),
+      'X-API-Key': header('API 키', 'api-key-12345', false)  // 선택적 헤더
+    })
+    .res()
+    .status(HttpStatus.OK);
+});
+```
+
+## 문제 해결
+
+### 문제: 테스트는 통과하지만 문서가 생성되지 않음
+
+**해결방법**: 테스트 러너 통합을 구성했는지 확인하세요. [테스트 러너와의 통합](integration-test-runner) 가이드를 참고하세요.
+
+### 문제: `Cannot find module 'itdoc'`
+
+**해결방법**: 프로젝트에 ITDoc을 설치하세요:
+```bash
+npm install itdoc --save-dev
+```
+
+### 문제: `app` 파라미터에서 TypeScript 타입 에러
+
+**해결방법**: Express app을 `any`로 캐스팅하거나 타입 단언을 사용하세요:
+```ts
+import { Application } from 'express';
+
+describeAPI(
+  HttpMethod.GET,
+  '/api',
+  { summary: 'API' },
+  app as Application,  // 타입 단언
+  (apiDoc) => { /* ... */ }
+);
+```
+
+### 문제: 전역 `describe` 또는 `it`가 정의되지 않음
+
+**해결방법**: 테스트 프레임워크(Mocha 또는 Jest)가 올바르게 구성되어 있고 테스트 파일이 테스트 러너를 통해 실행되고 있는지 확인하세요.
+
+## 다음 단계
+
+테스트 마이그레이션 후:
+
+1. **테스트 실행**하여 여전히 통과하는지 확인
+2. **생성된 문서 확인** (`output/` 디렉토리)
+3. **OpenAPI 스펙 검토** (`output/oas.json`)
+4. **HTML 문서 보기** (`output/redoc.html`)
+5. [설정 가이드](./configuration)를 사용하여 **출력 사용자 정의**
+
+## 추가 리소스
+
+- [API 레퍼런스](../api-reference/interface) - 완전한 ITDoc API 문서
+- [빠른 시작 가이드](./quick-start) - 기본 ITDoc 사용 예제
+- [프레임워크 가이드](./framework-guide) - NestJS, Fastify 등과 ITDoc 사용하기
+- [설정 가이드](./configuration) - 고급 설정 옵션
