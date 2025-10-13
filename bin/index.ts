@@ -57,7 +57,11 @@ program
     .description("Generate ITDOC test code based on LLM.")
     .option("-a, --app <appPath>", "Path to the Express root app file.")
     .option("-e, --env <envPath>", "Path to the .env file.")
-    .action(async (options: { env?: string; app?: string }) => {
+    .option(
+        "-l, --lang <language>",
+        "Output language for test generation: 'en' for English, 'ko' for Korean (default: 'ko')",
+    )
+    .action(async (options: { env?: string; app?: string; lang?: string }) => {
         const envPath = options.env
             ? path.isAbsolute(options.env)
                 ? options.env
@@ -74,13 +78,22 @@ program
             process.exit(1)
         }
 
+        const lang = options.lang?.toLowerCase()
+        const isEn = lang === "en"
+
+        if (lang && lang !== "en" && lang !== "ko") {
+            logger.error(`Invalid language option: ${lang}. Must be 'en' or 'ko'.`)
+            process.exit(1)
+        }
+
         logger.box("ITDOC LLM START")
         if (options.app) {
             const appPath = resolvePath(options.app)
 
             logger.info(`Running analysis based on Express app path: ${appPath}`)
+            logger.info(`Output language: ${isEn ? "English" : "Korean"}`)
             try {
-                await generateByLLM(appPath, envPath)
+                await generateByLLM(appPath, envPath, isEn)
             } catch (err) {
                 logger.error(`LLM generation failed: ${(err as Error).message}`)
                 process.exit(1)
