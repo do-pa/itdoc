@@ -46,8 +46,12 @@ function groupAndChunkSpecRoutes(routes: RouteResult[], chunkSize: number = 10):
     const by: Record<string, RouteResult[]> = {}
     for (const r of routes) {
         const prefix = getPathPrefix(r.path || "/unknown")
-        ;(by[prefix] ||= []).push(r)
+        if (!by[prefix]) {
+            by[prefix] = []
+        }
+        by[prefix].push(r)
     }
+
     const out: RouteResult[][] = []
     for (const group of Object.values(by)) {
         for (const c of _.chunk(group, chunkSize)) out.push(c)
@@ -126,9 +130,14 @@ export async function makeitdoc(
  * - Writes the resulting test file with prelude (imports/helpers).
  * @param {string} [appPath] - Path to Express app entry.
  * @param {string} [envPath] - Path to .env file containing OPENAI_API_KEY.
+ * @param {boolean} [isEn] - Output in English (true) or Korean (false). Defaults to false (Korean).
  * @returns {Promise<void>} Exits the process on unrecoverable errors.
  */
-export default async function generateByLLM(appPath?: string, envPath?: string): Promise<void> {
+export default async function generateByLLM(
+    appPath?: string,
+    envPath?: string,
+    isEn: boolean = false,
+): Promise<void> {
     const actualEnv = loadFile("env", envPath, false)
     dotenv.config({ path: actualEnv })
     if (!process.env.OPENAI_API_KEY) {
@@ -163,7 +172,7 @@ export default async function generateByLLM(appPath?: string, envPath?: string):
         process.exit(1)
     }
 
-    const doc = await makeitdoc(openai, analyzedRoutes, false, isTypeScript)
+    const doc = await makeitdoc(openai, analyzedRoutes, isEn, isTypeScript)
     if (!doc) {
         logger.error("Failed to generate itdoc from markdown spec.")
         process.exit(1)

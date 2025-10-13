@@ -116,7 +116,32 @@ export function getItdocPrompt(
     const codeMessage = `${codeType} ${lang.codeLabel}`
     const partGuide = part > 1 ? lang.chunksGuideNext : lang.chunksGuideFirst
 
-    return `
+    const promptTemplate = isEn
+        ? `
+Generate an itdoc test script in ${codeMessage} based on the following test description.
+
+Required Rules:
+- ${lang.noComments}
+- ${lang.codeOnly}
+- ${lang.orderGuide}
+- ${lang.branchGuide}
+- ${lang.branchGuide2}
+- ${lang.fieldGuide}
+- ${lang.fieldGuide2}
+- ${lang.headerGuide} 
+- ${lang.noPathImport}
+- ${lang.initGiven}
+- ${lang.etc}
+- ${partGuide}
+- ${lang.outputInstruction} 
+
+[Route Analysis Results to Test]
+${JSON.stringify(routesChunk, null, 2)}
+
+[Function Example]
+${itdocExample}
+`.trim()
+        : `
 다음 테스트 설명을 기반으로 itdoc 테스트 스크립트를 ${codeMessage}로 생성하세요.
 
 필수 규칙:
@@ -140,4 +165,6 @@ ${JSON.stringify(routesChunk, null, 2)}
 [함수 예시]
 ${itdocExample}
 `.trim()
+
+    return promptTemplate
 }

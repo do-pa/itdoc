@@ -190,15 +190,34 @@ LLM 기능을 사용하기 전과 후를 비교해보겠습니다.
 ```bash
 itdoc generate -a {YOUR_APP_FILE_PATH}
 itdoc generate --app {YOUR_APP_FILE_PATH}
+
+# 영어로 테스트 생성 (기본값: 한국어)
+itdoc generate -a {YOUR_APP_FILE_PATH} -l en
+itdoc generate --app {YOUR_APP_FILE_PATH} --lang en
 ```
 
 | 옵션                                                                     | 설명                  |
 |------------------------------------------------------------------------|---------------------|
 | <span style={{color: '#0d6efd', fontWeight: 'bold'}}>--app (-a)</span> | root app 소스코드 파일 경로 |
+| <span style={{color: '#0d6efd', fontWeight: 'bold'}}>--lang (-l)</span> | 출력 언어: `en`은 영어, `ko`는 한국어 (기본값: `ko`) |
 
 
 명령어를 실행하면 `{YOUR_APP_FILE_PATH}`에 정의된 Express 애플리케이션을 분석하여,
 해당 애플리케이션의 API 엔드포인트에 대한 테스트를 자동으로 생성합니다.
+
+:::tip[언어 선택]
+- 기본적으로 테스트 설명과 주석은 **한국어**(`ko`)로 생성됩니다.
+- `--lang en` (또는 `-l en`) 옵션을 사용하면 모든 테스트 내용이 **영어**로 생성됩니다. 
+:::
+
+**예시:**
+```bash
+# 한국어 출력 (기본값)
+itdoc generate -a ./app.js
+
+# 영어 출력
+itdoc generate -a ./app.js --lang en
+```
 
 :::info[itdoc은 소스코드를 외부 서버에 전송하지 않습니다]
 자체적인 AST 분석을 통해 `API Spec Markdown`을 만들고, 이를 ChatGPT에 전달하여 테스트 케이스를 생성합니다.
