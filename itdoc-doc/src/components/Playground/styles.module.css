@@ -1177,7 +1177,6 @@
 
 .previewModalBody {
     flex: 1;
-    padding: 0 clamp(2rem, 4vw, 2.5rem) clamp(2rem, 4vw, 2.5rem);
     background: white;
     color: var(--ifm-font-color-base, #0f172a);
     overflow: auto;
