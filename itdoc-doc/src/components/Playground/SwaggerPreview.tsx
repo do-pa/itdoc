@@ -22,7 +22,7 @@ interface SwaggerPreviewProps {
     isOpen: boolean
     titleId: string
     onClose: () => void
-    redocContainerRef: React.RefObject<HTMLDivElement | null>
+    previewHtml: string | null
     hasDocument: boolean
 }
 
@@ -30,7 +30,7 @@ const SwaggerPreview: React.FC<SwaggerPreviewProps> = ({
     isOpen,
     titleId,
     onClose,
-    redocContainerRef,
+    previewHtml,
     hasDocument,
 }) => {
     if (!isOpen) {
@@ -54,7 +54,19 @@ const SwaggerPreview: React.FC<SwaggerPreviewProps> = ({
                 </header>
                 <div className={styles.previewModalBody}>
                     {hasDocument ? (
-                        <div className={styles.previewModalCanvas} ref={redocContainerRef} />
+                        previewHtml ? (
+                            <iframe
+                                title="Swagger Preview"
+                                className={styles.previewModalFrame}
+                                srcDoc={previewHtml}
+                                sandbox="allow-scripts allow-same-origin"
+                            />
+                        ) : (
+                            <p className={styles.previewModalEmpty}>
+                                Unable to render the Redoc preview. Re-run the tests and try
+                                again.
+                            </p>
+                        )
                     ) : (
                         <p className={styles.previewModalEmpty}>
                             Run the tests to generate the OpenAPI document before opening the

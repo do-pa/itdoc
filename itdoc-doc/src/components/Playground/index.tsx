@@ -45,14 +45,6 @@ type FileSystemTree = import("@webcontainer/api").FileSystemTree
 type WebContainerInstance = import("@webcontainer/api").WebContainer
 type WebContainerProcess = import("@webcontainer/api").Process
 
-declare global {
-    interface Window {
-        Redoc?: {
-            init: (spec: unknown, options: Record<string, unknown>, element: HTMLElement) => void
-        }
-    }
-}
-
 const REDOC_CDN_URL = "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"
 const swaggerPreviewTitleId = "playground-swagger-preview-title"
 const runModalTitleId = "playground-run-modal-title"
@@ -143,6 +135,45 @@ function formatJson(value: string): string {
     }
 }
 
+function createRedocPreviewHtml(spec: unknown): string {
+    const serializedSpec = JSON.stringify(spec)
+        .replace(/</g, "\\u003c")
+        .replace(/-->/g, "--\\>")
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Swagger Preview</title>
+    <script src="${REDOC_CDN_URL}"></script>
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: #ffffff;
+        }
+
+        #redoc-container {
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="redoc-container"></div>
+    <script>
+        (function initRedoc() {
+            if (window.Redoc) {
+                window.Redoc.init(${serializedSpec}, { hideDownloadButton: true, scrollYOffset: 0 }, document.getElementById('redoc-container'));
+            } else {
+                setTimeout(initRedoc, 20);
+            }
+        })();
+    </script>
+</body>
+</html>`
+}
+
 const FILE_READ_RETRY_ATTEMPTS = 8
 const FILE_READ_RETRY_DELAY_MS = 250
 
@@ -213,6 +244,7 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
     const [elapsedInstallMs, setElapsedInstallMs] = useState(0)
     const [showSwaggerPreview, setShowSwaggerPreview] = useState(false)
     const [showRunModal, setShowRunModal] = useState(false)
+    const [redocPreviewHtml, setRedocPreviewHtml] = useState<string | null>(null)
     const [openFiles, setOpenFiles] = useState<PlaygroundFileId[]>(["app"])
     const [activeFileId, setActiveFileId] = useState<PlaygroundFileId>("app")
 
@@ -225,8 +257,6 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
     const terminalRef = useRef<Terminal | null>(null)
     const fitAddonRef = useRef<FitAddon | null>(null)
     const pendingTerminalChunksRef = useRef<string[]>([])
-    const redocContainerRef = useRef<HTMLDivElement | null>(null)
-    const redocScriptReadyRef = useRef<Promise<void> | null>(null)
     const didAutofocusEditorRef = useRef(false)
 
     const textDecoder = useMemo(() => new TextDecoder(), [])
@@ -316,32 +346,6 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
             editor.focus()
             didAutofocusEditorRef.current = true
         }
-    }, [])
-
-    const ensureRedocScript = useCallback((): Promise<void> => {
-        if (!ExecutionEnvironment.canUseDOM) {
-            return Promise.resolve()
-        }
-
-        if (window.Redoc) {
-            return Promise.resolve()
-        }
-
-        if (!redocScriptReadyRef.current) {
-            redocScriptReadyRef.current = new Promise<void>((resolve, reject) => {
-                const script = document.createElement("script")
-                script.src = REDOC_CDN_URL
-                script.async = true
-                script.onload = () => resolve()
-                script.onerror = () => {
-                    redocScriptReadyRef.current = null
-                    reject(new Error("Failed to load Redoc preview."))
-                }
-                document.body.appendChild(script)
-            })
-        }
-
-        return redocScriptReadyRef.current
     }, [])
 
     const pipeProcessOutput = useCallback(
@@ -529,61 +533,21 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
     }, [appendTerminalOutput, canUseDom, itdocTarballUrl, pipeProcessOutput, resetTerminal])
 
     useEffect(() => {
-        if (!canUseDom) {
+        if (!oasOutput) {
+            setRedocPreviewHtml(null)
             return
         }
 
-        if (!oasOutput || (!showSwaggerPreview && !showRunModal)) {
-            if (redocContainerRef.current) {
-                redocContainerRef.current.innerHTML = ""
-            }
-            return
-        }
-
-        let cancelled = false
-
-        const renderPreview = async () => {
-            let parsedSpec: unknown
-            try {
-                parsedSpec = JSON.parse(oasOutput)
-            } catch (error) {
-                setErrorMessage(
-                    "OpenAPI document is not valid JSON. Check the generated output before previewing.",
-                )
-                return
-            }
-
-            try {
-                await ensureRedocScript()
-            } catch (error) {
-                if (!cancelled) {
-                    const message =
-                        error instanceof Error
-                            ? error.message
-                            : "Failed to load the Redoc preview resources."
-                    setErrorMessage(message)
-                }
-                return
-            }
-
-            if (cancelled || !redocContainerRef.current || !window.Redoc) {
-                return
-            }
-
-            redocContainerRef.current.innerHTML = ""
-            window.Redoc.init(
-                parsedSpec,
-                { hideDownloadButton: true, scrollYOffset: 0 },
-                redocContainerRef.current,
+        try {
+            const parsedSpec = JSON.parse(oasOutput)
+            setRedocPreviewHtml(createRedocPreviewHtml(parsedSpec))
+        } catch (error) {
+            setRedocPreviewHtml(null)
+            setErrorMessage(
+                "OpenAPI document is not valid JSON. Check the generated output before previewing.",
             )
         }
-
-        renderPreview()
-
-        return () => {
-            cancelled = true
-        }
-    }, [canUseDom, ensureRedocScript, oasOutput, showRunModal, showSwaggerPreview])
+    }, [oasOutput])
 
     useEffect(() => {
         if (!canUseDom || installStatus !== "installing" || installMilestones.length === 0) {
@@ -843,7 +807,7 @@ const Playground: React.FC<PlaygroundProps> = ({ onRequestHelp }) => {
                 isOpen={showSwaggerPreview}
                 titleId={swaggerPreviewTitleId}
                 onClose={() => setShowSwaggerPreview(false)}
-                redocContainerRef={redocContainerRef}
+                previewHtml={redocPreviewHtml}
                 hasDocument={Boolean(oasOutput)}
             />
             <InstallOverlay
