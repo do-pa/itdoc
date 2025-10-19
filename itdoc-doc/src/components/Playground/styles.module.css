@@ -627,6 +627,7 @@
     border: 1px solid rgba(15, 23, 42, 0.08);
     box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
     min-height: 0;
+    flex: 1;
 }
 
 .runModalCardHeader {
@@ -675,26 +676,28 @@
 }
 
 .oasWorkspace {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: var(--ifm-spacing-lg, 1.5rem);
-    grid-template-columns: minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
 }
 
 .oasEditorCard,
 .oasPreviewCard {
-    min-height: 320px;
+    min-height: clamp(240px, 45vh, 360px);
 }
 
 .oasEditorSurface {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: var(--ifm-spacing-md, 1rem);
+    padding: 0.75rem;
     background: #1e1e1e;
     border-radius: 0 0 0.75rem 0.75rem;
     gap: var(--ifm-spacing-md, 1rem);
     min-height: 0;
-    max-height: 420px;
+    max-height: min(100%, clamp(240px, 45vh, 420px));
     overflow: auto;
 }
 
@@ -711,17 +714,17 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: var(--ifm-spacing-md, 1rem);
+    padding: 0.75rem;
     background: rgba(15, 23, 42, 0.92);
     border-radius: 0 0 0.75rem 0.75rem;
     min-height: 0;
-    max-height: 420px;
+    max-height: min(100%, clamp(240px, 45vh, 420px));
     overflow: auto;
 }
 
 .oasPreviewCanvas {
     flex: 1;
-    min-height: 320px;
+    min-height: clamp(240px, 45vh, 360px);
 }
 
 .codeSurface {
@@ -731,7 +734,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    margin-bottom: 1rem;
+    flex: 1;
+    min-height: 0;
 }
 
 .codeChrome {
