@@ -22,26 +22,65 @@ import styles from "./playground.module.css"
 
 const instructionsTitleId = "playground-help-title"
 
+interface PlaygroundHelpModalProps {
+    onClose: () => void
+}
+
+const PlaygroundHelpModal: React.FC<PlaygroundHelpModalProps> = ({ onClose }) => (
+    <div className={styles.modalBackdrop} role="presentation" onClick={onClose}>
+        <div
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={instructionsTitleId}
+            onClick={(event) => event.stopPropagation()}
+        >
+            <div className={styles.modalHeader}>
+                <h2 id={instructionsTitleId}>How to use the playground</h2>
+                <button className={styles.closeButton} type="button" onClick={onClose}>
+                    Close
+                </button>
+            </div>
+            <div className={styles.modalBody}>
+                <section>
+                    <h3>Get started quickly</h3>
+                    <ol>
+                        <li>
+                            Let the installer finish booting the WebContainer. The status pill flips
+                            to <strong>Ready</strong> once the in-browser <code>npm install</code>{" "}
+                            wraps up.
+                        </li>
+                        <li>
+                            Write a simple API using Express and create an itdoc test for it. The
+                            default scenario wires up <code>/greeting</code> and <code>/users</code>{" "}
+                            endpoints.
+                        </li>
+                        <li>
+                            Hit <strong>Run</strong> to execute <code>npm test</code>. Watch the
+                            terminal for install logs, assertions, and any failures.
+                        </li>
+                        <li>
+                            Green tests regenerate the OpenAPI output in <code>oas.json</code>. Red
+                            output points to the exact assertion or handler that needs an update.
+                        </li>
+                    </ol>
+                </section>
+            </div>
+        </div>
+    </div>
+)
+
 const PlaygroundPage: React.FC = () => {
     const [showHelp, setShowHelp] = useState(false)
-
-    useEffect(() => {
-        if (!showHelp || typeof document === "undefined") {
-            return
-        }
-
-        const originalOverflow = document.body.style.overflow
-        document.body.style.overflow = "hidden"
-
-        return () => {
-            document.body.style.overflow = originalOverflow
-        }
-    }, [showHelp])
 
     useEffect(() => {
         if (!showHelp || typeof window === "undefined") {
             return
         }
+
+        const { body } = document
+        const originalOverflow = body.style.overflow
+        body.style.overflow = "hidden"
 
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
@@ -52,6 +91,7 @@ const PlaygroundPage: React.FC = () => {
         window.addEventListener("keydown", handleKeyDown)
 
         return () => {
+            body.style.overflow = originalOverflow
             window.removeEventListener("keydown", handleKeyDown)
         }
     }, [showHelp])
@@ -80,59 +120,7 @@ const PlaygroundPage: React.FC = () => {
                     </div>
                 </div>
             </main>
-            {showHelp ? (
-                <div
-                    className={styles.modalBackdrop}
-                    role="presentation"
-                    onClick={() => setShowHelp(false)}
-                >
-                    <div
-                        className={styles.modal}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby={instructionsTitleId}
-                        onClick={(event) => event.stopPropagation()}
-                    >
-                        <div className={styles.modalHeader}>
-                            <h2 id={instructionsTitleId}>How to use the playground</h2>
-                            <button
-                                className={styles.closeButton}
-                                type="button"
-                                onClick={() => setShowHelp(false)}
-                            >
-                                Close
-                            </button>
-                        </div>
-                        <div className={styles.modalBody}>
-                            <section>
-                                <h3>Get started quickly</h3>
-                                <ol>
-                                    <li>
-                                        Let the installer finish booting the WebContainer. The
-                                        status pill flips to <strong>Ready</strong>
-                                        once the in-browser <code>npm install</code> wraps up.
-                                    </li>
-                                    <li>
-                                        Write a simple API using Express and create an itdoc test
-                                        for it. The default scenario wires up <code>/greeting</code>{" "}
-                                        and <code>/users</code> endpoints.
-                                    </li>
-                                    <li>
-                                        Hit <strong>Run</strong> to execute <code>npm test</code>.
-                                        Watch the terminal for install logs, assertions, and any
-                                        failures.
-                                    </li>
-                                    <li>
-                                        Green tests regenerate the OpenAPI output in{" "}
-                                        <code>oas.json</code>. Red output points to the exact
-                                        assertion or handler that needs an update.
-                                    </li>
-                                </ol>
-                            </section>
-                        </div>
-                    </div>
-                </div>
-            ) : null}
+            {showHelp ? <PlaygroundHelpModal onClose={() => setShowHelp(false)} /> : null}
         </Layout>
     )
 }
