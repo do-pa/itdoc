@@ -31,6 +31,17 @@ Hate writing docs? Let your tests do it. Your API docs stay in sync—no surpris
 [Redoc-style]: https://redocly.github.io/redoc/
 [HTML output]: http://redocly.com/demo/openapi/museum-api/operations/getmuseumhours
 
+## Playground
+
+You can try itdoc right away in your browser — no need to install Node.js or set up a local project.
+Visit https://itdoc.kr/playground to experiment with itdoc and see how API documentation is
+automatically generated from your test code in real time.
+
+![playground_demo.gif](itdoc-doc/static/img/playground-demo.gif)
+
+> 💡 We recommend using a desktop browser for the best experience. The initial load may take up to 2
+> minutes on first access.
+
 ## Installation
 
 ```bash
