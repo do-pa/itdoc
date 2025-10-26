@@ -20,6 +20,7 @@ import { RequestBodyBuilderInterface } from "./interfaces"
 import { SchemaBuilder } from "../schema"
 import { UtilityBuilder } from "./UtilityBuilder"
 import { isDSLField } from "../../../interface/field"
+import logger from "../../../../config/logger"
 
 /**
  * Builder class responsible for creating OpenAPI RequestBody objects
@@ -33,28 +34,43 @@ export class RequestBodyBuilder implements RequestBodyBuilderInterface {
      * @returns Request body object or undefined
      */
     public generateRequestBody(result: TestResult): RequestBodyObject | undefined {
-        if (!result.request.body) {
-            return undefined
-        }
-
         const contentType = this.getContentType(result.request)
-        const schema = SchemaBuilder.inferSchema(result.request.body) as Record<string, any>
-        const content: Content = {
-            [contentType]: {
-                schema,
-            },
+
+        if (result.request.file) {
+            const content: Content = {
+                [contentType]: {
+                    schema: {
+                        type: "string",
+                        format: "binary",
+                    },
+                },
+            }
+
+            return {
+                content,
+                required: true,
+            }
         }
 
         if (result.request.body) {
+            const schema = SchemaBuilder.inferSchema(result.request.body) as Record<string, any>
+            const content: Content = {
+                [contentType]: {
+                    schema,
+                },
+            }
+
             content[contentType].example = this.utilityBuilder.extractSimpleExampleValue(
                 result.request.body,
             )
+
+            return {
+                content,
+                required: true,
+            }
         }
 
-        return {
-            content,
-            required: true,
-        }
+        return undefined
     }
 
     /**
@@ -72,6 +88,7 @@ export class RequestBodyBuilder implements RequestBodyBuilderInterface {
             }
         }
 
+        logger.warn("Content-Type header not found. Falling back to default 'application/json'.")
         return "application/json"
     }
 }

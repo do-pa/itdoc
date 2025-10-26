@@ -493,6 +493,7 @@ describeAPI(
         })
     },
 )
+
 describeAPI(
     HttpMethod.GET,
     "/failed-test",
@@ -511,6 +512,74 @@ describeAPI(
                 .status(HttpStatus.NOT_FOUND)
                 .body({
                     message: field("실패 메시지", "This endpoint is designed to make tests fail"),
+                })
+        })
+    },
+)
+
+describeAPI(
+    HttpMethod.POST,
+    "/uploads",
+    {
+        summary: "파일 업로드 API",
+        tag: "File",
+        description: "파일을 업로드합니다.",
+    },
+    targetApp,
+    (apiDoc) => {
+        const fileToUpload = "../expected/oas.json"
+
+        itDoc("파일 업로드 성공 (with filePath)", async () => {
+            await apiDoc
+                .test()
+                .req()
+                .file("업로드할 파일", {
+                    path: require("path").join(__dirname, fileToUpload),
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        })
+
+        itDoc("파일 업로드 성공 (with Stream)", async () => {
+            const fs = require("fs")
+            const filePath = require("path").join(__dirname, fileToUpload)
+
+            await apiDoc
+                .test()
+                .req()
+                .file("업로드할 파일", {
+                    stream: fs.createReadStream(filePath),
+                    filename: "example-stream.txt",
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        })
+
+        itDoc("파일 업로드 성공 (with Buffer)", async () => {
+            const fs = require("fs")
+            const filePath = require("path").join(__dirname, fileToUpload)
+
+            await apiDoc
+                .test()
+                .req()
+                .file("업로드할 파일", {
+                    buffer: fs.readFileSync(filePath),
+                    filename: "example-buffer.txt",
+                })
+                .res()
+                .status(HttpStatus.CREATED)
+        })
+
+        itDoc("업로드할 파일을 지정하지 않으면 400에러가 뜬다", async () => {
+            await apiDoc
+                .test()
+                .prettyPrint()
+                .req()
+                .file()
+                .res()
+                .status(HttpStatus.BAD_REQUEST)
+                .body({
+                    error: field("에러 메세지", "No file uploaded"),
                 })
         })
     },

@@ -16,7 +16,7 @@
 
 import { HttpStatus } from "../enums"
 import { DSLField } from "../interface"
-import { FIELD_TYPES } from "../interface/field"
+import { DSLRequestFile, FIELD_TYPES } from "../interface/field"
 import { ApiDocOptions } from "../interface"
 
 export type PATH_PARAM_TYPES = string | number
@@ -34,6 +34,7 @@ export interface TestCaseConfig {
     queryParams?: Record<string, DSLField<QUERY_PARAM_TYPES> | QUERY_PARAM_TYPES>
     requestBody?: Record<string, DSLField | FIELD_TYPES>
     requestHeaders?: Record<string, DSLField<string> | string>
+    requestFile?: DSLRequestFile
     expectedStatus?: HttpStatus | number
     expectedResponseBody?: Record<string, DSLField>
     expectedResponseHeaders?: Record<string, DSLField<string> | string>
