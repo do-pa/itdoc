@@ -40,7 +40,7 @@ automatically generated from your test code in real time.
 💡 We recommend using a desktop browser for the best experience. The initial load may take up to 2
 minutes on first access.
 
-![playground_demo.gif](itdoc-doc/static/img/playground.gif)
+![playground_demo.gif](itdoc-doc/static/img/playground-demo.gif)
 
 ## Installation
 
