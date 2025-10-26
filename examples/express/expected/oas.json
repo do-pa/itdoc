@@ -1299,6 +1299,70 @@
                     }
                 }
             }
+        },
+        "/uploads": {
+            "post": {
+                "summary": "파일 업로드 API",
+                "tags": ["File"],
+                "description": "파일을 업로드합니다.",
+                "operationId": "postUploads",
+                "parameters": [
+                    {
+                        "name": "content-type",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "example": "application/octet-stream"
+                        },
+                        "required": false
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/octet-stream": {
+                            "schema": {
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [{}],
+                "responses": {
+                    "201": {
+                        "description": "파일 업로드 성공 (with filePath)"
+                    },
+                    "400": {
+                        "description": "업로드할 파일을 지정하지 않으면 400에러가 뜬다",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No file uploaded",
+                                            "description": "에러 메세지"
+                                        }
+                                    },
+                                    "required": ["error"]
+                                },
+                                "examples": {
+                                    "업로드할 파일을 지정하지 않으면 400에러가 뜬다": {
+                                        "value": {
+                                            "error": {
+                                                "message": "업로드할 파일을 지정하지 않으면 400에러가 뜬다",
+                                                "code": "ERROR_400"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {

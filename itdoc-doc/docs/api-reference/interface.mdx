@@ -213,11 +213,25 @@ apiDoc
 ### req()
 
     Defines values used in API requests.
-  - `body(body: object)`: Set request body
-  - `header(headers: object)`: Set request headers
+  - `body(body: object)`: Set JSON request body
+  - `file(description: string, descriptor: { path?: string; buffer?: Buffer; stream?: Readable; filename?: string; contentType?: string })`: Send a single binary payload. Provide exactly one of `path`, `buffer`, or `stream`. Mutually exclusive with `body()`.
+  - `file(requestFile: DSLRequestFile)`: Advanced form for custom integrations (expects the same structure as the descriptor above).
+  - `header(headers: object)`: Set request headers (Content-Type is managed automatically for `.file()`).
   - `pathParam(params: object)`: Set path parameters
   - `queryParam(params: object)`: Set query parameters
-  - `expectStatus(status: HttpStatus)`: Set expected response status (**Required**)
+
+```ts
+apiDoc
+    .test()
+    .req()
+    .file("업로드할 파일", {
+        stream: fs.createReadStream(filePath),
+        filename: "sample.bin",
+        contentType: "application/octet-stream",
+    })
+    .res()
+    .status(HttpStatus.CREATED)
+```
 
 ### res()
 

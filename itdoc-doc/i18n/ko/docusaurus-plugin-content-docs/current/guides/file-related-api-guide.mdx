@@ -1,0 +1,79 @@
+---
+sidebar_position: 4
+---
+
+# 파일 관련 API 다루기
+
+> 이 가이드는 파일 업로드/다운로드와 같은 API를 테스트하는 방법을 설명합니다.
+
+## 단일 파일 업로드 (Binary Body)
+
+`itdoc`는 단일 바이너리 업로드를 `req().file()`를 통해 할 수 있습니다.
+이때, JSON 본문을 설정하는 `req().body()`와 동시에 사용할 수 없습니다.
+
+**지원 시그니처**
+
+- `req().file("설명", { path: string, filename?, contentType? })`
+- `req().file("설명", { buffer: Buffer, filename?, contentType? })`
+- `req().file("설명", { stream: Readable, filename?, contentType? })`
+
+`path` · `buffer` · `stream` 중 하나를 선택해 파일을 전달할 수 있습니다.
+`contentType` 기본값은 `application/octet-stream`입니다.
+
+```ts title="파일 경로 업로드"
+await apiDoc
+    .test()
+    .req()
+    .file("업로드할 파일", {
+        path: path.join(__dirname, "fixtures/sample.bin"),
+    })
+    .res()
+    .status(HttpStatus.CREATED)
+```
+
+```ts title="스트림 업로드"
+await apiDoc
+    .test()
+    .req()
+    .file("업로드할 파일", {
+        stream: fs.createReadStream(filePath),
+        filename: "sample.bin",
+        contentType: "application/pdf",
+    })
+    .res()
+    .status(HttpStatus.CREATED)
+```
+
+```ts title="버퍼 업로드"
+await apiDoc
+    .test()
+    .req()
+    .file("업로드할 파일", {
+        buffer: fs.readFileSync(filePath),
+        filename: "sample.bin",
+    })
+    .res()
+    .status(HttpStatus.CREATED)
+```
+
+:::tip
+`.file()`만 호출하고 소스를 생략하면 `Content-Type`만 설정된 채 빈 본문이 전송됩니다. 업로드 실패 케이스를 검증할 때 활용할 수 있습니다.
+
+```js
+itDoc("업로드할 파일을 지정하지 않으면 400에러가 뜬다", () => {
+    return apiDoc
+        .test()
+        .req()
+        .file()
+        .res()
+        .status(HttpStatus.BAD_REQUEST)
+        .body({
+            error: field("에러 메세지", "No file uploaded")
+        })
+}
+```
+:::
+
+## Multipart 파일 업로드
+
+> 아직 지원하지 않습니다.

@@ -523,7 +523,8 @@ export class OpenAPIGenerator implements IOpenAPIGenerator {
             operation.parameters = requestObj.parameters
         }
 
-        if (result.request?.body && requestObj.requestBody) {
+        const reqBody = requestObj.requestBody
+        if (reqBody) {
             operation.requestBody = requestObj.requestBody
         }
 

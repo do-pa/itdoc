@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-console */
-
 import { ConsolaReporter, createConsola, LogObject, consola as defaultConsola } from "consola"
 import chalk from "chalk"
 import { LoggerInterface } from "./LoggerInterface"
