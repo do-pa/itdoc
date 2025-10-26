@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0](https://github.com/do-pa/itdoc/compare/v0.4.2...v0.5.0) (2025-10-26)
+
+
+### 🌟 Features
+
+* LLM - Support for isEn Flag ([#264](https://github.com/do-pa/itdoc/issues/264)) ([60266db](https://github.com/do-pa/itdoc/commit/60266db4674ca839f6b2490064df0d9c108ad64e))
+* support file upload via application/octet-stream ([#248](https://github.com/do-pa/itdoc/issues/248)) ([d8cf4e3](https://github.com/do-pa/itdoc/commit/d8cf4e360a1a11bceb9499e0be73549e0c932ebd))
+
+
+### 📚 Documentation
+
+* apply vs-code-style design to playground docs ([#263](https://github.com/do-pa/itdoc/issues/263)) ([167ae9a](https://github.com/do-pa/itdoc/commit/167ae9aa164cc366c58256d2b966e1388dd21c68))
+* create itdoc playground pages on official documentation ([#254](https://github.com/do-pa/itdoc/issues/254)) ([a5f197b](https://github.com/do-pa/itdoc/commit/a5f197b5d95a651018060177f6db5a7c120784ad))
+
 ## [0.4.2](https://github.com/do-pa/itdoc/compare/v0.4.1...v0.4.2) (2025-10-06)
 
 
