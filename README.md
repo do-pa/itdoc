@@ -37,10 +37,10 @@ You can try itdoc right away in your browser — no need to install Node.js or s
 Visit https://itdoc.kr/playground to experiment with itdoc and see how API documentation is
 automatically generated from your test code in real time.
 
-💡 We recommend using a desktop browser for the best experience. The initial load may take up to 2
-minutes on first access.
-
 ![playground_demo.gif](itdoc-doc/static/img/playground-demo.gif)
+
+> 💡 We recommend using a desktop browser for the best experience. The initial load may take up to 2
+> minutes on first access.
 
 ## Installation
 
