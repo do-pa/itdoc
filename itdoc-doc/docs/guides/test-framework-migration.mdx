@@ -1,0 +1,581 @@
+---
+sidebar_position: 4
+---
+
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
+# Test Framework Migration Guide
+
+> **This guide explains how to migrate existing Mocha or Jest test cases to ITDoc format.**
+
+## Why Migrate to ITDoc?
+
+ITDoc combines API testing with automatic documentation generation. By migrating your existing test cases:
+
+- **Automated OpenAPI Generation**: Your tests automatically generate OpenAPI specs, markdown docs, and HTML documentation
+- **Self-Documenting Tests**: API specifications live alongside test logic, ensuring they stay in sync
+- **Framework Compatibility**: Continue using your preferred test runner (Mocha or Jest)
+- **Better API Visibility**: Structured API documentation with tags, descriptions, and examples
+
+## Key Differences
+
+### Traditional Test Frameworks vs ITDoc
+
+| Feature | Mocha/Jest | ITDoc |
+|---------|------------|-------|
+| Test grouping | `describe('API', ...)` | `describeAPI(HttpMethod.GET, '/path', {...}, app, ...)` |
+| Test case | `it('test name', ...)` | `itDoc('test name', ...)` |
+| API metadata | Comments or external docs | Structured `summary`, `description`, `tags` |
+| Request/Response specs | Manual assertions | Builder pattern with `field()` helpers |
+| Documentation | Manual or separate tools | Auto-generated OpenAPI, Markdown, HTML |
+
+## Migration Process
+
+### Step 1: Understand the Structure
+
+ITDoc uses two main functions that replace the standard test framework functions:
+
+1. **`describeAPI()`**: Replaces `describe()` for API endpoint testing
+2. **`itDoc()`**: Replaces `it()` for individual test cases
+
+### Step 2: Identify API Tests to Migrate
+
+Not all tests need migration. ITDoc is designed for **API endpoint testing**. Consider migrating:
+
+- ✅ Integration tests for REST APIs
+- ✅ E2E tests for HTTP endpoints
+- ✅ API contract tests
+
+Don't migrate:
+
+- ❌ Pure unit tests (functions, utilities, services)
+- ❌ Tests without HTTP requests
+- ❌ Internal logic tests
+
+### Step 3: Convert Test Structure
+
+## Mocha to ITDoc Conversion
+
+### Before: Standard Mocha Test
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+    ```js
+    const request = require('supertest');
+    const app = require('./app');
+    const { expect } = require('chai');
+
+    describe('User API', () => {
+      describe('POST /users', () => {
+        it('should create a new user', async () => {
+          const response = await request(app)
+            .post('/users')
+            .send({
+              username: 'johndoe',
+              email: 'john@example.com'
+            });
+
+          expect(response.status).to.equal(201);
+          expect(response.body).to.have.property('id');
+          expect(response.body).to.have.property('username', 'johndoe');
+        });
+
+        it('should return 400 when username is missing', async () => {
+          const response = await request(app)
+            .post('/users')
+            .send({
+              email: 'john@example.com'
+            });
+
+          expect(response.status).to.equal(400);
+          expect(response.body.error).to.equal('Username is required');
+        });
+      });
+    });
+    ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import request from 'supertest';
+    import app from './app';
+    import { expect } from 'chai';
+
+    describe('User API', () => {
+      describe('POST /users', () => {
+        it('should create a new user', async () => {
+          const response = await request(app)
+            .post('/users')
+            .send({
+              username: 'johndoe',
+              email: 'john@example.com'
+            });
+
+          expect(response.status).to.equal(201);
+          expect(response.body).to.have.property('id');
+          expect(response.body).to.have.property('username', 'johndoe');
+        });
+
+        it('should return 400 when username is missing', async () => {
+          const response = await request(app)
+            .post('/users')
+            .send({
+              email: 'john@example.com'
+            });
+
+          expect(response.status).to.equal(400);
+          expect(response.body.error).to.equal('Username is required');
+        });
+      });
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+### After: ITDoc Format
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+    ```js
+    const app = require('./app');
+    const { describeAPI, itDoc, HttpMethod, HttpStatus, field } = require('itdoc');
+
+    describeAPI(
+      HttpMethod.POST,
+      '/users',
+      {
+        summary: 'User Creation API',
+        description: 'Creates a new user with username and email',
+        tags: ['Users']
+      },
+      app,
+      (apiDoc) => {
+        itDoc('should create a new user', () => {
+          return apiDoc
+            .test()
+            .req()
+            .body({
+              username: field('Username for the new user', 'johndoe'),
+              email: field('User email address', 'john@example.com')
+            })
+            .res()
+            .status(HttpStatus.CREATED)
+            .body({
+              id: field('Unique user identifier', 1),
+              username: field('Username', 'johndoe'),
+              email: field('Email address', 'john@example.com')
+            });
+        });
+
+        itDoc('should return 400 when username is missing', () => {
+          return apiDoc
+            .test()
+            .req()
+            .body({
+              email: field('User email address', 'john@example.com')
+            })
+            .res()
+            .status(HttpStatus.BAD_REQUEST)
+            .body({
+              error: field('Error message', 'Username is required')
+            });
+        });
+      }
+    );
+    ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import app from './app';
+    import { describeAPI, itDoc, HttpMethod, HttpStatus, field } from 'itdoc';
+
+    describeAPI(
+      HttpMethod.POST,
+      '/users',
+      {
+        summary: 'User Creation API',
+        description: 'Creates a new user with username and email',
+        tags: ['Users']
+      },
+      app,
+      (apiDoc) => {
+        itDoc('should create a new user', () => {
+          return apiDoc
+            .test()
+            .req()
+            .body({
+              username: field('Username for the new user', 'johndoe'),
+              email: field('User email address', 'john@example.com')
+            })
+            .res()
+            .status(HttpStatus.CREATED)
+            .body({
+              id: field('Unique user identifier', 1),
+              username: field('Username', 'johndoe'),
+              email: field('Email address', 'john@example.com')
+            });
+        });
+
+        itDoc('should return 400 when username is missing', () => {
+          return apiDoc
+            .test()
+            .req()
+            .body({
+              email: field('User email address', 'john@example.com')
+            })
+            .res()
+            .status(HttpStatus.BAD_REQUEST)
+            .body({
+              error: field('Error message', 'Username is required')
+            });
+        });
+      }
+    );
+    ```
+  </TabItem>
+</Tabs>
+
+## Jest to ITDoc Conversion
+
+### Before: Standard Jest Test
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+    ```js
+    const request = require('supertest');
+    const app = require('./app');
+
+    describe('Product API', () => {
+      describe('GET /products/:id', () => {
+        it('should return product details', async () => {
+          const response = await request(app)
+            .get('/products/123')
+            .set('Authorization', 'Bearer token123');
+
+          expect(response.status).toBe(200);
+          expect(response.body.id).toBe(123);
+          expect(response.body.name).toBe('Test Product');
+          expect(response.body.price).toBe(99.99);
+        });
+
+        it('should return 404 for non-existent product', async () => {
+          const response = await request(app)
+            .get('/products/999')
+            .set('Authorization', 'Bearer token123');
+
+          expect(response.status).toBe(404);
+          expect(response.body.error).toBe('Product not found');
+        });
+      });
+    });
+    ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import request from 'supertest';
+    import app from './app';
+
+    describe('Product API', () => {
+      describe('GET /products/:id', () => {
+        it('should return product details', async () => {
+          const response = await request(app)
+            .get('/products/123')
+            .set('Authorization', 'Bearer token123');
+
+          expect(response.status).toBe(200);
+          expect(response.body.id).toBe(123);
+          expect(response.body.name).toBe('Test Product');
+          expect(response.body.price).toBe(99.99);
+        });
+
+        it('should return 404 for non-existent product', async () => {
+          const response = await request(app)
+            .get('/products/999')
+            .set('Authorization', 'Bearer token123');
+
+          expect(response.status).toBe(404);
+          expect(response.body.error).toBe('Product not found');
+        });
+      });
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+### After: ITDoc Format
+
+<Tabs>
+  <TabItem value="js" label="JavaScript" default>
+    ```js
+    const app = require('./app');
+    const { describeAPI, itDoc, HttpMethod, HttpStatus, field, header } = require('itdoc');
+
+    describeAPI(
+      HttpMethod.GET,
+      '/products/:id',
+      {
+        summary: 'Get Product Details',
+        description: 'Retrieves detailed information about a specific product by ID',
+        tags: ['Products']
+      },
+      app,
+      (apiDoc) => {
+        itDoc('should return product details', () => {
+          return apiDoc
+            .test()
+            .req()
+            .headers({
+              Authorization: header('Bearer authentication token', 'Bearer token123')
+            })
+            .params({
+              id: field('Product ID', '123')
+            })
+            .res()
+            .status(HttpStatus.OK)
+            .body({
+              id: field('Product ID', 123),
+              name: field('Product name', 'Test Product'),
+              price: field('Product price', 99.99)
+            });
+        });
+
+        itDoc('should return 404 for non-existent product', () => {
+          return apiDoc
+            .test()
+            .req()
+            .headers({
+              Authorization: header('Bearer authentication token', 'Bearer token123')
+            })
+            .params({
+              id: field('Product ID', '999')
+            })
+            .res()
+            .status(HttpStatus.NOT_FOUND)
+            .body({
+              error: field('Error message', 'Product not found')
+            });
+        });
+      }
+    );
+    ```
+  </TabItem>
+  <TabItem value="ts" label="TypeScript">
+    ```ts
+    import app from './app';
+    import { describeAPI, itDoc, HttpMethod, HttpStatus, field, header } from 'itdoc';
+
+    describeAPI(
+      HttpMethod.GET,
+      '/products/:id',
+      {
+        summary: 'Get Product Details',
+        description: 'Retrieves detailed information about a specific product by ID',
+        tags: ['Products']
+      },
+      app,
+      (apiDoc) => {
+        itDoc('should return product details', () => {
+          return apiDoc
+            .test()
+            .req()
+            .headers({
+              Authorization: header('Bearer authentication token', 'Bearer token123')
+            })
+            .params({
+              id: field('Product ID', '123')
+            })
+            .res()
+            .status(HttpStatus.OK)
+            .body({
+              id: field('Product ID', 123),
+              name: field('Product name', 'Test Product'),
+              price: field('Product price', 99.99)
+            });
+        });
+
+        itDoc('should return 404 for non-existent product', () => {
+          return apiDoc
+            .test()
+            .req()
+            .headers({
+              Authorization: header('Bearer authentication token', 'Bearer token123')
+            })
+            .params({
+              id: field('Product ID', '999')
+            })
+            .res()
+            .status(HttpStatus.NOT_FOUND)
+            .body({
+              error: field('Error message', 'Product not found')
+            });
+        });
+      }
+    );
+    ```
+  </TabItem>
+</Tabs>
+
+## Migration Checklist
+
+### 1. Replace Test Functions
+
+- [ ] Replace `describe()` with `describeAPI(method, url, options, app, callback)`
+- [ ] Replace `it()` with `itDoc(description, testFn)`
+- [ ] Remove manual `supertest` imports (ITDoc handles this internally)
+
+### 2. Add API Metadata
+
+- [ ] Add `summary` (required): Brief API name
+- [ ] Add `description` (optional): Detailed API explanation
+- [ ] Add `tags` (optional): Array of categories for grouping APIs
+
+### 3. Convert Request Specifications
+
+- [ ] Replace `.send()` with `.req().body({})`
+- [ ] Replace `.set()` with `.req().headers({})`
+- [ ] Replace `.query()` with `.req().query({})`
+- [ ] Add URL parameters with `.req().params({})`
+
+### 4. Convert Response Assertions
+
+- [ ] Replace `expect(response.status)` with `.res().status(HttpStatus.XXX)`
+- [ ] Replace body assertions with `.res().body({})`
+- [ ] Replace header assertions with `.res().headers({})`
+
+### 5. Use Field Helpers
+
+- [ ] Wrap all request/response fields with `field(description, example)`
+- [ ] Wrap headers with `header(description, example)`
+- [ ] Set `required` flag: `field(description, example, false)` for optional fields
+
+## Common Patterns
+
+### Optional Fields
+
+```js
+// Third parameter controls if field is required (default: true)
+field('Optional description', 'example', false)  // Optional field
+field('Required description', 'example')         // Required field (default)
+field('Required description', 'example', true)   // Explicitly required
+```
+
+### Nullable Fields
+
+```js
+// ITDoc supports null values as examples
+field('Nullable field', null)         // Required nullable field
+field('Optional nullable', null, false) // Optional nullable field
+```
+
+### Query Parameters
+
+```js
+itDoc('should filter by status', () => {
+  return apiDoc
+    .test()
+    .req()
+    .query({
+      status: field('Filter by status', 'active'),
+      page: field('Page number', 1, false)  // Optional parameter
+    })
+    .res()
+    .status(HttpStatus.OK)
+    .body({
+      items: field('List of filtered items', [])
+    });
+});
+```
+
+### Path Parameters
+
+```js
+describeAPI(
+  HttpMethod.GET,
+  '/users/:userId/posts/:postId',
+  { summary: 'Get User Post' },
+  app,
+  (apiDoc) => {
+    itDoc('should return specific post', () => {
+      return apiDoc
+        .test()
+        .req()
+        .params({
+          userId: field('User ID', '123'),
+          postId: field('Post ID', '456')
+        })
+        .res()
+        .status(HttpStatus.OK)
+        .body({
+          post: field('Post content', 'Hello World')
+        });
+    });
+  }
+);
+```
+
+### Authentication Headers
+
+```js
+import { header } from 'itdoc';
+
+itDoc('should require authentication', () => {
+  return apiDoc
+    .test()
+    .req()
+    .headers({
+      Authorization: header('Bearer token', 'Bearer eyJhbGc...'),
+      'X-API-Key': header('API Key', 'api-key-12345', false)  // Optional header
+    })
+    .res()
+    .status(HttpStatus.OK);
+});
+```
+
+## Troubleshooting
+
+### Issue: Tests pass but documentation is not generated
+
+**Solution**: Ensure you have configured the test runner integration. See [Integration with Test Runner](integration-test-runner) guide.
+
+### Issue: `Cannot find module 'itdoc'`
+
+**Solution**: Install ITDoc in your project:
+```bash
+npm install itdoc --save-dev
+```
+
+### Issue: TypeScript type errors with `app` parameter
+
+**Solution**: Cast your Express app to `any` or use type assertion:
+```ts
+import { Application } from 'express';
+
+describeAPI(
+  HttpMethod.GET,
+  '/api',
+  { summary: 'API' },
+  app as Application,  // Type assertion
+  (apiDoc) => { /* ... */ }
+);
+```
+
+### Issue: Global `describe` or `it` is undefined
+
+**Solution**: Make sure your test framework (Mocha or Jest) is properly configured and the test file is being run through the test runner.
+
+## Next Steps
+
+After migrating your tests:
+
+1. **Run your tests** to verify they still pass
+2. **Check the generated documentation** in the `output/` directory
+3. **Review the OpenAPI spec** (`output/oas.json`)
+4. **View the HTML documentation** (`output/redoc.html`)
+5. **Customize the output** using [Configuration Guide](./configuration)
+
+## Additional Resources
+
+- [API Reference](../api-reference/interface) - Complete ITDoc API documentation
+- [Quick Start Guide](./quick-start) - Basic ITDoc usage examples
+- [Framework Guide](./framework-guide) - Using ITDoc with NestJS, Fastify, etc.
+- [Configuration Guide](./configuration) - Advanced configuration options
