@@ -22,13 +22,13 @@ ITDoc combines API testing with automatic documentation generation. By migrating
 
 ### Traditional Test Frameworks vs ITDoc
 
-| Feature | Mocha/Jest | ITDoc |
-|---------|------------|-------|
-| Test grouping | `describe('API', ...)` | `describeAPI(HttpMethod.GET, '/path', {...}, app, ...)` |
-| Test case | `it('test name', ...)` | `itDoc('test name', ...)` |
-| API metadata | Comments or external docs | Structured `summary`, `description`, `tags` |
-| Request/Response specs | Manual assertions | Builder pattern with `field()` helpers |
-| Documentation | Manual or separate tools | Auto-generated OpenAPI, Markdown, HTML |
+| Feature                | Mocha/Jest                | ITDoc                                                   |
+|------------------------|---------------------------|---------------------------------------------------------|
+| Test grouping          | `describe('API', ...)`    | `describeAPI(HttpMethod.GET, '/path', {...}, app, ...)` |
+| Test case              | `it('test name', ...)`    | `itDoc('test name', ...)`                               |
+| API metadata           | Comments or external docs | Structured `summary`, `description`, `tags`             |
+| Request/Response specs | Manual assertions         | Builder pattern with `field()` helpers                  |
+| Documentation          | Manual or separate tools  | Auto-generated OpenAPI, Markdown, HTML                  |
 
 ## Migration Process
 

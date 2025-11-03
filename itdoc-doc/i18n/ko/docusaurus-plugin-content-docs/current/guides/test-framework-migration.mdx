@@ -22,13 +22,13 @@ ITDoc은 API 테스팅과 자동 문서 생성을 결합합니다. 기존 테스
 
 ### 기존 테스트 프레임워크 vs ITDoc
 
-| 기능 | Mocha/Jest | ITDoc |
-|---------|------------|-------|
-| 테스트 그룹화 | `describe('API', ...)` | `describeAPI(HttpMethod.GET, '/path', {...}, app, ...)` |
-| 테스트 케이스 | `it('test name', ...)` | `itDoc('test name', ...)` |
-| API 메타데이터 | 주석 또는 외부 문서 | 구조화된 `summary`, `description`, `tags` |
-| 요청/응답 스펙 | 수동 검증 | `field()` 헬퍼를 사용한 빌더 패턴 |
-| 문서화 | 수동 또는 별도 도구 | 자동 생성된 OpenAPI, Markdown, HTML |
+| 기능        | Mocha/Jest             | ITDoc                                                   |
+|-----------|------------------------|---------------------------------------------------------|
+| 테스트 그룹화   | `describe('API', ...)` | `describeAPI(HttpMethod.GET, '/path', {...}, app, ...)` |
+| 테스트 케이스   | `it('test name', ...)` | `itDoc('test name', ...)`                               |
+| API 메타데이터 | 주석 또는 외부 문서            | 구조화된 `summary`, `description`, `tags`                   |
+| 요청/응답 스펙  | 수동 검증                  | `field()` 헬퍼를 사용한 빌더 패턴                                 |
+| 문서화       | 수동 또는 별도 도구            | 자동 생성된 OpenAPI, Markdown, HTML                          |
 
 ## 마이그레이션 프로세스
 
