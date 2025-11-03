@@ -11,18 +11,18 @@ import TabItem from "@theme/TabItem"
 
 ## Why Migrate to Itdoc?
 
-Itdoc combines API testing with automatic documentation generation. By migrating your existing test cases:
+Itdoc blends API testing with automatic documentation, so migrating your existing test cases gives you:
 
-- **Automated OpenAPI Generation**: Your tests automatically generate OpenAPI specs, markdown docs, and HTML documentation
-- **Self-Documenting Tests**: API specifications live alongside test logic, ensuring they stay in sync
-- **Framework Compatibility**: Continue using your preferred test runner (Mocha or Jest)
-- **Better API Visibility**: Structured API documentation with tags, descriptions, and examples
+- **Automated OpenAPI Generation**: Test runs output OpenAPI specs plus matching Markdown and HTML docs
+- **Self-Documenting Tests**: API metadata stays next to the assertions, keeping code and docs aligned
+- **Framework Compatibility**: Keep running Mocha or Jest while layering the Itdoc DSL on top
+- **Better API Visibility**: Structured tags, descriptions, and examples make your endpoints easier to explore
 
 ## Key Differences
 
 ### Traditional Test Frameworks vs Itdoc
 
-| Feature                | Mocha/Jest                | ITDoc                                                   |
+| Feature                | Mocha/Jest                | Itdoc                                                   |
 |------------------------|---------------------------|---------------------------------------------------------|
 | Test grouping          | `describe('API', ...)`    | `describeAPI(HttpMethod.GET, '/path', {...}, app, ...)` |
 | Test case              | `it('test name', ...)`    | `itDoc('test name', ...)`                               |
